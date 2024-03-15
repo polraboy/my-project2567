@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <!-- เพิ่ม Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* ปรับสี Navbar เป็นสีส้ม */
+        .navbar {
+            background-color: orange !important;
+        }
+
+        /* ปรับระยะของโลโก้และข้อความ */
+        .navbar-brand img {
+            margin-right: 5px;
+            margin-bottom: 5px;
+            /* เพิ่มระยะขอบล่าง */
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: baseline;
+            /* จัดตำแหน่งข้อความด้านล่าง */
+        }
+
+        .navbar-brand span {
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* ปรับสีพื้นหลัง footer เป็นสีน้ำเงิน */
+        .footer {
+            background-color: #007bff;
+            color: white;
+            padding: 20px 0;
+            text-align: left;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 24px;
+        }
+
+        .footer img {
+            max-width: 45%;
+            max-height: 45%;
+            margin-right: 20px;
+            /* ปรับค่าตามที่ต้องการ */
+        }
+
+
+        body {
+            background: linear-gradient(to right bottom, orange, white);
+            height: 100vh;
+            margin: 0;
+            /* เอา margin ออกเพื่อป้องกันการเว้นว่าง */
+        }
+
+
+        .login-button {
+            background-color: white;
+            color: #000000;
+            border-radius: 5px;
+            padding: 5px 10px;
+        }
+
+        .login-button:hover {
+            background-color: lightgray;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">
+            <img src="\static\image_2024-02-07_191338051.png" width="30" height="30" class="d-inline-block align-top"
+                alt="Your Logo">
+            <span>มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน<br>วิทยาเขต ขอนแก่น</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/">หน้าหลัก</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="#">เกี่ยวกับ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">โครงการ</a>
+                <li class="nav-item">
+                    <a class="nav-link login-button" href="/login">Login</a>
+                </li>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <!-- เนื้อหาหน้า login ใส่ตรงนี้ -->
+        <h2>Login</h2>
+        <form action="{{ url_for('login') }}" method="post">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" class="form-control" id="username" name="username" placeholder="Enter username">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Enter password">
+            </div>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container text-center">
+            © Faculty of Business Administration and Information Technology - RMUTI KKC<br>
+            150 ถ.ศรีจันทร์ ต.ในเมือง อ.เมือง จ.ขอนแก่น, Khon Kaen, Thailand, Khon Kaen<br>
+            เบอร์ติดต่อ 043-283-705 เปิดทำการ 8.00-16.00
+        </div>
+        <img src="\static\footer_image.jpg" alt="Footer Image">
+    </footer>
+
+    <!-- เพิ่ม Bootstrap JS และ jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>
