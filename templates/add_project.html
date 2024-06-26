@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Project</title>
+    <!-- เพิ่ม Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* ปรับสี Navbar เป็นสีส้ม */
+        .navbar {
+            background-color: orange !important;
+        }
+
+        /* ปรับสีพื้นหลัง body */
+        body {
+            background: linear-gradient(to right bottom, orange, white);
+            height: 100vh;
+            margin: 0;
+            padding-bottom: 100px; /* เพิ่ม padding ด้านล่างเพื่อป้องกันการซ้อนข้อมูลโดย Footer */
+        }
+
+        /* ปรับสีพื้นหลัง footer เป็นสีน้ำเงิน */
+        .footer {
+            background-color: #007bff;
+            color: white;
+            padding: 20px 0;
+            text-align: left;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 24px;
+        }
+
+        .footer img {
+            max-width: 30%;
+            max-height: 25%;
+            margin-right: 20px;
+        }
+
+        /* ปรับระยะของโลโก้และข้อความใน Navbar */
+        .navbar-brand img {
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .navbar-brand span {
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* ปรับระยะห่างของ content box */
+        .content-box {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            width: 70%;
+            margin: auto;
+            margin-top: 50px;
+            margin-bottom: 50px;
+        }
+
+        /* ปุ่ม "เพิ่มโครงการ" */
+        .add-project-button {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            margin-bottom: 20px; 
+            margin-right: 20px; 
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">
+            <img src="\static\image_2024-02-07_191338051.png" width="30" height="30"
+                class="d-inline-block align-top" alt="Your Logo">
+            <span>มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน<br>วิทยาเขต ขอนแก่น
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin_home') }}">หน้าหลัก</a>
+
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">เกี่ยวกับ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">โครงการ</a>
+                <li class="nav-item">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('add_project') }}">เพิ่มโครงการ</a>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('approve_project') }}">อนุมัติคำขอโครงการ</a>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('edit_basic_info') }}">ข้อมูลพื้นฐาน</a>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">{{ session['admin_name'] }}</a>
+                <!-- เพิ่มส่วนแสดงข้อมูลผู้ใช้ -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                </li>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <form method="POST" action="{{ url_for('add_project') }}">
+        <div class="form-group">
+            <label for="project_budgettype">ประเภทงบประมาณ:</label>
+            <input type="text" class="form-control" id="project_budgettype" name="project_budgettype" required placeholder="ประเภทงบประมาณ">
+        </div>
+        <div class="form-group">
+            <label for="project_year">ปี:</label>
+            <input type="int" class="form-control" id="project_year" name="project_year">
+        </div>
+        <div class="form-group">
+            <label for="project_name">ชื่อโครงการ:</label>
+            <input type="text" class="form-control" id="project_name" name="project_name" required placeholder="ชื่อโครงการ">
+        </div>
+        <div class="form-group">
+            <label for="project_style">รูปแบบโครงการ:</label>
+            <input type="text" class="form-control" id="project_style" name="project_style" required placeholder="รูปแบบโครงการ">
+        </div>
+        <div class="form-group">
+            <label for="project_address">ที่อยู่โครงการ:</label>
+            <input type="text" class="form-control" id="project_address" name="project_address" required placeholder="ที่อยู่โครงการ">
+        </div>
+        
+        <div class="form-group">
+            <label for="project_dotime">เวลาเริ่มโครงการ:</label>
+            <input type="date" class="form-control" id="project_dotime" name="project_dotime">
+        </div>
+        
+        <div class="form-group">
+            <label for="project_endtime">เวลาสิ้นสุดโครงการ:</label>
+            <input type="date" class="form-control" id="project_endtime" name="project_endtime">
+        </div>
+        
+        <div class="form-group">
+            <label for="project_target">เป้าหมายโครงการ:</label>
+            <input type="text" class="form-control" id="project_target" name="project_target" required placeholder="เป้าหมายโครงการ">
+        </div>
+        
+        <div class="form-group">
+            <label for="project_budget">งบประมาณโครงการ:</label>
+            <input type="text" class="form-control" id="project_budget" name="project_budget">
+        </div>
+        
+    
+        <label for="teacher_id">Teacher:</label><br>
+        <select name="teacher_id" id="teacher_id">
+            {% for teacher in teachers %}
+                <option value="{{ teacher[0] }}">{{ teacher[1] }}</option>
+            {% endfor %}
+        </select><br>
+        </div>
+        
+        
+        <!-- เพิ่มช่องกรอกอื่นๆ ตามต้องการ -->
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    
+    <!-- Footer -->
+    
+
+    <!-- เพิ่ม Bootstrap JS และ jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

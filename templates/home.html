@@ -74,6 +74,23 @@
         .login-button:hover {
             background-color: lightgray;
         }
+
+        .card {
+            height: 100%;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        .card-img-top {
+            height: 200px;
+            object-fit: cover;
+        }
+        .mb-4{
+    text-align: center;
+}
     </style>
 </head>
 
@@ -109,11 +126,26 @@
         </div>
     </nav>
 
-
-    <!-- เนื้อหาหน้า Home -->
     <div class="container mt-5">
-        <h2>Home</h2>
-        <p>Welcome to our website!</p>
+        <h2 class="mb-4">ข้อมูลข่าวสาร</h2>
+        <div class="row">
+            {% for constant in constants %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <img src="data:image/jpeg;base64,{{ constant[2] }}" class="card-img-top" alt="{{ constant[0] }}"
+                        style="height: 200px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ constant[0] }}</h5>
+                        <p class="card-text">{{ constant[1] }}</p>
+                    </div>
+                    <form method="post" action="/admin_home">
+                        <input type="hidden" name="delete_constant_id" value="{{ constant[0] }}">
+                        <button type="submit" class="btn btn-danger">ลบ</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
     </div>
 
     <!-- Footer -->

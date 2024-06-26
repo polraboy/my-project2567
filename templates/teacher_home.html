@@ -54,15 +54,12 @@
             /* ปรับค่าตามที่ต้องการ */
         }
 
-
-
         body {
             background: linear-gradient(to right bottom, orange, white);
             height: 100vh;
             margin: 0;
             /* เอา margin ออกเพื่อป้องกันการเว้นว่าง */
         }
-
 
         .login-button {
             background-color: white;
@@ -74,6 +71,32 @@
         .login-button:hover {
             background-color: lightgray;
         }
+
+        /* ปรับแต่งกริด */
+        .grid-container {
+            padding-top: 20px;
+        }
+
+        .grid-item {
+            margin-bottom: 20px;
+        }
+
+        .card {
+            height: 100%;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        .card-img-top {
+            height: 200px;
+            object-fit: cover;
+        }
+        .mb-4{
+    text-align: center;
+}
     </style>
 </head>
 
@@ -93,7 +116,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="/">หน้าหลัก</a>
+                    <a class="nav-link" href="teacher_home">หน้าหลัก</a>
                 </li>
 
                 <li class="nav-item">
@@ -102,10 +125,10 @@
                 <li class="nav-item">
                     <a class="nav-link" href="#">โครงการ</a>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">จัดการโครงการ</a>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">{{ session['teacher_name'] }}</a>
-                    <li class="nav-item">
+                    <a class="nav-link" href="teacher_projects">จัดการโครงการ</a>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">{{ session['teacher_name'] }}</a>
+                <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
                 </li>
                 </li>
@@ -114,11 +137,26 @@
         </div>
     </nav>
 
+    <br><br><br>
 
+    <div class="container mt-5">
+        <h2 class="mb-4">ข้อมูลข่าวสาร</h2>
+        <div class="row">
+            {% for constant in constants %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <img src="data:image/jpeg;base64,{{ constant[2] }}" class="card-img-top" alt="{{ constant[0] }}"
+                        style="height: 200px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ constant[0] }}</h5>
+                        <p class="card-text">{{ constant[1] }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
 
-    <h1>Welcome, Teacher {{ session['teacher_name'] }}!</h1>
-    <p>Your Teacher ID is: {{ session['teacher_id'] }}</p>
-    
 
 
     <!-- Footer -->

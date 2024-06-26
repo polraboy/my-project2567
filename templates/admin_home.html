@@ -54,15 +54,12 @@
             /* ปรับค่าตามที่ต้องการ */
         }
 
-
-
         body {
             background: linear-gradient(to right bottom, orange, white);
             height: 100vh;
             margin: 0;
             /* เอา margin ออกเพื่อป้องกันการเว้นว่าง */
         }
-
 
         .login-button {
             background-color: white;
@@ -74,17 +71,65 @@
         .login-button:hover {
             background-color: lightgray;
         }
+
+        /* ปรับแต่งกริด */
+        .grid-container {
+            padding-top: 20px;
+        }
+
+        .grid-item {
+            margin-bottom: 20px;
+        }
+
+        .card {
+            height: 100%;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        .card-img-top {
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .edit-mode-button {
+            position: fixed;
+            bottom: 400px;
+            /* ปรับตามความเหมาะสม ให้อยู่เหนือ footer */
+            right: 20px;
+            z-index: 1000;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .edit-mode-button:hover {
+            transform: scale(1.1);
+        }
+
+        .mb-4 {
+            text-align: center;
+        }
     </style>
 </head>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
 <body>
 
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand" href="#">
-            <img src="\static\image_2024-02-07_191338051.png" width="30" height="30" class="d-inline-block align-top"
+            <img src="/static/image_2024-02-07_191338051.png" width="30" height="30" class="d-inline-block align-top"
                 alt="Your Logo">
-            <span>มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน<br>วิทยาเขต ขอนแก่น
+            <span>มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน<br>วิทยาเขต ขอนแก่น</span>
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -93,52 +138,119 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="/">หน้าหลัก</a>
+                    <a class="nav-link" href="{{ url_for('admin_home') }}">หน้าหลัก</a>
                 </li>
-
                 <li class="nav-item">
                     <a class="nav-link" href="#">เกี่ยวกับ</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">โครงการ</a>
+                </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('add_project') }}">เพิ่มโครงการ</a>
+                </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">เพิ่มโครงการ</a>
+                    <a class="nav-link" href="{{ url_for('approve_project') }}">อนุมัติคำขอโครงการ</a>
+                </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">อนุมัติคำขอโครงการ</a>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">{{ session['admin_name'] }}</a>
-                    <!-- เพิ่มส่วนแสดงข้อมูลผู้ใช้ -->
+                    <a class="nav-link" href="{{ url_for('edit_basic_info') }}">ข้อมูลพื้นฐาน</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">{{ session['admin_name'] }}</a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-                </li>
-
-
                 </li>
             </ul>
         </div>
     </nav>
 
+    <!-- Content -->
+    <div class="container mt-5">
+        <!-- เพิ่มปุ่มเพื่อเปิด Modal -->
+        <button type="button" class="btn btn-primary edit-mode-button" data-toggle="modal"
+            data-target="#addConstantModal" title="Add Constant">
+            <i class="fas fa-plus"></i>
+        </button>
 
-    <!-- เนื้อหาหน้า Home -->
-    <h1>Welcome, Admin {{ session['admin_name'] }}!</h1>
-    <p>Your Admin ID is: {{ session['admin_id'] }}</p>
-    
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container text-center">
-            © Faculty of Business Administration and Information Technology - RMUTI KKC<br>
-            150 ถ.ศรีจันทร์ ต.ในเมือง อ.เมือง จ.ขอนแก่น, Khon Kaen, Thailand, Khon Kaen<br>
-            เบอร์ติดต่อ 043-283-705 เปิดทำการ 8.00-16.00
+        <!-- Modal -->
+        <div class="modal fade" id="addConstantModal" tabindex="-1" role="dialog"
+            aria-labelledby="addConstantModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form method="POST" action="{{ url_for('admin_home') }}" enctype="multipart/form-data">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addConstantModalLabel">Add Constant</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="constant_headname">Constant Headname</label>
+                                <input type="text" class="form-control" id="constant_headname" name="constant_headname"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label for="constant_detail">Constant Detail</label>
+                                <textarea class="form-control" id="constant_detail" name="constant_detail" rows="3"
+                                    required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="constant_image">Constant Image</label>
+                                <input type="file" class="form-control-file" id="constant_image" name="constant_image"
+                                    required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Add Constant</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-        <img src="\static\footer_image.jpg" alt="Footer Image">
-    </footer>
 
-    <!-- เพิ่ม Bootstrap JS และ jQuery -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <!-- แสดงข้อมูล Constants ที่มีอยู่ -->
+        <div class="container mt-5">
+            <h2 class="mb-4">ข้อมูลข่าวสาร</h2>
+            <div class="row">
+                {% for constant in constants %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <img src="data:image/jpeg;base64,{{ constant[2] }}" class="card-img-top" alt="{{ constant[0] }}"
+                            style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ constant[0] }}</h5>
+                            <p class="card-text">{{ constant[1] }}</p>
+                        </div>
+                        <form method="post" action="/admin_home">
+                            <input type="hidden" name="delete_constant_id" value="{{ constant[0] }}">
+                            <button type="submit" class="btn btn-danger">ลบ</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container text-center">
+                © Faculty of Business Administration and Information Technology - RMUTI KKC<br>
+                150 ถ.ศรีจันทร์ ต.ในเมือง อ.เมือง จ.ขอนแก่น, Khon Kaen, Thailand, Khon Kaen<br>
+                เบอร์ติดต่อ 043-283-705 เปิดทำการ 8.00-16.00
+            </div>
+            <img src="/static/footer_image.jpg" alt="Footer Image">
+        </footer>
+
+        <!-- เพิ่ม Bootstrap JS และ jQuery -->
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
 </body>
 
 </html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Project</title>
+    <!-- เพิ่ม Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* ปรับสี Navbar เป็นสีส้ม */
+        .navbar {
+            background-color: orange !important;
+        }
+
+        /* ปรับสีพื้นหลัง body */
+        body {
+            background: linear-gradient(to right bottom, orange, white);
+            height: 100vh;
+            margin: 0;
+            padding-bottom: 100px; /* เพิ่ม padding ด้านล่างเพื่อป้องกันการซ้อนข้อมูลโดย Footer */
+        }
+
+        /* ปรับสีพื้นหลัง footer เป็นสีน้ำเงิน */
+        .footer {
+            background-color: #007bff;
+            color: white;
+            padding: 20px 0;
+            text-align: left;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 24px;
+        }
+
+        .footer img {
+            max-width: 30%;
+            max-height: 25%;
+            margin-right: 20px;
+        }
+
+        /* ปรับระยะของโลโก้และข้อความใน Navbar */
+        .navbar-brand img {
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .navbar-brand span {
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* ปรับระยะห่างของ content box */
+        .content-box {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            width: 70%;
+            margin: auto;
+            margin-top: 50px;
+            margin-bottom: 50px;
+        }
+
+        /* ปุ่ม "เพิ่มโครงการ" */
+        .add-project-button {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            margin-bottom: 20px; 
+            margin-right: 20px; 
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">
+            <img src="\static\image_2024-02-07_191338051.png" width="30" height="30"
+                class="d-inline-block align-top" alt="Your Logo">
+            <span>มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน<br>วิทยาเขต ขอนแก่น
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin_home') }}">หน้าหลัก</a>
+
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">เกี่ยวกับ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">โครงการ</a>
+                <li class="nav-item">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('add_projeect') }}">เพิ่มโครงการ</a>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('approve_project') }}">อนุมัติคำขอโครงการ</a>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('edit_basic_info') }}">ข้อมูลพื้นฐาน</a>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">{{ session['admin_name'] }}</a>
+                <!-- เพิ่มส่วนแสดงข้อมูลผู้ใช้ -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                </li>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="content-box">
+        <form action="" method="POST">
+            
+            <div class="form-group">
+                <label for="teacher_name">ชื่อ-สกุล:</label>
+                <input type="text" class="form-control" id="teacher_name" name="teacher_name" value="{{ teacher[1] }}">
+                <!-- แสดงชื่อ-สกุลอาจารย์ -->
+            </div>
+            <div class="form-group">
+                <label for="teacher_username">Username:</label>
+                <input type="text" class="form-control" id="teacher_username" name="teacher_username" value="{{ teacher[2] }}">
+                <!-- แสดง Username ของอาจารย์ -->
+            </div>
+            <div class="form-group">
+                <label for="teacher_password">Password:</label>
+                <input type="password" class="form-control" id="teacher_password" name="teacher_password" value="{{ teacher[3] }}">
+                <!-- แสดง Password ของอาจารย์ -->
+            </div>
+            <div class="form-group">
+                <label for="teacher_phone">เบอร์โทร:</label>
+                <input type="text" class="form-control" id="teacher_phone" name="teacher_phone" value="{{ teacher[4] }}">
+                <!-- แสดงเบอร์โทรศัพท์ของอาจารย์ -->
+            </div>
+            <div class="form-group">
+                <label for="teacher_email">อีเมลล์:</label>
+                <input type="email" class="form-control" id="teacher_email" name="teacher_email" value="{{ teacher[5] }}">
+                <!-- แสดงอีเมลล์ของอาจารย์ -->
+            </div>
+            
+            <button type="submit" class="btn btn-primary">บันทึก</button>
+        </form>
+    </div>
+        <!-- เพิ่มช่องกรอกอื่นๆ ตามต้องการ -->
+
+    </form>
+    
+    <!-- Footer -->
+    
+
+    <!-- เพิ่ม Bootstrap JS และ jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

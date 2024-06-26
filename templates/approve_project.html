@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Approve Projects</title>
+    <!-- เพิ่ม Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .navbar {
+            background-color: orange !important;
+        }
+
+        .navbar-brand img {
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: baseline;
+        }
+
+        .navbar-brand span {
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .footer {
+            background-color: #007bff;
+            color: white;
+            padding: 20px 0;
+            text-align: left;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 24px;
+        }
+
+        .footer img {
+            max-width: 30%;
+            max-height: 25%;
+            margin-right: 20px;
+        }
+
+        body {
+            background: linear-gradient(to right bottom, orange, white);
+            height: 100vh;
+            margin: 0;
+        }
+
+        .content-box {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            width: 70%;
+            height: 50%;
+            margin: auto;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">
+            <img src="/static/image_2024-02-07_191338051.png" width="30" height="30" class="d-inline-block align-top" alt="Your Logo">
+            <span>มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน<br>วิทยาเขต ขอนแก่น
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="{{ url_for('admin_home') }}">หน้าหลัก</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">เกี่ยวกับ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">โครงการ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('add_project') }}">เพิ่มโครงการ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('approve_project') }}">อนุมัติคำขอโครงการ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('edit_basic_info') }}">ข้อมูลพื้นฐาน</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">{{ session['admin_name'] }}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="content-box">
+        <form id="approval-form" action="/projects" method="get">
+            <label for="approval">สถานะโครงการ:</label>
+            <select name="approval" id="approval">
+                <option value="approved">อนุมัติแล้ว</option>
+                <option value="pending">รออนุมัติ</option>
+                <option value="unapproved">ยังไม่ยื่นอนุมัติ</option> <!-- เพิ่ม option นี้ -->
+            </select>
+            
+        </form>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">ลำดับ</th>
+                    <th scope="col">ชื่อโครงการ</th>
+                    <th scope="col">สถานะโครงการ</th>
+                    <th scope="col">การดำเนินการ</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for project in projects %}
+                <tr class="{% if project[2] == 0 %}unapproved-projects{% endif %} {% if project[2] == 1 %}pending-projects{% endif %} {% if project[2] == 2 %}approved-projects{% endif %}">
+                    <td>{{ project[0] }}</td>
+                    <td>{{ project[1] }}</td>
+                    <td>
+                        {% if project[2] == 0 %}
+                            ยังไม่ยื่นอนุมัติ
+                        {% elif project[2] == 1 %}
+                            รออนุมัติ
+                        {% elif project[2] == 2 %}
+                            อนุมัติแล้ว
+                    
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if project[3] %}
+                            เปิดโครงการ
+                        {% else %}
+                            ปิดโครงการ
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if project[2] == 1 %}
+                        <form action="{{ url_for('approve_project') }}" method="post" style="display:inline;">
+                            <input type="hidden" name="project_id" value="{{ project[0] }}">
+                            <button type="submit" class="btn btn-success">อนุมัติ</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container text-center">
+            © Faculty of Business Administration and Information Technology - RMUTI KKC<br>
+            150 ถ.ศรีจันทร์ ต.ในเมือง อ.เมือง จ.ขอนแก่น, Khon Kaen, Thailand, Khon Kaen<br>
+            เบอร์ติดต่อ 043-283-705 เปิดทำการ 8.00-16.00
+        </div>
+        <img src="/static/footer_image.jpg" alt="Footer Image">
+    </footer>
+
+    <!-- เพิ่ม Bootstrap JS และ jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function filterProjects() {
+    var selectedValue = document.getElementById('approval').value;
+    var pendingProjects = document.querySelectorAll('.pending-projects');
+    var approvedProjects = document.querySelectorAll('.approved-projects');
+    var unapprovedProjects = document.querySelectorAll('.unapproved-projects');
+
+    if (selectedValue === 'pending') {
+        pendingProjects.forEach(function (project) {
+            project.style.display = 'table-row';
+        });
+        approvedProjects.forEach(function (project) {
+            project.style.display = 'none';
+        });
+        unapprovedProjects.forEach(function (project) {
+            project.style.display = 'none';
+        });
+    } else if (selectedValue === 'approved') {
+        pendingProjects.forEach(function (project) {
+            project.style.display = 'none';
+        });
+        approvedProjects.forEach(function (project) {
+            project.style.display = 'table-row';
+        });
+        unapprovedProjects.forEach(function (project) {
+            project.style.display = 'none';
+        });
+    } else if (selectedValue === 'unapproved') {
+        pendingProjects.forEach(function (project) {
+            project.style.display = 'none';
+        });
+        approvedProjects.forEach(function (project) {
+            project.style.display = 'none';
+        });
+        unapprovedProjects.forEach(function (project) {
+            project.style.display = 'table-row';
+        });
+    }
+}
+
+document.getElementById('approval').addEventListener('change', filterProjects);
+
+// เรียกใช้ฟังก์ชันเมื่อโหลดหน้าเว็บ
+filterProjects();
+
+
+        
+    </script>
+</body>
+
+</html>
