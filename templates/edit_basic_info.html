@@ -152,7 +152,7 @@
                     <th scope="col">อีเมลล์</th>
                     <th scope="col">สาขา</th>
                     <th scope="col"></th>
-                    <th scope="col">    </th>
+                    <th scope="col"> </th>
                     <!-- ปรับเปลี่ยน column ตามที่ต้องการ -->
                 </tr>
             </thead>
@@ -170,10 +170,19 @@
                         <button><a
                                 href="{{ url_for('edit_teacher', teacher_id=teacher[0]) }}">แก้ไขข้อมูลอาจารย์</a></button>
                     </td>
-                    <td><button>ลบ</button></td>
+
                 </tr>
+
                 {% endfor %}
+                
+               
+                    <button><a href="{{ url_for('add_teacher') }}">เพิ่มข้อมูลอาจารย์</a></button>
+               
+                <button><a href="{{ url_for('add_branch') }}">เพิ่มข้อมูลสาขา</a></button>
+               
+
             </tbody>
+
         </table>
         <!-- เพิ่มตารางข้อมูลสาขา -->
         <table class="table" id="branch-table" style="display:none;">
@@ -181,21 +190,21 @@
                 <tr>
                     <th scope="col">รหัสสาขา</th>
                     <th scope="col">ชื่อสาขา</th>
-                   
+
                     <!-- สามารถเพิ่มหรือปรับเปลี่ยน column ตามที่ต้องการ -->
                 </tr>
-                
+
             </thead>
             <tbody>
                 {% for branch in branches %}
                 <tr class="branch-row">
                     <td>{{ branch[0] }}</td>
                     <td>{{ branch[1] }}</td>
-                   
+
                     <!-- ข้อมูลสาขา -->
                 </tr>
                 {% endfor %}
-                
+
             </tbody>
         </table>
     </div>
@@ -213,28 +222,28 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-   <!-- เพิ่ม JavaScript code -->
-   <script>
-    function filterData() {
-        var selectedValue = document.getElementById('data_type').value;
-        var teacherTable = document.getElementById('teacher-table');
-        var branchTable = document.getElementById('branch-table');
+    <!-- เพิ่ม JavaScript code -->
+    <script>
+        function filterData() {
+            var selectedValue = document.getElementById('data_type').value;
+            var teacherTable = document.getElementById('teacher-table');
+            var branchTable = document.getElementById('branch-table');
 
-        if (selectedValue === 'teacher') {
-            teacherTable.style.display = 'table';
-            branchTable.style.display = 'none';
-        } else if (selectedValue === 'branch') {
-            teacherTable.style.display = 'none';
-            branchTable.style.display = 'table';
+            if (selectedValue === 'teacher') {
+                teacherTable.style.display = 'table';
+                branchTable.style.display = 'none';
+            } else if (selectedValue === 'branch') {
+                teacherTable.style.display = 'none';
+                branchTable.style.display = 'table';
+            }
         }
-    }
 
-    // เมื่อมีการเปลี่ยนค่าใน select
-    document.getElementById('data_type').addEventListener('change', filterData);
+        // เมื่อมีการเปลี่ยนค่าใน select
+        document.getElementById('data_type').addEventListener('change', filterData);
 
-    // เรียกใช้ฟังก์ชันเมื่อโหลดหน้าเว็บ
-    filterData();
-</script>
+        // เรียกใช้ฟังก์ชันเมื่อโหลดหน้าเว็บ
+        filterData();
+    </script>
 
 
 

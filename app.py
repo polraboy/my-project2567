@@ -260,7 +260,6 @@ def get_teacher_by_id(teacher_id):
 
 def update_teacher(
     teacher_id,
-    branch_id,
     teacher_name,
     teacher_username,
     teacher_password,
@@ -268,12 +267,11 @@ def update_teacher(
     teacher_email,
 ):
     with get_db_cursor() as (db, cursor):
-        query = """UPDATE teacher SET branch_id = %s, teacher_name = %s, teacher_username = %s, 
+        query = """UPDATE teacher SET teacher_name = %s, teacher_username = %s, 
                    teacher_password = %s, teacher_phone = %s, teacher_email = %s WHERE teacher_id = %s"""
         cursor.execute(
             query,
             (
-                branch_id,
                 teacher_name,
                 teacher_username,
                 teacher_password,
@@ -283,6 +281,7 @@ def update_teacher(
             ),
         )
         db.commit()
+
 
 
 @app.route("/edit_teacher/<int:teacher_id>", methods=["GET", "POST"])
@@ -309,9 +308,20 @@ def edit_teacher(teacher_id):
             teacher_email,
         )
 
-        return redirect(url_for("teacher_home"))
+        return redirect(url_for("edit_basic_info"))
 
 
+
+def delete_teacher(teacher_id):
+    with get_db_cursor() as (db, cursor):
+        query = "DELETE FROM teacher WHERE teacher_id = %s"
+        cursor.execute(query, (teacher_id,))
+        db.commit()
+
+@app.route("/delete_teacher/<int:teacher_id>", methods=["POST"])
+def delete_teacher_route(teacher_id):
+    delete_teacher(teacher_id)
+    return redirect(url_for("teacher_home"))
 def get_branches_from_database():
     branches = []
     with get_db_cursor() as (db, cursor):
