@@ -5,132 +5,154 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>โครงการที่อาจารย์ดูแล</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
     <style>
-        .navbar {
-            background-color: orange !important;
+        :root {
+            --primary-color: #FF8C00;
+            --secondary-color: #007bff;
+            --background-color: #f8f9fa;
         }
-        .navbar-brand img {
-            margin-right: 5px;
-            margin-bottom: 5px;
-        }
-        .navbar-brand {
-            display: flex;
-            align-items: baseline;
-        }
-        .navbar-brand span {
-            font-size: 0.9rem;
-            line-height: 1.5;
-        }
-        .footer {
-            background-color: #007bff;
-            color: white;
-            padding: 20px 0;
-            text-align: left;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 24px;
-        }
-        .footer img {
-            max-width: 30%;
-            max-height: 25%;
-            margin-right: 20px;
-        }
+        
         body {
-            background: linear-gradient(to right bottom, orange, white);
-            height: 100vh;
-            margin: 0;
+            background-color: var(--background-color);
+            font-family: 'Kanit', sans-serif;
+            padding-bottom: 100px;
         }
+
+        .navbar {
+            background-color: var(--primary-color) !important;
+        }
+
+        .navbar-brand img {
+            margin-right: 10px;
+        }
+
+        .navbar-brand span {
+            font-size: 1rem;
+            line-height: 1.2;
+            color: white;
+        }
+
+        .nav-link {
+            color: white !important;
+        }
+
         .content-box {
             background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            width: 70%;
-            height: 50%;
-            margin: auto;
-            margin-top: 50px;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            margin-top: 30px;
+            margin-bottom: 50px;
+        }
+
+        .table thead th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: darken(var(--secondary-color), 10%);
+            border-color: darken(var(--secondary-color), 10%);
+        }
+
+        .footer {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .footer img {
+            max-width: 100px;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <a class="navbar-brand" href="#">
-            <img src="/static/image_2024-02-07_191338051.png" width="30" height="30" class="d-inline-block align-top" alt="Your Logo">
-            <span>มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน<br>วิทยาเขต ขอนแก่น</span>
+            <img src="/static/image_2024-02-07_191338051.png" width="40" height="40" class="d-inline-block align-top" alt="Logo">
+            <span>มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน<br>วิทยาเขตขอนแก่น</span>
         </a>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="{{ url_for('teacher_home') }}">หน้าหลัก</a>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('teacher_home') }}"><i class="fas fa-home"></i> หน้าหลัก</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                    <a class="nav-link" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</a>
                 </li>
             </ul>
         </div>
     </nav>
 
-    <div class="content-box">
-        <h2>โครงการที่คุณอาจารย์ดูแล</h2>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th scope="col">ลำดับ</th>
-                    <th scope="col">ชื่อโครงการ</th>
-                    <th scope="col">สถานะ</th>
-                    <th scope="col">การดำเนินการ</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for project in projects %}
-                <tr>
-                    <td>{{ loop.index }}</td>
-                    <td>
-                        <a href="{{ url_for('project_detail', project_id=project[0]) }}">{{ project[1] }}</a>
-                    </td>
-                    <td>
-                        {% if project[2] == 0 %}
-                            ยังไม่ยื่นอนุมัติ
-                        {% elif project[2] == 1 %}
-                            รออนุมัติ
-                        {% elif project[2] == 2 %}
-                            อนุมัติแล้ว
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if project[3] %}
-                            เปิดโครงการ
-                        {% else %}
-                            ปิดโครงการ
-                        {% endif %}
-                    </td>
-                    
-                    <td>
-                        {% if project[2] == 0 %}
-                        <form action="{{ url_for('request_approval') }}" method="post" style="display:inline;">
-                            <input type="hidden" name="project_id" value="{{ project[0] }}">
-                            <button type="submit" class="btn btn-primary">ขออนุมัติ</button>
-                        </form>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="container">
+        <div class="content-box">
+            <h2 class="text-center mb-4">โครงการที่คุณอาจารย์ดูแล</h2>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col"><i class="fas fa-hashtag"></i> ลำดับ</th>
+                        <th scope="col"><i class="fas fa-project-diagram"></i> ชื่อโครงการ</th>
+                        <th scope="col"><i class="fas fa-info-circle"></i> สถานะ</th>
+                        <th scope="col"><i class="fas fa-cogs"></i> การดำเนินการ</th>
+                        <th scope="col"><i class="fas fa-tasks"></i> การจัดการ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for project in projects %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>
+                            <a href="{{ url_for('project_detail', project_id=project[0]) }}">{{ project[1] }}</a>
+                        </td>
+                        <td>
+                            {% if project[2] == 0 %}
+                                <span class="badge badge-secondary">ยังไม่ยื่นอนุมัติ</span>
+                            {% elif project[2] == 1 %}
+                                <span class="badge badge-warning">รออนุมัติ</span>
+                            {% elif project[2] == 2 %}
+                                <span class="badge badge-success">อนุมัติแล้ว</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if project[3] %}
+                                <span class="badge badge-info">เปิดโครงการ</span>
+                            {% else %}
+                                <span class="badge badge-danger">ปิดโครงการ</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if project[2] == 0 %}
+                            <form action="{{ url_for('request_approval') }}" method="post" style="display:inline;">
+                                <input type="hidden" name="project_id" value="{{ project[0] }}">
+                                <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-check"></i> ขออนุมัติ</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <footer class="footer">
-        <div class="container text-center">
-            © Faculty of Business Administration and Information Technology - RMUTI KKC<br>
-            150 ถ.ศรีจันทร์ ต.ในเมือง อ.เมือง จ.ขอนแก่น, Khon Kaen, Thailand, Khon Kaen<br>
-            เบอร์ติดต่อ 043-283-705 เปิดทำการ 8.00-16.00
+        <div class="container">
+            <img src="/static/image_2024-02-07_191338051.png" alt="Logo" class="mb-3">
+            <p>คณะบริหารธุรกิจและเทคโนโลยีสารสนเทศ - มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน วิทยาเขตขอนแก่น</p>
+            <p>150 ถ.ศรีจันทร์ ต.ในเมือง อ.เมือง จ.ขอนแก่น 40000</p>
+            <p>โทร: 043-283-705 | เวลาทำการ: 8.00-16.00 น.</p>
         </div>
-        <img src="/static/footer_image.jpg" alt="Footer Image">
     </footer>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

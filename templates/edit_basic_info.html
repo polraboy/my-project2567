@@ -4,225 +4,213 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <!-- เพิ่ม Bootstrap CSS -->
+    <title>ข้อมูลพื้นฐาน</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
     <style>
-        /* ปรับสี Navbar เป็นสีส้ม */
+        :root {
+            --primary-color: #FF8C00;
+            --secondary-color: #007bff;
+            --background-color: #f8f9fa;
+        }
+        
+        body {
+            background-color: var(--background-color);
+            font-family: 'Kanit', sans-serif;
+            padding-bottom: 100px;
+        }
+
         .navbar {
-            background-color: orange !important;
+            background-color: var(--primary-color) !important;
         }
 
-        /* ปรับระยะของโลโก้และข้อความ */
         .navbar-brand img {
-            margin-right: 5px;
-            margin-bottom: 5px;
-            /* เพิ่มระยะขอบล่าง */
-        }
-
-        .navbar-brand {
-            display: flex;
-            align-items: baseline;
-            /* จัดตำแหน่งข้อความด้านล่าง */
+            margin-right: 10px;
         }
 
         .navbar-brand span {
-            font-size: 0.9rem;
-            line-height: 1.5;
-        }
-
-        /* ปรับสีพื้นหลัง footer เป็นสีน้ำเงิน */
-        .footer {
-            background-color: #007bff;
+            font-size: 1rem;
+            line-height: 1.2;
             color: white;
-            padding: 20px 0;
-            text-align: left;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 24px;
         }
 
-        .footer img {
-            max-width: 30%;
-            max-height: 25%;
-            margin-right: 20px;
-            /* ปรับค่าตามที่ต้องการ */
-        }
-
-        body {
-            background: linear-gradient(to right bottom, orange, white);
-            height: 100vh;
-            margin: 0;
-            /* เอา margin ออกเพื่อป้องกันการเว้นว่าง */
-        }
-
-        .login-button {
-            background-color: white;
-            color: black;
-            border-radius: 5px;
-            padding: 5px 10px;
-        }
-
-        .login-button:hover {
-            background-color: lightgray;
+        .nav-link {
+            color: white !important;
         }
 
         .content-box {
             background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            /* เพิ่มเอฟเฟคเงาให้กรอบ */
-            width: 70%;
-            /* กำหนดความกว้างของสี่เหลี่ยม */
-            height: 50%;
-            margin: auto;
-            /* จัดการให้สี่เหลี่ยมอยู่ตรงกลาง */
-            margin-top: 50px;
-            /* เพิ่มระยะห่างด้านบน */
-            position: flex;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            margin-top: 30px;
+            margin-bottom: 50px;
+        }
+
+        .table thead th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-success {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .btn-success:hover {
+            background-color: darken(var(--secondary-color), 10%);
+            border-color: darken(var(--secondary-color), 10%);
+        }
+
+        .footer {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .footer img {
+            max-width: 100px;
+            margin-bottom: 10px;
+        }
+
+        #data_type {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="#">
-        <img src="\static\image_2024-02-07_191338051.png" width="30" height="30" class="d-inline-block align-top"
-            alt="Your Logo">
-        <span>มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน<br>วิทยาเขต ขอนแก่น
-    </a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ml-auto">
-            <li class="nav-item active">
-                <a class="nav-link" href="{{ url_for('admin_home') }}">หน้าหลัก</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">เกี่ยวกับ</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">โครงการ</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('add_project') }}">เพิ่มโครงการ</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('approve_project') }}">อนุมัติคำขอโครงการ</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="edit_basic_info">ข้อมูลพื้นฐาน</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">{{ session['admin_name'] }}</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-            </li>
-        </ul>
-    </div>
-</nav>
-
 <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="#">
+            <img src="/static/image_2024-02-07_191338051.png" width="40" height="40" class="d-inline-block align-top" alt="Logo">
+            <span>มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน<br>วิทยาเขตขอนแก่น</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin_home') }}"><i class="fas fa-home"></i> หน้าหลัก</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-info-circle"></i> เกี่ยวกับ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-project-diagram"></i> โครงการ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('add_project') }}"><i class="fas fa-plus-circle"></i> เพิ่มโครงการ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('approve_project') }}"><i class="fas fa-check-circle"></i> อนุมัติคำขอโครงการ</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="{{ url_for('edit_basic_info') }}"><i class="fas fa-cog"></i> ข้อมูลพื้นฐาน</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-user"></i> {{ session['admin_name'] }}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
 
-    <div class="content-box">
-        <form action=""></form>
-        <select id="data_type">
-            <option value="teacher">ข้อมูลอาจารย์</option>
-            <option value="branch">ข้อมูลสาขา</option>
-        </select>
-        <!-- เพิ่ม input hidden เพื่อเก็บค่า selected_option -->
-        <input type="hidden" id="selected_option" name="selected_option" value="teacher">
-        <table class="table" id="teacher-table">
-            <thead>
-                <tr>
-                    <th scope="col">รหัสอาจารย์</th>
-                    <th scope="col">ชื่อ-สกุล</th>
-                    <th scope="col">Username</th>
-                    <th scope="col">Password</th>
-                    <th scope="col">เบอร์โทร</th>
-                    <th scope="col">อีเมลล์</th>
-                    <th scope="col">สาขา</th>
-                    <th scope="col"></th>
-                    <th scope="col"> </th>
-                    <!-- ปรับเปลี่ยน column ตามที่ต้องการ -->
-                </tr>
-            </thead>
-            <tbody>
-                {% for teacher in teachers %}
-                <tr class="teacher-row">
-                    <td>{{ teacher[0] }}</td>
-                    <td>{{ teacher[1] }}</td>
-                    <td>{{ teacher[2] }}</td>
-                    <td>{{ teacher[3] }}</td>
-                    <td>{{ teacher[4] }}</td>
-                    <td>{{ teacher[5] }}</td>
-                    <td>{{ teacher[6] }}</td>
-                    <td>
-                        <button><a
-                                href="{{ url_for('edit_teacher', teacher_id=teacher[0]) }}">แก้ไขข้อมูลอาจารย์</a></button>
-                    </td>
-
-                </tr>
-
-                {% endfor %}
+    <div class="container">
+        <div class="content-box">
+            <h2 class="text-center mb-4">ข้อมูลพื้นฐาน</h2>
+            <div class="form-group">
+                <label for="data_type"><i class="fas fa-filter"></i> เลือกประเภทข้อมูล:</label>
+                <select id="data_type" class="form-control">
+                    <option value="teacher">ข้อมูลอาจารย์</option>
+                    <option value="branch">ข้อมูลสาขา</option>
+                </select>
+            </div>
+            <input type="hidden" id="selected_option" name="selected_option" value="teacher">
+            
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="teacher-table">
+                    <thead>
+                        <tr>
+                            <th scope="col"><i class="fas fa-id-badge"></i> รหัสอาจารย์</th>
+                            <th scope="col"><i class="fas fa-user"></i> ชื่อ-สกุล</th>
+                            <th scope="col"><i class="fas fa-user-circle"></i> Username</th>
+                            <th scope="col"><i class="fas fa-key"></i> Password</th>
+                            <th scope="col"><i class="fas fa-phone"></i> เบอร์โทร</th>
+                            <th scope="col"><i class="fas fa-envelope"></i> อีเมลล์</th>
+                            <th scope="col"><i class="fas fa-graduation-cap"></i> สาขา</th>
+                            <th scope="col"><i class="fas fa-cogs"></i> การดำเนินการ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for teacher in teachers %}
+                        <tr class="teacher-row">
+                            <td>{{ teacher[0] }}</td>
+                            <td>{{ teacher[1] }}</td>
+                            <td>{{ teacher[2] }}</td>
+                            <td>{{ teacher[3] }}</td>
+                            <td>{{ teacher[4] }}</td>
+                            <td>{{ teacher[5] }}</td>
+                            <td>{{ teacher[6] }}</td>
+                            <td>
+                                <a href="{{ url_for('edit_teacher', teacher_id=teacher[0]) }}" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> แก้ไข</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
                 
-               
-                    <button><a href="{{ url_for('add_teacher') }}">เพิ่มข้อมูลอาจารย์</a></button>
-               
-                <button><a href="{{ url_for('add_branch') }}">เพิ่มข้อมูลสาขา</a></button>
-               
-
-            </tbody>
-
-        </table>
-        <!-- เพิ่มตารางข้อมูลสาขา -->
-        <table class="table" id="branch-table" style="display:none;">
-            <thead>
-                <tr>
-                    <th scope="col">รหัสสาขา</th>
-                    <th scope="col">ชื่อสาขา</th>
-
-                    <!-- สามารถเพิ่มหรือปรับเปลี่ยน column ตามที่ต้องการ -->
-                </tr>
-
-            </thead>
-            <tbody>
-                {% for branch in branches %}
-                <tr class="branch-row">
-                    <td>{{ branch[0] }}</td>
-                    <td>{{ branch[1] }}</td>
-
-                    <!-- ข้อมูลสาขา -->
-                </tr>
-                {% endfor %}
-
-            </tbody>
-        </table>
+                <table class="table table-striped table-hover" id="branch-table" style="display:none;">
+                    <thead>
+                        <tr>
+                            <th scope="col"><i class="fas fa-code-branch"></i> รหัสสาขา</th>
+                            <th scope="col"><i class="fas fa-graduation-cap"></i> ชื่อสาขา</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for branch in branches %}
+                        <tr class="branch-row">
+                            <td>{{ branch[0] }}</td>
+                            <td>{{ branch[1] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-4">
+                <a href="{{ url_for('add_teacher') }}" class="btn btn-success"><i class="fas fa-user-plus"></i> เพิ่มข้อมูลอาจารย์</a>
+                <a href="{{ url_for('add_branch') }}" class="btn btn-success"><i class="fas fa-plus-circle"></i> เพิ่มข้อมูลสาขา</a>
+            </div>
+        </div>
     </div>
+
     <!-- Footer -->
     <footer class="footer">
-        <div class="container text-center">
-            © Faculty of Business Administration and Information Technology - RMUTI KKC<br>
-            150 ถ.ศรีจันทร์ ต.ในเมือง อ.เมือง จ.ขอนแก่น, Khon Kaen, Thailand, Khon Kaen<br>
-            เบอร์ติดต่อ 043-283-705 เปิดทำการ 8.00-16.00
+        <div class="container">
+            <img src="/static/footer_image.jpg" alt="Logo" class="mb-3">
+            <p>คณะบริหารธุรกิจและเทคโนโลยีสารสนเทศ - มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน วิทยาเขตขอนแก่น</p>
+            <p>150 ถ.ศรีจันทร์ ต.ในเมือง อ.เมือง จ.ขอนแก่น 40000</p>
+            <p>โทร: 043-283-705 | เวลาทำการ: 8.00-16.00 น.</p>
         </div>
-        <img src="\static\footer_image.jpg" alt="Footer Image">
     </footer>
 
-    <!-- เพิ่ม Bootstrap JS และ jQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <!-- เพิ่ม JavaScript code -->
     <script>
         function filterData() {
             var selectedValue = document.getElementById('data_type').value;
@@ -238,15 +226,9 @@
             }
         }
 
-        // เมื่อมีการเปลี่ยนค่าใน select
         document.getElementById('data_type').addEventListener('change', filterData);
-
-        // เรียกใช้ฟังก์ชันเมื่อโหลดหน้าเว็บ
         filterData();
     </script>
-
-
-
 </body>
 
 </html>

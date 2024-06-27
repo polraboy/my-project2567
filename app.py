@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session,flash
 import mysql.connector
 from contextlib import contextmanager
 import base64
-
+from PIL import Image
+from io import BytesIO
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
@@ -16,15 +17,18 @@ def index():
 @contextmanager
 def get_db_cursor():
     db = mysql.connector.connect(
-        host="localhost", user="root", password="", database="project"
+        host="localhost",
+        user="root",
+        password="",
+        database="project",
+        connection_timeout=60,  # เพิ่มเวลา timeout
     )
-    cursor = db.cursor()
     try:
+        cursor = db.cursor(buffered=True)  # ใช้ buffered cursor
         yield db, cursor
     finally:
         cursor.close()
         db.close()
-
 
 @app.route("/")
 def home():
@@ -85,33 +89,65 @@ def logout():
 
 @app.route("/admin_home", methods=['GET', 'POST'])
 def admin_home():
-    if "admin_id" not in session:
-        return redirect(url_for("login"))
-
     if request.method == 'POST':
-        constant_headname = request.form['constant_headname']
-        constant_detail = request.form['constant_detail']
-        constant_image = request.files['constant_image']
+        if 'constant_headname' in request.form:
+            constant_headname = request.form['constant_headname']
+            constant_detail = request.form['constant_detail']
+            constant_image = request.files['constant_image']
+            
+            # ปรับขนาดรูปภาพและแปลงเป็น RGB
+            img = Image.open(constant_image)
+            img = img.convert('RGB')  # แปลง RGBA เป็น RGB
+            img.thumbnail((800, 600))  # ปรับขนาดให้พอดีกับ 800x600 โดยรักษาสัดส่วน
+            
+            # แปลงรูปภาพเป็น binary
+            img_io = BytesIO()
+            img.save(img_io, 'JPEG', quality=85)
+            image_binary = img_io.getvalue()
+            
+            # บันทึกลงฐานข้อมูล
+            try:
+                with get_db_cursor() as (db, cursor):
+                    query = "INSERT INTO constants (constants_headname, constants_detail, constants_image) VALUES (%s, %s, %s)"
+                    cursor.execute(query, (constant_headname, constant_detail, image_binary))
+                    db.commit()
+                
+                flash('Constant added successfully!', 'success')
+            except mysql.connector.Error as err:
+                flash(f'Error: {err}', 'danger')
+            
+            return redirect(url_for('admin_home'))
         
-        image_binary = constant_image.read()
-        
-        with get_db_cursor() as (db, cursor):
-            query = "INSERT INTO constants (constants_headname, constants_detail, constants_image) VALUES (%s, %s, %s)"
-            cursor.execute(query, (constant_headname, constant_detail, image_binary))
-            db.commit()
+        elif 'delete_constant_headname' in request.form:
+            constant_headname = request.form['delete_constant_headname']
+            try:
+                with get_db_cursor() as (db, cursor):
+                    query = "DELETE FROM constants WHERE constants_headname = %s"
+                    cursor.execute(query, (constant_headname,))
+                    db.commit()
+                
+                flash('Constant deleted successfully!', 'success')
+            except mysql.connector.Error as err:
+                flash(f'Error: {err}', 'danger')
+            
+            return redirect(url_for('admin_home'))
 
     # ดึงข้อมูล constants
-    with get_db_cursor() as (db, cursor):
-        query = "SELECT constants_headname, constants_detail, constants_image FROM constants"
-        cursor.execute(query)
-        constants = cursor.fetchall()
-        
-    # แปลงรูปภาพเป็น base64
-    constants = [(c[0], c[1], base64.b64encode(c[2]).decode('utf-8')) for c in constants]
+    try:
+        with get_db_cursor() as (db, cursor):
+            query = "SELECT constants_headname, constants_detail, constants_image FROM constants"
+            cursor.execute(query)
+            constants = cursor.fetchall()
+            
+        # แปลงรูปภาพเป็น base64
+        constants = [(c[0], c[1], base64.b64encode(c[2]).decode('utf-8')) for c in constants]
+    except mysql.connector.Error as err:
+        flash(f'Error: {err}', 'danger')
+        constants = []
 
     return render_template("admin_home.html", constants=constants)
 
-
+   
 @app.route("/approve_project", methods=["GET", "POST"])
 def approve_project():
     if "admin_id" in session:

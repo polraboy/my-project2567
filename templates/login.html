@@ -4,87 +4,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <!-- เพิ่ม Bootstrap CSS -->
+    <title>Login</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
     <style>
-        /* ปรับสี Navbar เป็นสีส้ม */
+        :root {
+            --primary-color: #FF8C00;
+            --secondary-color: #007bff;
+            --background-color: #f8f9fa;
+        }
+        
+        body {
+            background-color: var(--background-color);
+            font-family: 'Kanit', sans-serif;
+            padding-bottom: 100px;
+        }
+
         .navbar {
-            background-color: orange !important;
+            background-color: var(--primary-color) !important;
         }
 
-        /* ปรับระยะของโลโก้และข้อความ */
         .navbar-brand img {
-            margin-right: 5px;
-            margin-bottom: 5px;
-            /* เพิ่มระยะขอบล่าง */
-        }
-
-        .navbar-brand {
-            display: flex;
-            align-items: baseline;
-            /* จัดตำแหน่งข้อความด้านล่าง */
+            margin-right: 10px;
         }
 
         .navbar-brand span {
-            font-size: 0.9rem;
-            line-height: 1.5;
+            font-size: 1rem;
+            line-height: 1.2;
+            color: white;
         }
 
-        /* ปรับสีพื้นหลัง footer เป็นสีน้ำเงิน */
+        .nav-link {
+            color: white !important;
+        }
+
+        .content-box {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            margin-top: 30px;
+            margin-bottom: 50px;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: darken(var(--secondary-color), 10%);
+            border-color: darken(var(--secondary-color), 10%);
+        }
+
         .footer {
-            background-color: #007bff;
+            background-color: var(--secondary-color);
             color: white;
             padding: 20px 0;
-            text-align: left;
+            text-align: center;
             position: fixed;
             bottom: 0;
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 24px;
+            width: 100%;
         }
 
         .footer img {
-            max-width: 45%;
-            max-height: 45%;
-            margin-right: 20px;
-            /* ปรับค่าตามที่ต้องการ */
-        }
-
-
-        body {
-            background: linear-gradient(to right bottom, orange, white);
-            height: 100vh;
-            margin: 0;
-            /* เอา margin ออกเพื่อป้องกันการเว้นว่าง */
-        }
-
-
-        .login-button {
-            background-color: white;
-            color: #000000;
-            border-radius: 5px;
-            padding: 5px 10px;
-        }
-
-        .login-button:hover {
-            background-color: lightgray;
+            max-width: 100px;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 
 <body>
-
     <!-- Navbar -->
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <a class="navbar-brand" href="#">
-            <img src="\static\image_2024-02-07_191338051.png" width="30" height="30" class="d-inline-block align-top"
-                alt="Your Logo">
-            <span>มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน<br>วิทยาเขต ขอนแก่น</span>
+            <img src="/static/image_2024-02-07_191338051.png" width="40" height="40" class="d-inline-block align-top" alt="Logo">
+            <span>มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน<br>วิทยาเขตขอนแก่น</span>
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -92,50 +88,49 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/"><i class="fas fa-home"></i> หน้าหลัก</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-info-circle"></i> เกี่ยวกับ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-project-diagram"></i> โครงการ</a>
+                </li>
                 <li class="nav-item active">
-                    <a class="nav-link" href="/">หน้าหลัก</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="#">เกี่ยวกับ</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">โครงการ</a>
-                <li class="nav-item">
-                    <a class="nav-link login-button" href="/login">Login</a>
-                </li>
+                    <a class="nav-link" href="/login"><i class="fas fa-sign-in-alt"></i> เข้าสู่ระบบ</a>
                 </li>
             </ul>
         </div>
     </nav>
 
-    <div class="container mt-5">
-        <!-- เนื้อหาหน้า login ใส่ตรงนี้ -->
-        <h2>Login</h2>
-        <form action="{{ url_for('login') }}" method="post">
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" class="form-control" id="username" name="username" placeholder="Enter username">
-            </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" class="form-control" id="password" name="password" placeholder="Enter password">
-            </div>
-            <button type="submit" class="btn btn-primary">Login</button>
-        </form>
+    <div class="container">
+        <div class="content-box">
+            <h2 class="text-center mb-4"><i class="fas fa-user-lock"></i> เข้าสู่ระบบ</h2>
+            <form action="{{ url_for('login') }}" method="post">
+                <div class="form-group">
+                    <label for="username"><i class="fas fa-user"></i> ชื่อผู้ใช้</label>
+                    <input type="text" class="form-control" id="username" name="username" placeholder="กรอกชื่อผู้ใช้">
+                </div>
+                <div class="form-group">
+                    <label for="password"><i class="fas fa-key"></i> รหัสผ่าน</label>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="กรอกรหัสผ่าน">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-sign-in-alt"></i> เข้าสู่ระบบ</button>
+            </form>
+        </div>
     </div>
 
     <!-- Footer -->
     <footer class="footer">
-        <div class="container text-center">
-            © Faculty of Business Administration and Information Technology - RMUTI KKC<br>
-            150 ถ.ศรีจันทร์ ต.ในเมือง อ.เมือง จ.ขอนแก่น, Khon Kaen, Thailand, Khon Kaen<br>
-            เบอร์ติดต่อ 043-283-705 เปิดทำการ 8.00-16.00
+        <div class="container">
+            <img src="/static/image_2024-02-07_191338051.png" alt="Logo" class="mb-3">
+            <p>คณะบริหารธุรกิจและเทคโนโลยีสารสนเทศ - มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน วิทยาเขตขอนแก่น</p>
+            <p>150 ถ.ศรีจันทร์ ต.ในเมือง อ.เมือง จ.ขอนแก่น 40000</p>
+            <p>โทร: 043-283-705 | เวลาทำการ: 8.00-16.00 น.</p>
         </div>
-        <img src="\static\footer_image.jpg" alt="Footer Image">
     </footer>
 
-    <!-- เพิ่ม Bootstrap JS และ jQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

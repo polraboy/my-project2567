@@ -4,39 +4,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <!-- เพิ่ม Bootstrap CSS -->
+    <title>หน้าหลักผู้ดูแลระบบ</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
     <style>
-        /* ปรับสี Navbar เป็นสีส้ม */
+        :root {
+            --primary-color: #FF8C00;
+            --secondary-color: #007bff;
+            --background-color: #f8f9fa;
+        }
+
+        body {
+            background-color: var(--background-color);
+            font-family: 'Kanit', sans-serif;
+            padding-bottom: 100px;
+        }
+
         .navbar {
-            background-color: orange !important;
+            background-color: var(--primary-color) !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
         }
 
-        /* ปรับระยะของโลโก้และข้อความ */
         .navbar-brand img {
-            margin-right: 5px;
-            margin-bottom: 5px;
-            /* เพิ่มระยะขอบล่าง */
-        }
-
-        .navbar-brand {
-            display: flex;
-            align-items: baseline;
-            /* จัดตำแหน่งข้อความด้านล่าง */
+            margin-right: 10px;
         }
 
         .navbar-brand span {
-            font-size: 0.9rem;
-            line-height: 1.5;
+            font-size: 1rem;
+            line-height: 1.2;
+            color: white;
         }
 
-        /* ปรับสีพื้นหลัง footer เป็นสีน้ำเงิน */
+        .nav-link {
+            color: white !important;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            transform: translateY(-2px);
+        }
+
         .footer {
-            background-color: #007bff;
+            background-color: var(--secondary-color);
             color: white;
             padding: 20px 0;
-            text-align: left;
             position: fixed;
             bottom: 0;
             left: 0;
@@ -44,63 +55,45 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 24px;
+            font-size: 14px;
+        }
+
+        .footer .container {
+            text-align: center;
+            flex-grow: 1;
         }
 
         .footer img {
-            max-width: 45%;
-            max-height: 45%;
+            max-width: 25%;
+            max-height: 25%;
             margin-right: 20px;
-            /* ปรับค่าตามที่ต้องการ */
         }
 
-        body {
-            background: linear-gradient(to right bottom, orange, white);
-            height: 100vh;
-            margin: 0;
-            /* เอา margin ออกเพื่อป้องกันการเว้นว่าง */
-        }
-
-        .login-button {
+        .content-box {
             background-color: white;
-            color: black;
-            border-radius: 5px;
-            padding: 5px 10px;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+            margin-bottom: 50px;
         }
 
-        .login-button:hover {
-            background-color: lightgray;
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            transition: all 0.3s ease;
         }
 
-        /* ปรับแต่งกริด */
-        .grid-container {
-            padding-top: 20px;
-        }
-
-        .grid-item {
-            margin-bottom: 20px;
-        }
-
-        .card {
-            height: 100%;
-            transition: transform 0.2s;
-        }
-
-        .card:hover {
-            transform: scale(1.05);
-        }
-
-        .card-img-top {
-            height: 200px;
-            object-fit: cover;
+        .btn-primary:hover {
+            background-color: darken(var(--primary-color), 10%);
+            border-color: darken(var(--primary-color), 10%);
+            transform: translateY(-2px);
         }
 
         .edit-mode-button {
-            position: fixed;
-            bottom: 400px;
-            /* ปรับตามความเหมาะสม ให้อยู่เหนือ footer */
-            right: 20px;
-            z-index: 1000;
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
             border-radius: 50%;
             width: 60px;
             height: 60px;
@@ -109,23 +102,99 @@
             justify-content: center;
             align-items: center;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            transition: all 0.3s ease;
         }
 
         .edit-mode-button:hover {
+            transform: scale(1.1) rotate(90deg);
+            background-color: darken(var(--primary-color), 10%);
+            border-color: darken(var(--primary-color), 10%);
+        }
+
+        .card {
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-img-top {
+            height: 200px;
+            object-fit: cover;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover .card-img-top {
+            transform: scale(1.1);
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(255, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background-color: red;
             transform: scale(1.1);
         }
 
         .mb-4 {
             text-align: center;
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-bottom: 30px !important;
+        }
+
+        .edit-mode-button {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            position: fixed;
+            bottom: 120px;
+            /* ปรับตำแหน่งให้อยู่เหนือ footer */
+            right: 30px;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            /* ให้แน่ใจว่าปุ่มอยู่ด้านหน้าสุด */
+        }
+
+        .edit-mode-button:hover {
+            transform: scale(1.1) rotate(90deg);
+            background-color: darken(var(--primary-color), 10%);
+            border-color: darken(var(--primary-color), 10%);
         }
     </style>
 </head>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
 <body>
-
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <a class="navbar-brand" href="#">
             <img src="/static/image_2024-02-07_191338051.png" width="30" height="30" class="d-inline-block align-top"
                 alt="Your Logo">
@@ -138,28 +207,32 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="{{ url_for('admin_home') }}">หน้าหลัก</a>
+                    <a class="nav-link" href="{{ url_for('admin_home') }}"><i class="fas fa-home"></i> หน้าหลัก</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">เกี่ยวกับ</a>
+                    <a class="nav-link" href="#"><i class="fas fa-info-circle"></i> เกี่ยวกับ</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">โครงการ</a>
+                    <a class="nav-link" href="#"><i class="fas fa-project-diagram"></i> โครงการ</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('add_project') }}">เพิ่มโครงการ</a>
+                    <a class="nav-link" href="{{ url_for('add_project') }}"><i class="fas fa-plus-circle"></i>
+                        เพิ่มโครงการ</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('approve_project') }}">อนุมัติคำขอโครงการ</a>
+                    <a class="nav-link" href="{{ url_for('approve_project') }}"><i class="fas fa-check-circle"></i>
+                        อนุมัติคำขอโครงการ</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('edit_basic_info') }}">ข้อมูลพื้นฐาน</a>
+                    <a class="nav-link" href="{{ url_for('edit_basic_info') }}"><i class="fas fa-cog"></i>
+                        ข้อมูลพื้นฐาน</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">{{ session['admin_name'] }}</a>
+                    <a class="nav-link" href="#"><i class="fas fa-user"></i> {{ session['admin_name'] }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                    <a class="nav-link" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i>
+                        ออกจากระบบ</a>
                 </li>
             </ul>
         </div>
@@ -167,90 +240,99 @@
 
     <!-- Content -->
     <div class="container mt-5">
-        <!-- เพิ่มปุ่มเพื่อเปิด Modal -->
         <button type="button" class="btn btn-primary edit-mode-button" data-toggle="modal"
-            data-target="#addConstantModal" title="Add Constant">
+            data-target="#addConstantModal" title="เพิ่มข้อมูลข่าวสาร">
             <i class="fas fa-plus"></i>
         </button>
 
-        <!-- Modal -->
         <div class="modal fade" id="addConstantModal" tabindex="-1" role="dialog"
             aria-labelledby="addConstantModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <form method="POST" action="{{ url_for('admin_home') }}" enctype="multipart/form-data">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="addConstantModalLabel">Add Constant</h5>
+                            <h5 class="modal-title" id="addConstantModalLabel">เพิ่มข้อมูลข่าวสาร</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div class="modal-body">
                             <div class="form-group">
-                                <label for="constant_headname">Constant Headname</label>
+                                <label for="constant_headname">หัวข้อข่าวสาร</label>
                                 <input type="text" class="form-control" id="constant_headname" name="constant_headname"
                                     required>
                             </div>
                             <div class="form-group">
-                                <label for="constant_detail">Constant Detail</label>
+                                <label for="constant_detail">รายละเอียดข่าวสาร</label>
                                 <textarea class="form-control" id="constant_detail" name="constant_detail" rows="3"
                                     required></textarea>
                             </div>
                             <div class="form-group">
-                                <label for="constant_image">Constant Image</label>
+                                <label for="constant_image">รูปภาพประกอบ</label>
                                 <input type="file" class="form-control-file" id="constant_image" name="constant_image"
                                     required>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Add Constant</button>
-                        </div>
+                        <button type="button" class="btn btn-primary edit-mode-button" data-toggle="modal"
+                            data-target="#addConstantModal" title="เพิ่มข้อมูลข่าวสาร">
+                            <i class="fas fa-plus"></i>
+                            <button type="submit" class="btn btn-primary">เพิ่มข้อมูล</button>
+                        </button>
                     </form>
                 </div>
             </div>
         </div>
 
-        <!-- แสดงข้อมูล Constants ที่มีอยู่ -->
-        <div class="container mt-5">
+        <div class="container mt-5 content-box">
             <h2 class="mb-4">ข้อมูลข่าวสาร</h2>
             <div class="row">
                 {% for constant in constants %}
                 <div class="col-md-4 mb-4">
                     <div class="card h-100">
-                        <img src="data:image/jpeg;base64,{{ constant[2] }}" class="card-img-top" alt="{{ constant[0] }}"
-                            style="height: 200px; object-fit: cover;">
+                        <img src="data:image/jpeg;base64,{{ constant[2] }}" class="card-img-top"
+                            alt="{{ constant[0] }}">
                         <div class="card-body">
                             <h5 class="card-title">{{ constant[0] }}</h5>
                             <p class="card-text">{{ constant[1] }}</p>
                         </div>
-                        <form method="post" action="/admin_home">
-                            <input type="hidden" name="delete_constant_id" value="{{ constant[0] }}">
-                            <button type="submit" class="btn btn-danger">ลบ</button>
-                        </form>
+                        <button class="btn delete-btn" onclick="confirmDelete('{{ constant[0] }}')">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
                     </div>
                 </div>
                 {% endfor %}
             </div>
         </div>
 
-
         <!-- Footer -->
         <footer class="footer">
-            <div class="container text-center">
-                © Faculty of Business Administration and Information Technology - RMUTI KKC<br>
-                150 ถ.ศรีจันทร์ ต.ในเมือง อ.เมือง จ.ขอนแก่น, Khon Kaen, Thailand, Khon Kaen<br>
-                เบอร์ติดต่อ 043-283-705 เปิดทำการ 8.00-16.00
+            <div class="container">
+                © คณะบริหารธุรกิจและเทคโนโลยีสารสนเทศ - มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน วิทยาเขตขอนแก่น<br>
+                150 ถ.ศรีจันทร์ ต.ในเมือง อ.เมือง จ.ขอนแก่น 40000<br>
+                โทร: 043-283-705 | เวลาทำการ: 8.00-16.00 น.
             </div>
             <img src="/static/footer_image.jpg" alt="Footer Image">
         </footer>
 
-        <!-- เพิ่ม Bootstrap JS และ jQuery -->
         <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-
+        <script>
+            function confirmDelete(headname) {
+                if (confirm("คุณแน่ใจหรือไม่ที่จะลบข้อมูลนี้?")) {
+                    var form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = "{{ url_for('admin_home') }}";
+                    var input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'delete_constant_headname';
+                    input.value = headname;
+                    form.appendChild(input);
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            }
+        </script>
 </body>
 
 </html>
