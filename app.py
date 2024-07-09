@@ -1,12 +1,15 @@
-from flask import Flask, render_template, request, redirect, url_for, session,flash
-import mysql.connector
+from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory
+import mysql.connector, base64, os
 from contextlib import contextmanager
-import base64
+
 from PIL import Image
 from io import BytesIO
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
+
+
 
 
 @app.route("/home")
@@ -30,16 +33,20 @@ def get_db_cursor():
         cursor.close()
         db.close()
 
+
 @app.route("/")
 def home():
     with get_db_cursor() as (db, cursor):
         query = "SELECT constants_headname, constants_detail, constants_image FROM constants"
         cursor.execute(query)
         constants = cursor.fetchall()
-    
-    constants = [(c[0], c[1], base64.b64encode(c[2]).decode('utf-8')) for c in constants]
-    
+
+    constants = [
+        (c[0], c[1], base64.b64encode(c[2]).decode("utf-8")) for c in constants
+    ]
+
     return render_template("home.html", constants=constants)
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -87,50 +94,52 @@ def logout():
     return redirect(url_for("login"))
 
 
-@app.route("/admin_home", methods=['GET', 'POST'])
+@app.route("/admin_home", methods=["GET", "POST"])
 def admin_home():
-    if request.method == 'POST':
-        if 'constant_headname' in request.form:
-            constant_headname = request.form['constant_headname']
-            constant_detail = request.form['constant_detail']
-            constant_image = request.files['constant_image']
-            
+    if request.method == "POST":
+        if "constant_headname" in request.form:
+            constant_headname = request.form["constant_headname"]
+            constant_detail = request.form["constant_detail"]
+            constant_image = request.files["constant_image"]
+
             # ปรับขนาดรูปภาพและแปลงเป็น RGB
             img = Image.open(constant_image)
-            img = img.convert('RGB')  # แปลง RGBA เป็น RGB
+            img = img.convert("RGB")  # แปลง RGBA เป็น RGB
             img.thumbnail((800, 600))  # ปรับขนาดให้พอดีกับ 800x600 โดยรักษาสัดส่วน
-            
+
             # แปลงรูปภาพเป็น binary
             img_io = BytesIO()
-            img.save(img_io, 'JPEG', quality=85)
+            img.save(img_io, "JPEG", quality=85)
             image_binary = img_io.getvalue()
-            
+
             # บันทึกลงฐานข้อมูล
             try:
                 with get_db_cursor() as (db, cursor):
                     query = "INSERT INTO constants (constants_headname, constants_detail, constants_image) VALUES (%s, %s, %s)"
-                    cursor.execute(query, (constant_headname, constant_detail, image_binary))
+                    cursor.execute(
+                        query, (constant_headname, constant_detail, image_binary)
+                    )
                     db.commit()
-                
-                flash('Constant added successfully!', 'success')
+
+                flash("Constant added successfully!", "success")
             except mysql.connector.Error as err:
-                flash(f'Error: {err}', 'danger')
-            
-            return redirect(url_for('admin_home'))
-        
-        elif 'delete_constant_headname' in request.form:
-            constant_headname = request.form['delete_constant_headname']
+                flash(f"Error: {err}", "danger")
+
+            return redirect(url_for("admin_home"))
+
+        elif "delete_constant_headname" in request.form:
+            constant_headname = request.form["delete_constant_headname"]
             try:
                 with get_db_cursor() as (db, cursor):
                     query = "DELETE FROM constants WHERE constants_headname = %s"
                     cursor.execute(query, (constant_headname,))
                     db.commit()
-                
-                flash('Constant deleted successfully!', 'success')
+
+                flash("Constant deleted successfully!", "success")
             except mysql.connector.Error as err:
-                flash(f'Error: {err}', 'danger')
-            
-            return redirect(url_for('admin_home'))
+                flash(f"Error: {err}", "danger")
+
+            return redirect(url_for("admin_home"))
 
     # ดึงข้อมูล constants
     try:
@@ -138,16 +147,18 @@ def admin_home():
             query = "SELECT constants_headname, constants_detail, constants_image FROM constants"
             cursor.execute(query)
             constants = cursor.fetchall()
-            
+
         # แปลงรูปภาพเป็น base64
-        constants = [(c[0], c[1], base64.b64encode(c[2]).decode('utf-8')) for c in constants]
+        constants = [
+            (c[0], c[1], base64.b64encode(c[2]).decode("utf-8")) for c in constants
+        ]
     except mysql.connector.Error as err:
-        flash(f'Error: {err}', 'danger')
+        flash(f"Error: {err}", "danger")
         constants = []
 
     return render_template("admin_home.html", constants=constants)
 
-   
+
 @app.route("/approve_project", methods=["GET", "POST"])
 def approve_project():
     if "admin_id" in session:
@@ -176,10 +187,13 @@ def teacher_home():
         query = "SELECT constants_headname, constants_detail, constants_image FROM constants"
         cursor.execute(query)
         constants = cursor.fetchall()
-    
-    constants = [(c[0], c[1], base64.b64encode(c[2]).decode('utf-8')) for c in constants]
-    
+
+    constants = [
+        (c[0], c[1], base64.b64encode(c[2]).decode("utf-8")) for c in constants
+    ]
+
     return render_template("teacher_home.html", constants=constants)
+
 
 def get_projects():
     with get_db_cursor() as (db, cursor):
@@ -203,6 +217,7 @@ def get_status(status_code):
 @app.route("/add_project", methods=["GET", "POST"])
 def add_project():
     if request.method == "POST":
+        # รับข้อมูลจากฟอร์ม
         project_budgettype = request.form["project_budgettype"]
         project_year = request.form["project_year"]
         project_name = request.form["project_name"]
@@ -212,36 +227,47 @@ def add_project():
         project_endtime = request.form["project_endtime"]
         project_target = request.form["project_target"]
         project_budget = request.form["project_budget"]
-        project_status = 0
         teacher_id = request.form["teacher_id"]
+       
 
-        with get_db_cursor() as (db, cursor):
-            query = """INSERT INTO project (project_budgettype, project_year, project_name, project_style, 
-                       project_address, project_dotime, project_endtime, project_target, project_budget, 
-                       project_status, teacher_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-            cursor.execute(
-                query,
-                (
-                    project_budgettype,
-                    project_year,
-                    project_name,
-                    project_style,
-                    project_address,
-                    project_dotime,
-                    project_endtime,
-                    project_target,
-                    project_budget,
-                    project_status,
-                    teacher_id,
-                ),
-            )
-            db.commit()
 
-            # Get the last inserted project ID
-            project_id = cursor.lastrowid
 
+        # ตรวจสอบและบันทึกข้อมูลลงฐานข้อมูล
+        try:
+            with get_db_cursor() as (db, cursor):
+                query = """INSERT INTO project (project_budgettype, project_year, project_name, project_style, project_address, project_dotime, project_endtime, project_target, project_budget, project_status, teacher_id)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+                cursor.execute(
+                    query,
+                    (
+                        project_budgettype,
+                        project_year,
+                        project_name,
+                        project_style,
+                        project_address,
+                        project_dotime,
+                        project_endtime,
+                        project_target,
+                        project_budget,
+                        0,
+                        teacher_id,
+                        
+                    ),
+                )
+                db.commit()
+            flash("บันทึกโครงการเรียบร้อยแล้ว", "success")
+            return redirect(url_for("admin_home"))
+        except Exception as e:
+            flash(f"เกิดข้อผิดพลาด: {str(e)}", "danger")
+            return redirect(url_for("add_project"))
+
+    # สำหรับ GET request
     teachers = get_teachers()
     return render_template("add_project.html", teachers=teachers)
+
+
+
+    
 
 
 def get_teachers(teacher_id=None):
@@ -319,7 +345,6 @@ def update_teacher(
         db.commit()
 
 
-
 @app.route("/edit_teacher/<int:teacher_id>", methods=["GET", "POST"])
 def edit_teacher(teacher_id):
     if request.method == "GET":
@@ -347,17 +372,19 @@ def edit_teacher(teacher_id):
         return redirect(url_for("edit_basic_info"))
 
 
-
 def delete_teacher(teacher_id):
     with get_db_cursor() as (db, cursor):
         query = "DELETE FROM teacher WHERE teacher_id = %s"
         cursor.execute(query, (teacher_id,))
         db.commit()
 
+
 @app.route("/delete_teacher/<int:teacher_id>", methods=["POST"])
 def delete_teacher_route(teacher_id):
     delete_teacher(teacher_id)
     return redirect(url_for("teacher_home"))
+
+
 def get_branches_from_database():
     branches = []
     with get_db_cursor() as (db, cursor):
@@ -478,4 +505,3 @@ def update_project_statusStart():
 # ตรวจสอบข้อมูลใหม่ทุกๆ 5 นาที
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
-    
