@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เพิ่มโครงการใหม่</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #FF8C00;
+            --secondary-color: #007bff;
+            --background-color: #f8f9fa;
+        }
+
+        body {
+            background-color: var(--background-color);
+            font-family: 'Kanit', sans-serif;
+        }
+
+        .navbar {
+            background-color: var(--primary-color) !important;
+        }
+
+        .navbar-brand img {
+            margin-right: 10px;
+        }
+
+        .navbar-brand span {
+            font-size: 1rem;
+            line-height: 1.2;
+            color: white;
+        }
+
+        .nav-link {
+            color: white !important;
+        }
+
+        .content-box {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+            margin-bottom: 50px;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: darken(var(--primary-color), 10%);
+            border-color: darken(var(--primary-color), 10%);
+        }
+
+        .footer {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        .footer img {
+            max-width: 100px;
+            margin-bottom: 10px;
+        }
+
+        .plan-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .plan-table th,
+        .plan-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .plan-table th {
+            background-color: #f2f2f2;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .add-row-btn {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .arrow-cell {
+            position: relative;
+        }
+        .arrow {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: black;
+        }
+        .arrow::before, .arrow::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-top: 2px solid black;
+            border-right: 2px solid black;
+        }
+        .arrow::before {
+            left: -5px;
+            transform: translateY(-50%) rotate(-135deg);
+        }
+        .arrow::after {
+            right: -5px;
+            transform: translateY(-50%) rotate(45deg);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="#">
+            <img src="/static/image_2024-02-07_191338051.png" width="40" height="40" class="d-inline-block align-top"
+                alt="Logo">
+            <span>มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน วิทยาเขตขอนแก่น</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin_home') }}"><i class="fas fa-home"></i> หน้าหลัก</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-info-circle"></i> เกี่ยวกับ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-project-diagram"></i> โครงการ</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="{{ url_for('add_project') }}"><i class="fas fa-plus-circle"></i>
+                        เพิ่มโครงการ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('approve_project') }}"><i class="fas fa-check-circle"></i>
+                        อนุมัติคำขอโครงการ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('edit_basic_info') }}"><i class="fas fa-cog"></i>
+                        ข้อมูลพื้นฐาน</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-user"></i> {{ session['admin_name'] }}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i>
+                        ออกจากระบบ</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="content-box">
+            <h2 class="text-center mb-4">เพิ่มโครงการใหม่</h2>
+            <form method="POST" action="{{ url_for('add_project') }}" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col-md-6">
+                        <!-- ส่วนแรกของฟอร์ม -->
+                        <div class="form-group">
+                            <label for="project_budgettype"><i class="fas fa-money-bill-wave"></i>
+                                ประเภทงบประมาณ:</label>
+                            <select class="form-control" id="project_budgettype" name="project_budgettype" required>
+                                <option value="">เลือกประเภทงบประมาณ</option>
+                                <option value="งบประมาณเงินรายได้">งบประมาณเงินรายได้</option>
+                                <option value="งบประมาณเงินรายจ่าย">งบประมาณเงินรายจ่าย</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="project_year"><i class="far fa-calendar-alt"></i> ปีงบประมาณ (พ.ศ.):</label>
+                            <input type="number" class="form-control" id="project_year" name="project_year" required
+                                readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="project_name"><i class="fas fa-project-diagram"></i> ชื่อโครงการ:</label>
+                            <input type="text" class="form-control" id="project_name" name="project_name" required
+                                placeholder="ชื่อโครงการ">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-paint-brush"></i> ลักษณะโครงการ:</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="project_style"
+                                    id="project_style_training" value="จัดฝึกอบรม" required>
+                                <label class="form-check-label" for="project_style_training">จัดฝึกอบรม</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="project_style"
+                                    id="project_style_event" value="จัดงาน">
+                                <label class="form-check-label" for="project_style_event">จัดงาน</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="project_style"
+                                    id="project_style_routine" value="จัดตามภารกิจปกติ">
+                                <label class="form-check-label" for="project_style_routine">จัดตามภารกิจปกติ</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="project_address"><i class="fas fa-map-marker-alt"></i> ที่อยู่โครงการ:</label>
+                            <input type="text" class="form-control" id="project_address" name="project_address" required
+                                placeholder="ที่อยู่โครงการ">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <!-- ส่วนที่สองของฟอร์ม -->
+                        <div class="form-group">
+                            <label for="project_dotime"><i class="far fa-calendar-plus"></i> เวลาเริ่มโครงการ:</label>
+                            <input type="date" class="form-control" id="project_dotime" name="project_dotime" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="project_endtime"><i class="far fa-calendar-minus"></i>
+                                เวลาสิ้นสุดโครงการ:</label>
+                            <input type="date" class="form-control" id="project_endtime" name="project_endtime"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label for="project_target"><i class="fas fa-bullseye"></i>
+                                กลุ่มเป้าหมายผู้เข้าร่วมโครงการ:</label>
+                            <input type="text" class="form-control" id="project_target" name="project_target" required
+                                placeholder="กลุ่มเป้าหมายผู้เข้าร่วมโครงการ">
+                        </div>
+                        <div class="form-group">
+                            <label for="project_budget"><i class="fas fa-coins"></i> งบประมาณโครงการ:</label>
+                            <input type="number" class="form-control" id="project_budget" name="project_budget" required
+                                placeholder="งบประมาณโครงการ">
+                        </div>
+                        <div class="form-group">
+                            <label for="teacher_id"><i class="fas fa-chalkboard-teacher"></i>
+                                อาจารย์ผู้รับผิดชอบ:</label>
+                            <p class="form-control">{{ teacher_info[0] }} - {{ teacher_info[1] }}</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="project_pdf"><i class="fas fa-file-pdf"></i> ไฟล์ PDF โครงการ:</label>
+                            <input type="file" class="form-control-file" id="project_pdf" name="project_pdf"
+                                accept=".pdf">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- แผนปฏิบัติงานและตัวชี้วัด -->
+                <table id="planTable">
+                    <thead>
+                        <tr>
+                            <th rowspan="2">กิจกรรมดำเนินงาน/แผนการใช้จ่ายงบประมาณ<br>(ใส่จำนวนเงินในช่วงเวลาปฏิบัติงาน)</th>
+                            <th colspan="3">ปี พ.ศ. 2565</th>
+                            <th colspan="9">ปี พ.ศ. 2566</th>
+                        </tr>
+                        <tr>
+                            <th>ต.ค.</th>
+                            <th>พ.ย.</th>
+                            <th>ธ.ค.</th>
+                            <th>ม.ค.</th>
+                            <th>ก.พ.</th>
+                            <th>มี.ค.</th>
+                            <th>เม.ย</th>
+                            <th>พ.ค.</th>
+                            <th>มิ.ย</th>
+                            <th>ก.ค.</th>
+                            <th>ส.ค.</th>
+                            <th>ก.ย.</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- แถวจะถูกเพิ่มที่นี่โดย JavaScript -->
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="13"><strong>ตัวชี้วัดเป้าหมายผลผลิต</strong><br>(ใส่จำนวนตัวชี้วัดในช่วงเวลาปฏิบัติงาน)</td>
+                        </tr>
+                        <tr>
+                            <td colspan="13"><strong>- เชิงปริมาณ</strong></td>
+                        </tr>
+                        <tr>
+                            <td>- จำนวนครั้งที่ดำเนินโครงการ (ครั้ง)</td>
+                            <td colspan="12"><input type="number" style="width: 100%;"></td>
+                        </tr>
+                        <tr>
+                            <td>- จำนวนกลุ่มเป้าหมายของโครงการ (หน่วยนับ)</td>
+                            <td colspan="12"><input type="number" style="width: 100%;"></td>
+                        </tr>
+                        <tr>
+                            <td>- อื่นๆ (ระบุ)<input type="text" style="width: 80%;"></td>
+                            <td colspan="12"><input type="text" style="width: 100%;"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="13">
+                                <strong>- เชิงคุณภาพ</strong> (ร้อยละ)<br>
+                                - ร้อยละความพึงพอใจของผู้เข้าร่วมโครงการ/ผู้รับบริการ ไม่ต่ำกว่าร้อยละ 75<br>
+                                - อื่น ๆ (ระบุ)<input type="text" style="width: 80%;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="13">
+                                <strong>- เชิงเวลา</strong> (ร้อยละ)<br>
+                                - ร้อยละของโครงการแล้วเสร็จตามระยะเวลาที่กำหนด ไม่ต่ำกว่าร้อยละ 75<br>
+                                - อื่น ๆ (ระบุ)<input type="text" style="width: 80%;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="13">
+                                <strong>- เชิงค่าใช้จ่าย</strong> (บาท)<br>
+                                - งบประมาณที่ใช้ในการดำเนินโครงการ <input type="number" style="width: 200px;"> บาท
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+                <button class="add-row-btn" onclick="addRow()">เพิ่มแถวใหม่</button>
+                <!-- Footer -->
+                <footer class="footer">
+                    <div class="container">
+                        <img src="/static/image_2024-02-07_191338051.png" alt="Logo" class="mb-3">
+                        <p>&copy; 2024 มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน วิทยาเขตขอนแก่น. All rights reserved.</p>
+                    </div>
+                </footer>
+
+                <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+                <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+                <script>
+                    // ฟังก์ชันสำหรับรับวันที่ปัจจุบันในรูปแบบ YYYY-MM-DD
+                    function getCurrentDate() {
+                        const now = new Date();
+                        const year = now.getFullYear();
+                        const month = String(now.getMonth() + 1).padStart(2, '0');
+                        const day = String(now.getDate()).padStart(2, '0');
+                        return `${year}-${month}-${day}`;
+                    }
+
+                    function setCurrentFiscalYear() {
+                        const currentDate = new Date();
+                        const currentMonth = currentDate.getMonth(); // 0-11 (มกราคม = 0, ธันวาคม = 11)
+                        const currentYear = currentDate.getFullYear();
+
+                        // แปลงเป็น พ.ศ. โดยบวก 543
+                        const currentThaiYear = currentYear + 543;
+
+                        // ถ้าเดือนปัจจุบันมากกว่าหรือเท่ากับกันยายน (8) ให้ใช้ปีถัดไป
+                        const fiscalThaiYear = currentMonth >= 8 ? currentThaiYear + 1 : currentThaiYear;
+
+                        document.getElementById('project_year').value = fiscalThaiYear;
+                    }
+
+                    // เมื่อหน้าเว็บโหลดเสร็จ
+                    window.onload = function () {
+                        // กำหนดค่าขั้นต่ำของวันที่เริ่มโครงการเป็นวันปัจจุบัน
+                        const projectDoTime = document.getElementById('project_dotime');
+                        projectDoTime.min = getCurrentDate();
+                        projectDoTime.value = getCurrentDate();
+
+                        // กำหนดค่าขั้นต่ำของวันที่สิ้นสุดโครงการเป็นวันถัดไป
+                        const tomorrow = new Date();
+                        tomorrow.setDate(tomorrow.getDate() + 1);
+                        document.getElementById('project_endtime').min = tomorrow.toISOString().split('T')[0];
+
+                        // กำหนดปีงบประมาณ
+                        setCurrentFiscalYear();
+                    };
+
+                    document.getElementById('teacher_id').addEventListener('change', function () {
+                        var selectedOption = this.options[this.selectedIndex];
+                        var branchName = selectedOption.getAttribute('data-branch');
+                        document.getElementById('teacher_branch').value = branchName || '';
+                    });
+
+                    // ตรวจสอบและปรับวันที่สิ้นสุดโครงการเมื่อมีการเปลี่ยนแปลงวันที่เริ่มโครงการ
+                    document.getElementById('project_dotime').addEventListener('change', function () {
+                        const startDate = new Date(this.value);
+                        const endDateInput = document.getElementById('project_endtime');
+
+                        // ถ้าวันที่สิ้นสุดน้อยกว่าหรือเท่ากับวันที่เริ่ม ให้กำหนดเป็นวันถัดไปของวันที่เริ่ม
+                        if (new Date(endDateInput.value) <= startDate) {
+                            startDate.setDate(startDate.getDate() + 1);
+                            endDateInput.value = startDate.toISOString().split('T')[0];
+                        }
+
+                        // กำหนดค่าขั้นต่ำของวันที่สิ้นสุดเป็นวันถัดไปของวันที่เริ่ม
+                        startDate.setDate(startDate.getDate() + 1);
+                        endDateInput.min = startDate.toISOString().split('T')[0];
+                    });
+
+                    function addRow() {
+            const tbody = document.querySelector('#planTable tbody');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td><input type="text" placeholder="กิจกรรม" style="width: 100%;"></td>
+                ${Array(12).fill('<td class="arrow-cell"></td>').join('')}
+            `;
+            tbody.appendChild(newRow);
+        }
+
+        document.querySelector('#planTable').addEventListener('click', function(e) {
+            if (e.target.classList.contains('arrow-cell')) {
+                toggleArrow(e.target);
+            }
+        });
+
+        function toggleArrow(cell) {
+            if (cell.querySelector('.arrow')) {
+                cell.innerHTML = '';
+            } else {
+                cell.innerHTML = '<div class="arrow"></div>';
+            }
+        }
+
+        // เพิ่มแถวเริ่มต้น 4 แถว
+        for (let i = 0; i < 4; i++) {
+            addRow();
+        }
+                </script>
+
+
+</body>
+
+
+
+
+</html>

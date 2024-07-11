@@ -201,18 +201,14 @@
                         <div class="form-group">
                             <label for="teacher_id"><i class="fas fa-chalkboard-teacher"></i>
                                 อาจารย์ผู้รับผิดชอบ:</label>
-                            <select class="form-control" name="teacher_id" id="teacher_id" required>
-                                <option value="">เลือกอาจารย์</option>
+                           
+                                <p class="form-control">{{ teacher_info[0] }} - {{ teacher_info[1] }}</p>
                                 {% for teacher in teachers %}
-                                <option value="{{ teacher[0] }}" data-branch="{{ teacher[6] }}">{{ teacher[1] }}
-                                </option>
+                                
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label for="teacher_branch"><i class="fas fa-university"></i> สาขา:</label>
-                            <input type="text" class="form-control" id="teacher_branch" name="teacher_branch" readonly>
-                        </div>
+                      
                         <div class="form-group">
                             <label for="project_pdf"><i class="fas fa-file-pdf"></i> ไฟล์ PDF โครงการ:</label>
                             <input type="file" class="form-control-file" id="project_pdf" name="project_pdf" accept=".pdf">
@@ -222,6 +218,7 @@
                             <button type="submit" class="btn btn-primary btn-lg">
                                 <i class="fas fa-save"></i> บันทึกโครงการ
                             </button>
+                        
                         </div>
                 
             </form>
