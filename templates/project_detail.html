@@ -83,18 +83,30 @@
         <a class="navbar-brand" href="#">
             <img src="/static/image_2024-02-07_191338051.png" width="40" height="40" class="d-inline-block align-top"
                 alt="Logo">
-            <span>มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน<br>วิทยาเขตขอนแก่น</span>
-        </a>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="{{ url_for('teacher_home') }}"><i class="fas fa-home"></i> หน้าหลัก</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i>
-                        ออกจากระบบ</a>
-                </li>
-            </ul>
+                <span>มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน<br>วิทยาเขตขอนแก่น</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('home') }}"><i class="fas fa-home"></i> หน้าหลัก</a>
+                    </li>
+                    {% if is_logged_in %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('teacher_home') }}"><i class="fas fa-chalkboard-teacher"></i> หน้าอาจารย์</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('login') }}"><i class="fas fa-sign-in-alt"></i> เข้าสู่ระบบ</a>
+                        </li>
+                    {% endif %}
+                </ul>
         </div>
     </nav>
 
@@ -112,9 +124,8 @@
 
             <p>จำนวนผู้เข้าร่วมปัจจุบัน: {{ current_count }} / {{ project.project_target|default(0) }}</p>
 
-            {% if current_count < (project.project_target|int if project.project_target else 0) %} <a
-                href="{{ url_for('join_project', project_id=project.project_id) }}" class="btn btn-primary">
-                สมัครเข้าร่วมโครงการ</a>
+            {% if current_count < (project.project_target|int if project.project_target else 0) %} 
+            <a href="{{ url_for('join_project', project_id=project.project_id) }}" class="btn btn-primary">สมัครเข้าร่วมโครงการ</a>
                 {% else %}
                 <p class="text-danger">ขออภัย โครงการนี้มีผู้เข้าร่วมเต็มแล้ว</p>
                 {% endif %}
@@ -135,6 +146,8 @@
                             if project.project_statusStart==0 %}checked{% endif %}>
                         <label class="form-check-label" for="closeProject">ปิดโครงการ</label>
                     </div>
+                   
+                
                     <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> บันทึก</button>
                 </form>
                 {% endif %}

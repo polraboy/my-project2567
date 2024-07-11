@@ -230,26 +230,21 @@ def get_status(status_code):
 
 @app.route('/project/<int:project_id>/join', methods=['GET', 'POST'])
 def join_project(project_id):
-   
     conn = get_db_connection()
-    cursor = conn.cursor()
+    cursor = conn.cursor(dictionary=True)
     
     cursor.execute("SELECT project_name, project_target FROM project WHERE project_id = %s", (project_id,))
     project = cursor.fetchone()
     
     if not project:
         flash('โครงการไม่พบ', 'error')
-        return redirect(url_for('teacher_projects'))
+        return redirect(url_for('active_projects'))
     
-    project_dict = {
-        'project_name': project[0],
-        'project_target': project[1]
-    }
+    cursor.execute("SELECT COUNT(*) as current_count FROM `join` WHERE project_id = %s", (project_id,))
+    result = cursor.fetchone()
+    current_count = result['current_count']
     
-    cursor.execute("SELECT COUNT(*) FROM `join` WHERE project_id = %s", (project_id,))
-    current_count = cursor.fetchone()[0]
-    
-    if current_count >= project_dict['project_target']:
+    if current_count >= project['project_target']:
         flash('ขออภัย โครงการนี้มีผู้เข้าร่วมเต็มแล้ว', 'error')
         return redirect(url_for('project_detail', project_id=project_id))
     
@@ -260,11 +255,11 @@ def join_project(project_id):
         
         try:
             cursor.execute("""
-                INSERT INTO `join` (join_name, join_telephone, join_email, project_id)
-                VALUES (%s, %s, %s, %s)
+                INSERT INTO `join` (join_name, join_telephone, join_email, project_id, join_status)
+                VALUES (%s, %s, %s, %s, 0)
             """, (join_name, join_telephone, join_email, project_id))
             conn.commit()
-            flash('คุณได้ลงทะเบียนเข้าร่วมโครงการเรียบร้อยแล้ว', 'success')
+            flash('คุณได้ลงทะเบียนเข้าร่วมโครงการเรียบร้อยแล้ว โปรดรอการอนุมัติ', 'success')
         except mysql.connector.Error as err:
             flash(f'เกิดข้อผิดพลาดในการลงทะเบียน: {err}', 'error')
         
@@ -272,7 +267,7 @@ def join_project(project_id):
     
     cursor.close()
     conn.close()
-    return render_template('join_project.html', project=project_dict, project_id=project_id, current_count=current_count)
+    return render_template('join_project.html', project=project, project_id=project_id, current_count=current_count)
 
 @app.route("/project/<int:project_id>/participants")
 def project_participants(project_id):
@@ -281,20 +276,25 @@ def project_participants(project_id):
 
     cursor.execute(
         """
-        SELECT join_id, join_name, join_email, join_telephone
+        SELECT join_id, join_name, join_email, join_telephone, join_status
         FROM `join`
         WHERE project_id = %s
         ORDER BY join_id
     """,
-        (project_id,),
+        (project_id,)
     )
     participants = cursor.fetchall()
 
     cursor.close()
     conn.close()
 
+    is_logged_in = 'teacher_id' in session
+
     return render_template(
-        "project_participants.html", project_id=project_id, participants=participants
+        "project_participants.html", 
+        project_id=project_id, 
+        participants=participants,
+        is_logged_in=is_logged_in
     )
 
 @app.route("/add_project", methods=["GET", "POST"])
@@ -623,7 +623,61 @@ def active_projects():
         active_projects = cursor.fetchall()
 
     return render_template("active_projects.html", projects=active_projects)
+@app.route('/update_join_status/<int:join_id>', methods=['POST'])
+def update_join_status(join_id):
+    if 'teacher_id' not in session:
+        flash('คุณไม่มีสิทธิ์ในการดำเนินการนี้', 'error')
+        return redirect(url_for('home'))
 
+    new_status = request.form.get('join_status')
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("UPDATE `join` SET join_status = %s WHERE join_id = %s", (new_status, join_id))
+        conn.commit()
+        flash('อัพเดทสถานะการเข้าร่วมเรียบร้อยแล้ว', 'success')
+    except mysql.connector.Error as err:
+        flash(f'เกิดข้อผิดพลาดในการอัพเดทสถานะ: {err}', 'error')
+    
+    cursor.close()
+    conn.close()
+
+    return redirect(request.referrer)
+
+@app.route('/project/<int:project_id>/approve_participants')
+def approve_participants(project_id):
+    if 'teacher_id' not in session:
+        flash('คุณไม่มีสิทธิ์ในการดำเนินการนี้', 'error')
+        return redirect(url_for('home'))
+
+    with get_db_cursor() as (db, cursor):
+        cursor.execute("SELECT teacher_id FROM project WHERE project_id = %s", (project_id,))
+        project = cursor.fetchone()
+        if not project or project[0] != session['teacher_id']:
+            flash('คุณไม่มีสิทธิ์อนุมัติผู้เข้าร่วมโครงการนี้', 'error')
+            return redirect(url_for('project_detail', project_id=project_id))
+
+        cursor.execute("""
+            SELECT join_id, join_name, join_email, join_telephone, join_status
+            FROM `join`
+            WHERE project_id = %s
+        """, (project_id,))
+        participants = cursor.fetchall()
+
+        # แปลง tuple เป็น dictionary
+        participants = [
+            {
+                'join_id': p[0],
+                'join_name': p[1],
+                'join_email': p[2],
+                'join_telephone': p[3],
+                'join_status': p[4]
+            } for p in participants
+        ]
+
+    return render_template('approve_participants.html', project_id=project_id, participants=participants)
 # ตรวจสอบข้อมูลใหม่ทุกๆ 5 นาที
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
