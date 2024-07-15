@@ -1,28 +1,46 @@
-from flask import (
-    Flask,
-    render_template,
-    request,
-    redirect,
-    url_for,
-    session,
-    flash,
-    send_from_directory,
-)
+from flask import ( Flask, render_template,request, redirect, url_for,session,flash,send_from_directory,send_file)
 import mysql.connector, base64, os
 from contextlib import contextmanager
+from fpdf import FPDF
+from io import BytesIO
+from functools import wraps
 
 from PIL import Image
-from io import BytesIO
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
 
+class ThaiPDF(FPDF):
+    def __init__(self):
+        super().__init__()
+        self.add_thai_font()
 
+    def add_thai_font(self):
+        font_path = os.path.join(os.path.dirname(__file__), 'THSarabunNew.ttf')
+        if os.path.exists(font_path):
+            self.add_font("THSarabunNew", "", font_path, uni=True)
+        else:
+            raise FileNotFoundError(f"ไม่พบไฟล์ฟอนต์ที่ {font_path}")
+
+    def header(self):
+        self.set_font('THSarabunNew', '', 16)
+        self.cell(0, 10, 'รายละเอียดโครงการ', 0, 1, 'C')
+        
 @app.route("/home")
 def index():
     return "Welcome to the Flask Google Form Integration App"
 
+def login_required(user_type):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if "user_type" not in session or session["user_type"] != user_type:
+                flash("คุณไม่มีสิทธิ์เข้าถึงหน้านี้", "error")
+                return redirect(url_for("login"))
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
 
 @contextmanager
 def get_db_cursor():
@@ -73,21 +91,25 @@ def login():
             cursor.execute(query_teacher, (username, password))
             teacher = cursor.fetchone()
 
-            if not teacher:
+            if teacher:
+                session.clear()  # Clear any existing session data
+                session["teacher_id"] = teacher[0]
+                session["teacher_name"] = teacher[1]
+                session["user_type"] = "teacher"
+                return redirect(url_for("teacher_home"))
+            else:
                 query_admin = "SELECT * FROM admin WHERE admin_username = %s AND admin_password = %s"
                 cursor.execute(query_admin, (username, password))
                 admin = cursor.fetchone()
 
                 if admin:
+                    session.clear()  # Clear any existing session data
                     session["admin_id"] = admin[0]
                     session["admin_name"] = admin[1]
+                    session["user_type"] = "admin"
                     return redirect(url_for("admin_home"))
                 else:
-                    return "Login failed. Please check your username and password."
-
-            session["teacher_id"] = teacher[0]
-            session["teacher_name"] = teacher[1]
-            return redirect(url_for("teacher_home"))
+                    flash("Login failed. Please check your username and password.", "error")
 
     return render_template("login.html")
 
@@ -108,8 +130,11 @@ def logout():
     return redirect(url_for("login"))
 
 
-@app.route("/admin_home", methods=["GET", "POST"])
+@app.route("/admin_home")
+@login_required("admin")
 def admin_home():
+    if "user_type" not in session or session["user_type"] != "admin":
+        return redirect(url_for("login"))
     if request.method == "POST":
         if "constant_headname" in request.form:
             constant_headname = request.form["constant_headname"]
@@ -174,6 +199,7 @@ def admin_home():
 
 
 @app.route("/approve_project", methods=["GET", "POST"])
+@login_required("admin")
 def approve_project():
     if "admin_id" in session:
         if request.method == "POST":
@@ -193,8 +219,9 @@ def approve_project():
 
 
 @app.route("/teacher_home")
+@login_required("teacher")
 def teacher_home():
-    if "teacher_id" not in session:
+    if "user_type" not in session or session["user_type"] != "teacher":
         return redirect(url_for("login"))
 
     with get_db_cursor() as (db, cursor):
@@ -298,6 +325,7 @@ def project_participants(project_id):
     )
 
 @app.route("/add_project", methods=["GET", "POST"])
+@login_required("teacher")
 def add_project():
     if "teacher_id" not in session:
         return redirect(url_for("login"))
@@ -347,8 +375,48 @@ def add_project():
                 ),
             )
             db.commit()
+            project_id = cursor.lastrowid
 
-        return redirect(url_for("teacher_projects"))
+        # สร้าง PDF
+        pdf = ThaiPDF()
+        pdf.add_page()
+
+        # เพิ่มฟอนต์ THSarabunNew
+        font_path = os.path.join(os.path.dirname(__file__), 'THSarabunNew.ttf')
+        if os.path.exists(font_path):
+            pdf.add_font("THSarabunNew", "", font_path, uni=True)
+            pdf.add_font("THSarabunNew", "B", font_path, uni=True)
+        else:
+            raise FileNotFoundError(f"ไม่พบไฟล์ฟอนต์ที่ {font_path}")
+
+        pdf.set_font("THSarabunNew", size=14)
+
+        # เพิ่มข้อมูลโครงการ
+        pdf.cell(0, 10, f"โครงการ: {project_name}", 0, 1)
+        pdf.cell(0, 10, f"ประเภทงบประมาณ: {project_budgettype}", 0, 1)
+        pdf.cell(0, 10, f"ปีงบประมาณ: {project_year}", 0, 1)
+        pdf.cell(0, 10, f"ลักษณะโครงการ: {project_style}", 0, 1)
+        pdf.cell(0, 10, f"สถานที่ดำเนินการ: {project_address}", 0, 1)
+        pdf.cell(0, 10, f"วันที่เริ่มโครงการ: {project_dotime}", 0, 1)
+        pdf.cell(0, 10, f"วันที่สิ้นสุดโครงการ: {project_endtime}", 0, 1)
+        pdf.cell(0, 10, f"กลุ่มเป้าหมาย: {project_target}", 0, 1)
+        pdf.cell(0, 10, f"งบประมาณ: {project_budget}", 0, 1)
+
+        pdf_output = BytesIO()
+        pdf.output(pdf_output)
+        pdf_output.seek(0)
+
+        return send_file(
+            pdf_output,
+            as_attachment=True,
+            download_name=f'project_{project_id}.pdf',
+            mimetype='application/pdf'
+        )
+        
+        
+
+       
+        
 
     return render_template("add_project.html", teacher_info=teacher_info)
 
@@ -369,6 +437,7 @@ def get_teachers(teacher_id=None):
 
 
 @app.route("/edit_basic_info", methods=["GET", "POST"])
+@login_required("admin")
 def edit_basic_info():
     if request.method == "POST":
         branch_id = request.form["branch_id"]
@@ -429,6 +498,7 @@ def update_teacher(
 
 
 @app.route("/edit_teacher/<int:teacher_id>", methods=["GET", "POST"])
+@login_required("admin")
 def edit_teacher(teacher_id):
     if request.method == "GET":
         teacher = get_teacher_by_id(teacher_id)
@@ -478,6 +548,7 @@ def get_branches_from_database():
 
 
 @app.route("/add_teacher", methods=["GET", "POST"])
+@login_required("admin")
 def add_teacher():
     if request.method == "GET":
         branches = get_branches_from_database()
@@ -510,6 +581,7 @@ def add_teacher():
 
 
 @app.route("/add_branch", methods=["GET", "POST"])
+@login_required("admin")
 def add_branch():
     if request.method == "POST":
         branch_name = request.form["branch_name"]
@@ -525,6 +597,7 @@ def add_branch():
 
 
 @app.route("/teacher_projects")
+@login_required("teacher")
 def teacher_projects():
     if "teacher_id" not in session:
         return redirect(url_for("login"))
@@ -540,6 +613,7 @@ def teacher_projects():
 
 
 @app.route("/request_approval", methods=["POST"])
+@login_required("teacher")
 def request_approval():
     project_id = request.form.get("project_id")
     with get_db_cursor() as (db, cursor):
@@ -550,6 +624,7 @@ def request_approval():
 
 
 @app.route("/project/<int:project_id>")
+@login_required("teacher")
 def project_detail(project_id):
     with get_db_cursor() as (db, cursor):
         query = """SELECT project.project_id, project.project_name, project.project_year, project.project_style, 
@@ -589,6 +664,7 @@ def project_detail(project_id):
     )
 
 @app.route("/update_project_statusStart", methods=["POST"])
+@login_required("admin")
 def update_project_statusStart():
     if "teacher_id" not in session:
         return redirect(url_for("login"))
@@ -611,6 +687,7 @@ def update_project_statusStart():
 
     return redirect(url_for("project_detail", project_id=project_id))
 @app.route("/active_projects")
+@login_required("teacher")
 def active_projects():
     with get_db_cursor() as (db, cursor):
         query = """
@@ -624,6 +701,7 @@ def active_projects():
 
     return render_template("active_projects.html", projects=active_projects)
 @app.route('/update_join_status/<int:join_id>', methods=['POST'])
+@login_required("teacher")
 def update_join_status(join_id):
     if 'teacher_id' not in session:
         flash('คุณไม่มีสิทธิ์ในการดำเนินการนี้', 'error')
@@ -647,6 +725,7 @@ def update_join_status(join_id):
     return redirect(request.referrer)
 
 @app.route('/project/<int:project_id>/approve_participants')
+@login_required("teacher")
 def approve_participants(project_id):
     if 'teacher_id' not in session:
         flash('คุณไม่มีสิทธิ์ในการดำเนินการนี้', 'error')
