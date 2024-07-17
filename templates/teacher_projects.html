@@ -1,162 +1,276 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>โครงการที่อาจารย์ดูแล</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+    <link
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+      rel="stylesheet"
+    />
     <style>
-        :root {
-            --primary-color: #FF8C00;
-            --secondary-color: #007bff;
-            --background-color: #f8f9fa;
-        }
-        
-        body {
-            background-color: var(--background-color);
-            font-family: 'Kanit', sans-serif;
-            padding-bottom: 100px;
-        }
+      :root {
+        --primary-color: #ff8c00;
+        --secondary-color: #007bff;
+        --background-color: #f8f9fa;
+      }
 
-        .navbar {
-            background-color: var(--primary-color) !important;
-        }
+      body {
+        background-color: var(--background-color);
+        font-family: "Kanit", sans-serif;
+        padding-bottom: 100px;
+      }
 
-        .navbar-brand img {
-            margin-right: 10px;
-        }
+      .navbar {
+        background-color: var(--primary-color) !important;
+      }
 
-        .navbar-brand span {
-            font-size: 1rem;
-            line-height: 1.2;
-            color: white;
-        }
+      .navbar-brand img {
+        margin-right: 10px;
+      }
 
-        .nav-link {
-            color: white !important;
-        }
+      .navbar-brand span {
+        font-size: 1rem;
+        line-height: 1.2;
+        color: white;
+      }
 
-        .content-box {
-            background-color: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            margin-top: 30px;
-            margin-bottom: 50px;
-        }
+      .nav-link {
+        color: white !important;
+      }
 
-        .table thead th {
-            background-color: var(--primary-color);
-            color: white;
-        }
+      .content-box {
+        background-color: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        margin-top: 30px;
+        margin-bottom: 50px;
+      }
 
-        .btn-primary {
-            background-color: var(--secondary-color);
-            border-color: var(--secondary-color);
-        }
+      .table thead th {
+        background-color: var(--primary-color);
+        color: white;
+      }
 
-        .btn-primary:hover {
-            background-color: darken(var(--secondary-color), 10%);
-            border-color: darken(var(--secondary-color), 10%);
-        }
+      .btn-primary {
+        background-color: var(--secondary-color);
+        border-color: var(--secondary-color);
+      }
 
-        .footer {
-            background-color: var(--secondary-color);
-            color: white;
-            padding: 20px 0;
-            text-align: center;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-        }
+      .btn-primary:hover {
+        background-color: darken(var(--secondary-color), 10%);
+        border-color: darken(var(--secondary-color), 10%);
+      }
 
-        .footer img {
-            max-width: 100px;
-            margin-bottom: 10px;
-        }
+      .footer {
+        background-color: var(--secondary-color);
+        color: white;
+        padding: 20px 0;
+        text-align: center;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+      }
+
+      .footer img {
+        max-width: 100px;
+        margin-bottom: 10px;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+      .content {
+        flex: 1 0 auto;
+      }
+      .footer {
+        flex-shrink: 0;
+
+        padding: 20px 0;
+      }
+      .table-responsive {
+        overflow-x: auto;
+      }
+      .pagination {
+        justify-content: center;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <nav class="navbar navbar-expand-lg navbar-dark">
-        <a class="navbar-brand" href="#">
-            <img src="/static/image_2024-02-07_191338051.png" width="40" height="40" class="d-inline-block align-top" alt="Logo">
-            <span>มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน<br>วิทยาเขตขอนแก่น</span>
-        </a>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('teacher_home') }}"><i class="fas fa-home"></i> หน้าหลัก</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</a>
-                </li>
-            </ul>
-        </div>
+      <a class="navbar-brand" href="#">
+        <img
+          src="/static/image_2024-02-07_191338051.png"
+          width="40"
+          height="40"
+          class="d-inline-block align-top"
+          alt="Logo"
+        />
+        <span>มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน<br />วิทยาเขตขอนแก่น</span>
+      </a>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="teacher_home"
+              ><i class="fas fa-home"></i> หน้าหลัก</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#"
+              ><i class="fas fa-info-circle"></i> เกี่ยวกับ</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="add_project"
+              ><i class="fas fa-tasks"></i> เพิ่มโครงการ</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="teacher_projects"
+              ><i class="fas fa-tasks"></i> จัดการโครงการ</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#"
+              ><i class="fas fa-user"></i> {{ session['teacher_name'] }}</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('logout') }}"
+              ><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</a
+            >
+          </li>
+        </ul>
+      </div>
     </nav>
 
-    <div class="container">
+    <div class="content">
+      <div class="container mt-5">
         <div class="content-box">
-            <h2 class="text-center mb-4">โครงการที่คุณอาจารย์ดูแล</h2>
+          <h2 class="text-center mb-4">โครงการที่คุณอาจารย์ดูแล</h2>
+          <a href="javascript:history.back()" class="btn btn-secondary mb-3"
+            >กลับ</a
+          >
+
+          <div class="table-responsive">
             <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th scope="col"><i class="fas fa-hashtag"></i> ลำดับ</th>
-                        <th scope="col"><i class="fas fa-project-diagram"></i> ชื่อโครงการ</th>
-                        <th scope="col"><i class="fas fa-info-circle"></i> สถานะ</th>
-                        <th scope="col"><i class="fas fa-cogs"></i> การดำเนินการ</th>
-                        <th scope="col"><i class="fas fa-tasks"></i> การจัดการ</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for project in projects %}
-                    <tr>
-                        <td>{{ loop.index }}</td>
-                        <td>
-                            <a href="{{ url_for('project_detail', project_id=project[0]) }}">{{ project[1] }}</a>
-                        </td>
-                        <td>
-                            {% if project[2] == 0 %}
-                                <span class="badge badge-secondary">ยังไม่ยื่นอนุมัติ</span>
-                            {% elif project[2] == 1 %}
-                                <span class="badge badge-warning">รออนุมัติ</span>
-                            {% elif project[2] == 2 %}
-                                <span class="badge badge-success">อนุมัติแล้ว</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if project[3] %}
-                                <span class="badge badge-info">เปิดโครงการ</span>
-                            {% else %}
-                                <span class="badge badge-danger">ปิดโครงการ</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if project[2] == 0 %}
-                            <form action="{{ url_for('request_approval') }}" method="post" style="display:inline;">
-                                <input type="hidden" name="project_id" value="{{ project[0] }}">
-                                <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-check"></i> ขออนุมัติ</button>
-                            </form>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
+              <thead>
+                <tr>
+                  <th>ลำดับ</th>
+                  <th>ชื่อโครงการ</th>
+                  <th>สถานะ</th>
+                  <th>การดำเนินการ</th>
+                  <th>การจัดการ</th>
+                  <th>ไฟล์โครงการ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for project in projects %}
+                <tr>
+                  <td>{{ loop.index + (page - 1) * per_page }}</td>
+                  <td>
+                    <a
+                      href="{{ url_for('project_detail', project_id=project[0]) }}"
+                      >{{ project[1] }}</a
+                    >
+                  </td>
+                  <td>
+                    {% if project[2] == 0 %}
+                    <span class="badge bg-secondary">ยังไม่ยื่นอนุมัติ</span>
+                    {% elif project[2] == 1 %}
+                    <span class="badge bg-warning text-dark">รออนุมัติ</span>
+                    {% elif project[2] == 2 %}
+                    <span class="badge bg-success">อนุมัติแล้ว</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if project[3] %}
+                    <span class="badge bg-info">เปิดโครงการ</span>
+                    {% else %}
+                    <span class="badge bg-danger">ปิดโครงการ</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if project[2] == 0 %}
+                    <form
+                      action="{{ url_for('request_approval') }}"
+                      method="POST"
+                    >
+                      <input
+                        type="hidden"
+                        name="project_id"
+                        value="{{ project[0] }}"
+                      />
+                      <button type="submit" class="btn btn-primary btn-sm">
+                        ขออนุมัติ
+                      </button>
+                    </form>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if project[4] %}
+                    <a
+                      href="{{ url_for('uploaded_file', filename=project[4]) }}"
+                      class="btn btn-info btn-sm"
+                      target="_blank"
+                      >ดูไฟล์ PDF</a
+                    >
+                    {% else %}
+                    <span class="text-muted">ไม่มีไฟล์</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
             </table>
+          </div>
+
+          <!-- Pagination -->
+          <nav aria-label="Page navigation">
+            <ul class="pagination">
+              {% for p in range(1, total_pages + 1) %}
+              <li class="page-item {% if p == page %}active{% endif %}">
+                <a
+                  class="page-link"
+                  href="{{ url_for('teacher_projects', page=p) }}"
+                  >{{ p }}</a
+                >
+              </li>
+              {% endfor %}
+            </ul>
+          </nav>
         </div>
+      </div>
     </div>
 
     <footer class="footer">
-        <div class="container">
-            <img src="/static/image_2024-02-07_191338051.png" alt="Logo" class="mb-3">
-            <p>คณะบริหารธุรกิจและเทคโนโลยีสารสนเทศ - มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน วิทยาเขตขอนแก่น</p>
-            <p>150 ถ.ศรีจันทร์ ต.ในเมือง อ.เมือง จ.ขอนแก่น 40000</p>
-            <p>โทร: 043-283-705 | เวลาทำการ: 8.00-16.00 น.</p>
-        </div>
+      <div class="container">
+        <img
+          src="/static/image_2024-02-07_191338051.png"
+          alt="Logo"
+          class="mb-3"
+        />
+        <p>
+          คณะบริหารธุรกิจและเทคโนโลยีสารสนเทศ - มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน
+          วิทยาเขตขอนแก่น
+        </p>
+        <p>150 ถ.ศรีจันทร์ ต.ในเมือง อ.เมือง จ.ขอนแก่น 40000</p>
+        <p>โทร: 043-283-705 | เวลาทำการ: 8.00-16.00 น.</p>
+      </div>
     </footer>
-
+    <script>
+      function goBack() {
+        window.history.back();
+      }
+    </script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
+  </body>
 </html>

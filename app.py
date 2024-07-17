@@ -4,12 +4,15 @@ from contextlib import contextmanager
 from fpdf import FPDF
 from io import BytesIO
 from functools import wraps
-
 from PIL import Image
 from werkzeug.utils import secure_filename
+from math import ceil
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
+
+UPLOAD_FOLDER = 'uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 class ThaiPDF(FPDF):
     def __init__(self):
@@ -20,12 +23,41 @@ class ThaiPDF(FPDF):
         font_path = os.path.join(os.path.dirname(__file__), 'THSarabunNew.ttf')
         if os.path.exists(font_path):
             self.add_font("THSarabunNew", "", font_path, uni=True)
+            self.add_font("THSarabunNew", "B", font_path, uni=True)
         else:
             raise FileNotFoundError(f"ไม่พบไฟล์ฟอนต์ที่ {font_path}")
 
     def header(self):
-        self.set_font('THSarabunNew', '', 16)
-        self.cell(0, 10, 'รายละเอียดโครงการ', 0, 1, 'C')
+        self.set_font('THSarabunNew', 'B', 16)
+        self.cell(0, 10, 'มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน', 0, 1, 'C')
+        self.cell(0, 10, 'วิทยาเขตขอนแก่น', 0, 1, 'C')
+        self.ln(10)
+
+    def footer(self):
+        self.set_y(-15)
+        self.set_font('THSarabunNew', '', 8)
+        self.cell(0, 10, f'หน้า {self.page_no()}', 0, 0, 'C')
+
+    def chapter_title(self, title):
+        self.set_font('THSarabunNew', 'B', 14)
+        self.cell(0, 6, title, 0, 1)
+        self.ln(4)
+
+    def chapter_body(self, body):
+        self.set_font('THSarabunNew', '', 14)
+        self.multi_cell(0, 6, body)
+        self.ln()
+
+    def add_table(self, headers, data):
+        self.set_font('THSarabunNew', 'B', 12)
+        for header in headers:
+            self.cell(40, 7, header, 1)
+        self.ln()
+        self.set_font('THSarabunNew', '', 12)
+        for row in data:
+            for item in row:
+                self.cell(40, 6, str(item), 1)
+            self.ln()
         
 @app.route("/home")
 def index():
@@ -324,6 +356,11 @@ def project_participants(project_id):
         is_logged_in=is_logged_in
     )
 
+@app.route('/uploads/<filename>')
+@login_required("teacher")
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
 @app.route("/add_project", methods=["GET", "POST"])
 @login_required("teacher")
 def add_project():
@@ -342,6 +379,7 @@ def add_project():
         teacher_info = cursor.fetchone()
 
     if request.method == "POST":
+        # รับข้อมูลจากฟอร์ม
         project_budgettype = request.form["project_budgettype"]
         project_year = request.form["project_year"]
         project_name = request.form["project_name"]
@@ -350,14 +388,65 @@ def add_project():
         project_dotime = request.form["project_dotime"]
         project_endtime = request.form["project_endtime"]
         project_target = request.form["project_target"]
-        project_target = int(project_target) if project_target else 0
         project_budget = request.form["project_budget"]
+
+        # ตรวจสอบและแปลงข้อมูลเป็นตัวเลข
+        try:
+            project_target = int(project_target) if project_target else 0
+            project_budget = float(project_budget) if project_budget else 0
+        except ValueError:
+            flash('กรุณากรอกข้อมูลเป้าหมายและงบประมาณเป็นตัวเลขเท่านั้น', 'error')
+            return render_template("add_project.html", teacher_info=teacher_info)
+
         project_status = 0
 
+        # สร้าง PDF
+        pdf = ThaiPDF()
+        pdf.add_page()
+
+        # หัวข้อโครงการ
+        pdf.chapter_title(f"1. ชื่อโครงการ: {project_name}")
+        
+        # ลักษณะโครงการ
+        pdf.chapter_title("2. ลักษณะโครงการ")
+        pdf.chapter_body(f"({project_style})")
+
+        # ข้อมูลโครงการ
+        pdf.chapter_title("3. ข้อมูลโครงการ")
+        pdf.chapter_body(f"ประเภทงบประมาณ: {project_budgettype}")
+        pdf.chapter_body(f"ปีงบประมาณ: {project_year}")
+        pdf.chapter_body(f"สถานที่ดำเนินการ: {project_address}")
+        pdf.chapter_body(f"วันที่เริ่มโครงการ: {project_dotime}")
+        pdf.chapter_body(f"วันที่สิ้นสุดโครงการ: {project_endtime}")
+        pdf.chapter_body(f"กลุ่มเป้าหมาย: {project_target}")
+        pdf.chapter_body(f"งบประมาณ: {project_budget} บาท")
+
+        # ข้อมูลผู้รับผิดชอบ
+        pdf.chapter_title("4. ผู้รับผิดชอบโครงการ")
+        pdf.chapter_body(f"อาจารย์ผู้รับผิดชอบ: {teacher_info[0]}")
+        pdf.chapter_body(f"สาขา: {teacher_info[1]}")
+
+        # ตารางแผนการดำเนินงาน (ตัวอย่าง)
+        pdf.add_page()
+        pdf.chapter_title("5. แผนการดำเนินงาน")
+        headers = ['กิจกรรม', 'ระยะเวลา', 'งบประมาณ']
+        data = [
+            ['เตรียมการ', f'{project_dotime} - {project_endtime}', project_budget],
+            ['ดำเนินการ', f'{project_dotime} - {project_endtime}', ''],
+            ['สรุปผล', project_endtime, ''],
+        ]
+        pdf.add_table(headers, data)
+
+        # บันทึก PDF
+        filename = f'project_{secure_filename(project_name)}.pdf'
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        pdf.output(file_path)
+
+        # บันทึกข้อมูลลงฐานข้อมูล
         with get_db_cursor() as (db, cursor):
             query = """INSERT INTO project (project_budgettype, project_year, project_name, project_style, 
                        project_address, project_dotime, project_endtime, project_target, project_budget, 
-                       project_status, teacher_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+                       project_status, teacher_id, project_file) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
             cursor.execute(
                 query,
                 (
@@ -372,51 +461,13 @@ def add_project():
                     project_budget,
                     project_status,
                     teacher_id,
+                    filename,
                 ),
             )
             db.commit()
-            project_id = cursor.lastrowid
 
-        # สร้าง PDF
-        pdf = ThaiPDF()
-        pdf.add_page()
-
-        # เพิ่มฟอนต์ THSarabunNew
-        font_path = os.path.join(os.path.dirname(__file__), 'THSarabunNew.ttf')
-        if os.path.exists(font_path):
-            pdf.add_font("THSarabunNew", "", font_path, uni=True)
-            pdf.add_font("THSarabunNew", "B", font_path, uni=True)
-        else:
-            raise FileNotFoundError(f"ไม่พบไฟล์ฟอนต์ที่ {font_path}")
-
-        pdf.set_font("THSarabunNew", size=14)
-
-        # เพิ่มข้อมูลโครงการ
-        pdf.cell(0, 10, f"โครงการ: {project_name}", 0, 1)
-        pdf.cell(0, 10, f"ประเภทงบประมาณ: {project_budgettype}", 0, 1)
-        pdf.cell(0, 10, f"ปีงบประมาณ: {project_year}", 0, 1)
-        pdf.cell(0, 10, f"ลักษณะโครงการ: {project_style}", 0, 1)
-        pdf.cell(0, 10, f"สถานที่ดำเนินการ: {project_address}", 0, 1)
-        pdf.cell(0, 10, f"วันที่เริ่มโครงการ: {project_dotime}", 0, 1)
-        pdf.cell(0, 10, f"วันที่สิ้นสุดโครงการ: {project_endtime}", 0, 1)
-        pdf.cell(0, 10, f"กลุ่มเป้าหมาย: {project_target}", 0, 1)
-        pdf.cell(0, 10, f"งบประมาณ: {project_budget}", 0, 1)
-
-        pdf_output = BytesIO()
-        pdf.output(pdf_output)
-        pdf_output.seek(0)
-
-        return send_file(
-            pdf_output,
-            as_attachment=True,
-            download_name=f'project_{project_id}.pdf',
-            mimetype='application/pdf'
-        )
-        
-        
-
-       
-        
+        flash('โครงการถูกเพิ่มเรียบร้อยแล้ว', 'success')
+        return redirect(url_for('teacher_projects'))
 
     return render_template("add_project.html", teacher_info=teacher_info)
 
@@ -603,13 +654,35 @@ def teacher_projects():
         return redirect(url_for("login"))
 
     teacher_id = session["teacher_id"]
+    page = request.args.get('page', 1, type=int)
+    per_page = 6  # จำนวนโปรเจคต่อหน้า
 
     with get_db_cursor() as (db, cursor):
-        query = "SELECT project_id, project_name, project_status, project_statusStart FROM project WHERE teacher_id = %s"
-        cursor.execute(query, (teacher_id,))
+        # นับจำนวนโปรเจคทั้งหมด
+        cursor.execute("SELECT COUNT(*) FROM project WHERE teacher_id = %s", (teacher_id,))
+        total_projects = cursor.fetchone()[0]
+
+        # คำนวณจำนวนหน้าทั้งหมด
+        total_pages = ceil(total_projects / per_page)
+
+        # ดึงข้อมูลโปรเจคตามหน้าที่ต้องการ
+        offset = (page - 1) * per_page
+        query = """
+            SELECT project_id, project_name, project_status, project_statusStart, project_file 
+            FROM project 
+            WHERE teacher_id = %s 
+            LIMIT %s OFFSET %s
+        """
+        cursor.execute(query, (teacher_id, per_page, offset))
         projects = cursor.fetchall()
 
-    return render_template("teacher_projects.html", projects=projects)
+    return render_template(
+        "teacher_projects.html", 
+        projects=projects, 
+        page=page, 
+        total_pages=total_pages, 
+        per_page=per_page
+    )
 
 
 @app.route("/request_approval", methods=["POST"])

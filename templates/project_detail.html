@@ -152,8 +152,7 @@
                 </form>
                 {% endif %}
 
-                <a href="{{ url_for('active_projects') }}" class="btn btn-secondary mt-3"><i
-                        class="fas fa-arrow-left"></i> กลับ</a>
+                <button onclick="goBack()" class="btn btn-secondary back-button">กลับ</button>
         </div>
     </div>
 
@@ -162,4 +161,9 @@
             <img src="/static/image_2024-02-07_191338051.png" alt="Logo" class="mb-3">
             <p>คณะบริหารธุรกิจและเทคโนโลยีสารสนเทศ - มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน วิทยาเขตขอนแก่น</p>
             <p>150 ถ.ศรีจันทร์ ต.ในเมือง อ.เมือง จ.ขอนแก่น 40000</p>
-            <p>โทร: 043-283-705 | เวลาทำการ: 8.00-16.0
+            <p>โทร: 043-283-705 | เวลาทำการ: 8.00-16.0       
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+    </script>
