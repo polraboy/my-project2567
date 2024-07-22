@@ -1,3 +1,4 @@
+from reportlab.lib.enums import TA_CENTER
 from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory, send_file
 import mysql.connector
 import base64
@@ -436,6 +437,7 @@ def compress_pdf(pdf_content):
     return output.getvalue()
 
 
+
 def create_project_pdf(project_data):
     try:
         buffer = BytesIO()
@@ -454,21 +456,26 @@ def create_project_pdf(project_data):
 
         # สร้างสไตล์
         styles = getSampleStyleSheet()
+        styles.add(ParagraphStyle(name='Center', alignment=CENTER, fontName='THSarabunNew', fontSize=16))
         styles['Normal'].fontName = 'THSarabunNew'
         styles['Normal'].fontSize = 12
-        styles['Heading1'].fontName = 'THSarabunNew'
-        styles['Heading1'].fontSize = 14
-        styles['Heading2'].fontName = 'THSarabunNew'
-        styles['Heading2'].fontSize = 12
-        styles['Heading3'].fontName = 'THSarabunNew'
+        styles['Heading1'].fontName = 'THSarabunNew-Bold'
+        styles['Heading1'].fontSize = 16
+        styles['Heading1'].alignment = TA_CENTER
+        styles['Heading2'].fontName = 'THSarabunNew-Bold'
+        styles['Heading2'].fontSize = 14
+        styles['Heading3'].fontName = 'THSarabunNew-Bold'
         styles['Heading3'].fontSize = 12
 
         def header(canvas, doc):
             canvas.saveState()
-            
+            # วาดเส้นขอบ
+            canvas.setStrokeColorRGB(0, 0, 0)
+            canvas.setLineWidth(1)
+            canvas.rect(0.5*inch, 0.5*inch, doc.width, doc.height)
             
             # ดึงโลโก้จาก URL
-            logo_url = "/static/image_2024-02-07_191338051.png"
+            logo_url = "file:///C:/Users/PC/Desktop/my-project2567/static/4d9031c8-3f48-4f56-9208-327c0fc8a873.jpg"  # แทนที่ด้วย URL จริงของโลโก้
             try:
                 response = requests.get(logo_url)
                 if response.status_code == 200:
@@ -479,19 +486,15 @@ def create_project_pdf(project_data):
             except Exception as e:
                 logging.error(f"Error fetching logo: {e}")
             
-            # เพิ่มหัวเรื่อง
-            canvas.setFont('THSarabunNew', 16)
-            canvas.drawCentredString(4.25*inch, doc.height + 0.5*inch, "มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน")
-            canvas.setFont('THSarabunNew', 14)
-            canvas.drawCentredString(4.25*inch, doc.height + 0.3*inch, f"วิทยาเขต ขอนแก่น")
-            canvas.drawCentredString(4.25*inch, doc.height + 0.1*inch, f"งบประมาณ{project_data['project_budgettype']} ประจำปีงบประมาณ พ.ศ. {project_data['project_year']}")
-            
             canvas.restoreState()
 
         content = []
 
-        # เพิ่ม Spacer เพื่อให้เนื้อหาเริ่มต้นหลังจากหัวเรื่อง
-        content.append(Spacer(1, 2*inch))
+        # หัวเรื่อง
+        content.append(Paragraph('มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน', styles['Heading1']))
+        content.append(Paragraph(f"วิทยาเขต ขอนแก่น", styles['Center']))
+        content.append(Paragraph(f"งบประมาณ{project_data['project_budgettype']} ประจำปีงบประมาณ พ.ศ. {project_data['project_year']}", styles['Center']))
+        content.append(Spacer(1, 0.5*inch))
 
         # ข้อมูลโครงการ
         content.append(Paragraph(f"1. ชื่อโครงการ: {project_data['project_name']}", styles['Normal']))
@@ -534,10 +537,9 @@ def create_project_pdf(project_data):
         content.append(Paragraph(f"รวมค่าใช้สอย: {project_data['total_expenses']} บาท", styles['Normal']))
         content.append(Paragraph(f"รวมค่าใช้จ่ายทั้งสิ้น: {project_data['grand_total']} บาท", styles['Normal']))
 
-        # แผนปฏิบัติงาน (ใช้ตารางตามต้นฉบับ)
+        # แผนปฏิบัติงาน
         content.append(Paragraph("15. แผนปฏิบัติงาน (แผนงาน) แผนการใช้จ่ายงบประมาณ (แผนเงิน) และตัวชี้วัดเป้าหมายผลผลิต", styles['Heading2']))
         
-        # สร้างตารางแผนปฏิบัติงาน
         months = ['ต.ค.', 'พ.ย.', 'ธ.ค.', 'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.']
         table_data = [
             ['กิจกรรมดำเนินงาน'] + [f"ปี พ.ศ. {int(project_data['project_year'])}" if i < 3 else f"ปี พ.ศ. {int(project_data['project_year']) + 1}" for i in range(12)],
@@ -549,18 +551,26 @@ def create_project_pdf(project_data):
             table_data.append(row)
         
         table = Table(table_data)
-        table.setStyle(TableStyle([
-            ('FONT', (0, 0), (-1, -1), 'THSarabunNew', 10),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),
-            ('ALIGN', (1, 0), (-1, -1), 'CENTER'),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('SPAN', (1, 0), (3, 0)),
-            ('SPAN', (4, 0), (-1, 0)),
-        ]))
-        
+        table_style = TableStyle([
+            ('BACKGROUND', (0,0), (-1,0), colors.grey),
+            ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
+            ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+            ('FONTNAME', (0,0), (-1,0), 'THSarabunNew-Bold'),
+            ('FONTSIZE', (0,0), (-1,0), 10),
+            ('BOTTOMPADDING', (0,0), (-1,0), 12),
+            ('BACKGROUND', (0,1), (-1,-1), colors.beige),
+            ('TEXTCOLOR', (0,1), (-1,-1), colors.black),
+            ('ALIGN', (0,1), (-1,-1), 'CENTER'),
+            ('FONTNAME', (0,1), (-1,-1), 'THSarabunNew'),
+            ('FONTSIZE', (0,1), (-1,-1), 8),
+            ('TOPPADDING', (0,1), (-1,-1), 3),
+            ('BOTTOMPADDING', (0,1), (-1,-1), 3),
+            ('GRID', (0,0), (-1,-1), 1, colors.black)
+        ])
+        table.setStyle(table_style)
 
         # กำหนดความกว้างของคอลัมน์
-        col_widths = [2*cm] + [1*cm]*12  # คอลัมน์แรกกว้าง 2 cm, ที่เหลือกว้าง 1 cm
+        col_widths = [3*cm] + [1.3*cm]*12
         table._argW = col_widths
         
         content.append(table)
