@@ -465,26 +465,25 @@ def create_project_pdf(project_data):
 
         def header(canvas, doc):
             canvas.saveState()
-            
-            
-            # ดึงโลโก้จาก URL
-            logo_url = "/static/image_2024-02-07_191338051.png"
-            try:
-                response = requests.get(logo_url)
-                if response.status_code == 200:
-                    logo = Image(BytesIO(response.content), width=40, height=40)
-                    logo.drawOn(canvas, 0.75*inch, doc.height + 0.25*inch)
-                else:
-                    logging.warning(f"Failed to fetch logo from {logo_url}")
-            except Exception as e:
-                logging.error(f"Error fetching logo: {e}")
-            
-            # เพิ่มหัวเรื่อง
-            canvas.setFont('THSarabunNew', 16)
-            canvas.drawCentredString(4.25*inch, doc.height + 0.5*inch, "มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน")
-            canvas.setFont('THSarabunNew', 14)
-            canvas.drawCentredString(4.25*inch, doc.height + 0.3*inch, f"วิทยาเขต ขอนแก่น")
-            canvas.drawCentredString(4.25*inch, doc.height + 0.1*inch, f"งบประมาณ{project_data['project_budgettype']} ประจำปีงบประมาณ พ.ศ. {project_data['project_year']}")
+            if canvas.getPageNumber() == 1:  # เฉพาะหน้าแรก
+                # ดึงโลโก้จาก URL
+                logo_url = "/static/image_2024-02-07_191338051.png"
+                try:
+                    response = requests.get(logo_url)
+                    if response.status_code == 200:
+                        logo = Image(BytesIO(response.content), width=40, height=40)
+                        logo.drawOn(canvas, 0.75*inch, doc.height + 0.25*inch)
+                    else:
+                        logging.warning(f"Failed to fetch logo from {logo_url}")
+                except Exception as e:
+                    logging.error(f"Error fetching logo: {e}")
+                
+                # เพิ่มหัวเรื่อง
+                canvas.setFont('THSarabunNew', 16)
+                canvas.drawCentredString(4.25*inch, doc.height + 0.5*inch, "มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน")
+                canvas.setFont('THSarabunNew', 14)
+                canvas.drawCentredString(4.25*inch, doc.height + 0.3*inch, f"วิทยาเขต ขอนแก่น")
+                canvas.drawCentredString(4.25*inch, doc.height + 0.1*inch, f"งบประมาณ{project_data['project_budgettype']} ประจำปีงบประมาณ พ.ศ. {project_data['project_year']}")
             
             canvas.restoreState()
 
