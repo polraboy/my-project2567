@@ -62,7 +62,36 @@
             .nav-link {
                 color: white !important;
             }
-    </style>
+            .expense-form {
+                width: 100%;
+                max-width: 600px;
+                margin: left auto;
+              }
+              
+              .expense-item, .expense-total, .expense-grand-total {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 10px;
+              }
+              
+              .expense-description {
+                width: 70%;
+              }
+              
+              .expense-amount {
+                width: 20%;
+                text-align: right;
+              }
+              
+              .currency {
+                width: 10%;
+                text-align: right;
+              }
+              
+              .expense-total, .expense-grand-total {
+                font-weight: bold;
+              }
+        </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -77,7 +106,9 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('admin_home') }}">หน้าหลัก</a>
+                        <a class="nav-link" href="teacher_home"
+              ><i class="fas fa-home"></i> หน้าหลัก</a
+            >
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">เกี่ยวกับ</a>
@@ -86,7 +117,9 @@
                         <a class="nav-link" href="{{ url_for('add_project') }}">เพิ่มโครงการ</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('approve_project') }}">อนุมัติคำขอโครงการ</a>
+                        <a class="nav-link" href="teacher_projects"
+                        ><i class="fas fa-tasks"></i> จัดการโครงการ</a
+                      >
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('edit_basic_info') }}">ข้อมูลพื้นฐาน</a>
@@ -102,368 +135,252 @@
         </div>
     </nav>
 
-    <div class="container">
-        <div class="content-box">
-            <h2 class="text-center mb-4">เพิ่มโครงการใหม่</h2>
-            <form>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="budget_type" class="form-label">ประเภทงบประมาณ:</label>
-                        <select class="form-select" id="budget_type">
-                            <option selected>เลือกประเภทงบประมาณ</option>
-                            <option value="income">งบประมาณเงินรายได้</option>
-                            <option value="expense">งบประมาณเงินรายจ่าย</option>
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">เพิ่มโครงการใหม่</h2>
+        <form method="POST" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="project_budgettype">ประเภทงบประมาณ:</label>
+                        <select class="form-control" id="project_budgettype" name="project_budgettype" required>
+                            <option value="">เลือกประเภทงบประมาณ</option>
+                            <option value="งบประมาณเงินรายได้">งบประมาณเงินรายได้</option>
+                            <option value="งบประมาณเงินรายจ่าย">งบประมาณเงินรายจ่าย</option>
                         </select>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="fiscal_year" class="form-label">ปีงบประมาณ (พ.ศ.):</label>
-                        <input type="number" class="form-control" id="fiscal_year">
+                    <div class="form-group">
+                        <label for="project_year">ปีงบประมาณ (พ.ศ.):</label>
+                        <input type="number" class="form-control" id="project_year" name="project_year" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="project_name">ชื่อโครงการ:</label>
+                        <input type="text" class="form-control" id="project_name" name="project_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>ลักษณะโครงการ:</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="project_style" id="style1" value="จัดฝึกอบรม" required>
+                            <label class="form-check-label" for="style1">จัดฝึกอบรม</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="project_style" id="style2" value="จัดงาน">
+                            <label class="form-check-label" for="style2">จัดงาน</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="project_style" id="style3" value="จัดตามภารกิจปกติ">
+                            <label class="form-check-label" for="style3">จัดตามภารกิจปกติ</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="project_address">สถานที่ดำเนินการ:</label>
+                        <input type="text" class="form-control" id="project_address" name="project_address" required>
                     </div>
                 </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="project_dotime">วันที่เริ่มโครงการ:</label>
+                        <input type="date" class="form-control" id="project_dotime" name="project_dotime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="project_endtime">วันที่สิ้นสุดโครงการ:</label>
+                        <input type="date" class="form-control" id="project_endtime" name="project_endtime" required>
+                    </div>
+                    
+                    
+                    <div class="form-group">
+                        <label>อาจารย์ผู้รับผิดชอบ:</label>
+                        <p>{{ teacher_info[0] }} - {{ teacher_info[1] }}</p>
+                    </div>
+                </div>
+            </div>
 
-                <div class="mb-3">
-                    <label for="project_name" class="form-label">ชื่อโครงการ:</label>
-                    <input type="text" class="form-control" id="project_name">
+            <div class="form-group">
+                <label for="policy">นโยบายและผลผลิต:</label>
+                <textarea class="form-control" id="policy" name="policy" rows="3" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="strategy">ความสอดคล้องประเด็นยุทธศาสตร์:</label>
+                <textarea class="form-control" id="strategy" name="strategy" rows="3" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="cluster">ความสอดคล้องกับ Cluster/Commonality/Physical grouping:</label>
+                <textarea class="form-control" id="cluster" name="cluster" rows="3" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="responsible_unit">หน่วยงานที่รับผิดชอบ:</label>
+                <input type="text" class="form-control" id="responsible_unit" name="responsible_unit" required>
+            </div>
+            <div class="form-group">
+                <label for="rationale">หลักการและเหตุผล:</label>
+                <textarea class="form-control" id="rationale" name="rationale" rows="4" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="objectives">วัตถุประสงค์:</label>
+                <textarea class="form-control" id="objectives" name="objectives" rows="3" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="goals">เป้าหมาย:</label>
+                <textarea class="form-control" id="goals" name="goals" rows="3" required></textarea>
+            </div>
+
+                <div class="col-md-12 left-align">
+                    <label for="activities">12. กิจกรรมดำเนินงาน (ให้ระบุกิจกรรมที่จะทำในโครงการ)</label>
+                    <textarea class="form-control" id="project_activity" name="project_activity" rows="4" required></textarea>
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label">ลักษณะโครงการ:</label>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="project_type" id="training">
-                        <label class="form-check-label" for="training">จัดฝึกอบรม</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="project_type" id="event">
-                        <label class="form-check-label" for="event">จัดงาน</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="project_type" id="routine">
-                        <label class="form-check-label" for="routine">จัดตามภารกิจปกติ</label>
-                    </div>
-                    <div class="col-md-5">
-                        <label for="policy">3. โครงการนี้สอดคล้องกับนโยบายชาติ และผลผลิต</label>  
-                        <label for="policy" class="col-md-12 left-align">นโยบายที่ 4 : การศึกษา และเรียนรู้ การทะนุบำรุงศาสนา ศิลปะ และวัฒนธรรม</label>
-                        <label for="output">ผลผลิต</label>   
-                        <span id="position" class="editable" contenteditable="true"></span>
-                    </div>
-                    <div class="col-md-12 left-align">
-                        <label for="strategy">4. ความสอดคล้องประเด็นยุทธศาสตร์ และตัวชี้วัด ของมหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน</label>
-                    </div>
-                    <div class="col-md-12 left-align">
-                        <label for="strategy">ประเด็นยุทธศาสตร์ที่</label>
-                        <span id="position" class="editable" contenteditable="true"></span>
-                    </div>
-                    <div class="col-md-12 left-align">
-                        <label for="policy">5. ความสอดคล้องกับ Cluster / Commonality / Physical grouping ของมหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน</label>  
-                    </div>
-                    <div class="col-md-12 left-align">
-                        <label for="policy" >Cluster : </label>
-                        <span id="position" class="editable" contenteditable="true"></span>
-                        <label for="policy" >Commonality  : </label>
-                        <span id="position" class="editable" contenteditable="true"></span>
-                        <label for="policy" >Physical grouping  : </label>
-                        <span id="position" class="editable" contenteditable="true"></span>
-                    </div>
-                    <div class="col-md-12 left-align">
-                        <label for="policy">6. หน่วยงานที่รับผิดชอบ  </label>  
-                        <label for="output">หน่วยงาน:</label>   
-                        <span id="position" class="editable" contenteditable="true"></span>
-                        <label for="output">สาขาวิชา:</label>   
-                        <span id="position" class="editable" contenteditable="true"></span>
-                        <br>
-                        <label for="output">วิทยาเขต:</label>   
-                        <span id="position" class="editable" contenteditable="true"></span>
-                        <label for="output">มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน</label> 
-                    </div>
-                    <div class="col-md-12 left-align">
-                        <label for="policy">7. สถานที่ดำเนินงาน   </label>  
-                        <label for="output"> (ระบุ) ชื่อสถานที่ :</label>   
-                        <span id="position" class="editable" contenteditable="true"></span>
-                        <label for="output">อำเภอ :</label>   
-                        <span id="position" class="editable" contenteditable="true"></span>
-                        <br>
-                        <label for="output">จังหวัด:</label>   
-                        <span id="position" class="editable" contenteditable="true"></span>
-                    </div>
-                    <div class="col-md-12 left-align">
-                        <label for="policy">8. ระยะเวลาดำเนินการ    </label>  
-                        <label for="output">  วันที่  :</label>   
-                        <span id="position" class="editable" contenteditable="true"></span>
-                        <label for="output">ถึง วันที่   :</label>   
-                        <span id="position" class="editable" contenteditable="true"></span>
-                        <br>
-                    </div>
-                    <div class="col-md-12 left-align">
-                        <label for="strategy">9. หลักการและเหตุผล</label>
-                        <input type="text" id="strategy" class="form-control-file">
-                    </div>
-                    <div class="col-md-12 left-align">
-                        <br>
-                        <label for="strategy">10. วัตถุประสงค์</label>
-                        <br>
-                        <label for="output">10.1:</label> 
-                        <span id="position" class="editable" contenteditable="true"></span>
-                        <br>
-                        <label for="output">10.2:</label> 
-                        <span id="position" class="editable" contenteditable="true"></span>
-                        <br>
-                        <label for="output">10.3:</label> 
-                        <span id="position" class="editable" contenteditable="true"></span>
-                    </div>
-                    <div class="col-md-12 left-align">
-                        <br>
-                        <label for="strategy">11. เป้าหมาย</label>
-                        <br>
-                        <label for="output">11.1 เป้าหมายเชิงผลผลิต (Output)  :</label> 
-                        <span id="position" class="editable" contenteditable="true"></span>
-                        <br>
-                        <label for="output">11.2 เป้าหมายเชิงผลลัพธ์ (Outcome) :</label> 
-                        <span id="position" class="editable" contenteditable="true"></span>
-                    </div>
-                    <div class="col-md-12 left-align">
-                        <label for="strategy">12. กิจกรรมดำเนินงาน    (ให้ระบุกิจกรรมที่จะทำในโครงการ)</label>
-                        <input type="text" id="strategy" class="form-control-file">
+                <div class="col-md-12 left-align">
+                    <label for="project_target">13. กลุ่มเป้าหมายผู้เข้าร่วมโครงการ (ให้ระบุกลุ่มเป้าหมาย และจำนวนให้ชัดเจน)</label>
+                    <textarea class="form-control" id="project_target" name="project_target" rows="3" required></textarea>
+                </div>
         
+                <h3 class="mt-4">14. งบประมาณ</h3>
+                <div class="expense-form">
+                    <div class="form-group">
+                        <label for="project_budget">งบประมาณโครงการ:</label>
+                        <input type="number" class="form-control" id="project_budget" name="project_budget" required placeholder="งบประมาณโครงการ">
                     </div>
-                    <span class="col-md-12 left-align">
-                        <label for="strategy">13. กลุ่มเป้าหมายผู้เข้าร่วมโครงการ  (ให้ระบุกลุ่มเป้าหมาย และจำนวนให้ชัดเจน)</label>
-                        <input type="text" id="strategy" class="form-control-file">
-                    </span>
-        
-                    <div class="col-md-12 left-align">
-                        <br>
-                        <label for="output">14. งบประมาณ:</label> 
-                        <span id="position" class="editable" contenteditable="true"></span>
-                        <label for="output">บาท</label> 
-                        <br>
-                        <label for="output">14.1 ค่าตอบแทน:</label> 
-                        <span id="position" class="editable" contenteditable="true"></span>
-                        <label for="output">บาท</label> 
-                        <br>
-                        <label for="output">14.2 ค่าใช้สอย:</label> 
-                        <span id="position" class="editable" contenteditable="true"></span>
-                        <label for="output">บาท</label> 
-                        <br>
-                        <label for="output">14.3 ค่าวัสดุ :</label> 
-                        <span id="position" class="editable" contenteditable="true"></span>
-                        <label for="output">บาท</label> 
+                    
+                    <h4>14.1 ค่าตอบแทน</h4>
+                    <div id="compensation-items">
+                        <div class="expense-item">
+                            <input type="text" class="form-control expense-description" name="compensation_description[]" placeholder="รายการค่าตอบแทน">
+                            <input type="number" class="form-control expense-amount compensation" name="compensation_amount[]" placeholder="0">
+                            <span class="currency">บาท</span>
+                        </div>
                     </div>
+                    <button type="button" class="btn btn-secondary btn-sm mt-2" id="add-compensation">เพิ่มรายการค่าตอบแทน</button>
+                    <div class="expense-subtotal">
+                        รวมค่าตอบแทน <span id="compensationSubtotal">0</span> <span class="currency">บาท</span>
+                    </div>
+                
+                    <h4>14.2 ค่าใช้สอย</h4>
+                    <div id="expense-items">
+                        <div class="expense-item">
+                            <input type="text" class="form-control expense-description" name="expense_description[]" placeholder="รายการค่าใช้สอย">
+                            <input type="number" class="form-control expense-amount expense" name="expense_amount[]" placeholder="0">
+                            <span class="currency">บาท</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm mt-2" id="add-expense">เพิ่มรายการค่าใช้สอย</button>
+                    <div class="expense-subtotal">
+                        รวมค่าใช้สอย <span id="expenseSubtotal">0</span> <span class="currency">บาท</span>
+                    </div>
+                
+                    <div class="expense-grand-total">
+                        รวมค่าใช้จ่ายทั้งสิ้นจำนวน <span id="grandTotal">0</span> <span class="currency">บาท</span>
+                    </div>
+                </div>
+                       
+                    
                     <div class="text-center">
                         <label for="note" class="note">หมายเหตุ: งบประมาณ ให้ระบุรายละเอียดการคำนวณรายการค่าใช้จ่ายที่ต้องการให้ชัดเจน ตามระเบียบ กระทรวงการคลัง และตามนโยบายมาตรการประหยัดของมหาวิทยาลัยฯ ทั้งนี้ให้ผู้รับผิดชอบโครงการ ประสานในส่วนนี้กับกองคลัง หรืองานคลังแต่ละวิทยาเขต ก่อนเสนอขออนุมัติโครงการ</label>
-                    </div>
                     
-              <div class="form-group">
-                <label>15. แผนปฏิบัติงาน:</label>
-                <table class="table table-bordered">
-                        <colgroup>
-                            <col style="width: 31%" />
-                            <col style="width: 5%" />
-                            <col style="width: 5%" />
-                            <col style="width: 5%" />
-                            <col style="width: 5%" />
-                            <col style="width: 5%" />
-                            <col style="width: 5%" />
-                            <col style="width: 5%" />
-                            <col style="width: 5%" />
-                            <col style="width: 5%" />
-                            <col style="width: 5%" />
-                            <col style="width: 5%" />
-                            <col style="width: 5%" />
-                        </colgroup>
-                        <thead>
-                            <tr>
-                            <th rowspan="2">กิจกรรมดำเนินงาน/แผนการใช้จ่ายงบประมาณ<br>(ใส่จำนวนเงินในช่วงเวลาปฏิบัติงาน)</th>
-                            <th colspan="3"><strong>ปี พ.ศ. 2561</strong></th>
-                            <th colspan="9"><strong>ปี พ.ศ. 2562</strong></th>
-                            </tr>
-                            <tr>
-                            <th><strong>ต.ค.</strong></th>
-                            <th><strong>พ.ย.</strong></th>
-                            <th><strong>ธ.ค.</strong></th>
-                            <th><strong>ม.ค.</strong></th>
-                            <th><strong>ก.พ.</strong></th>
-                            <th><strong>มี.ค.</strong></th>
-                            <th><strong>เม.ย</strong></th>
-                            <th><strong>พ.ค.</strong></th>
-                            <th><strong>มิ.ย</strong></th>
-                            <th><strong>ก.ค.</strong></th>
-                            <th><strong>ส.ค.</strong></th>
-                            <th><strong>ก.ย.</strong></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                            <td>1.<span id="position" class="editable" contenteditable="true"></span> </td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            </tr>
-                            <tr>
-                            <td>2. <span id="position" class="editable" contenteditable="true"></span></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            </tr>
-                            <tr>
-                            <td>3. <span id="position" class="editable" contenteditable="true"></span></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            </tr>
-                            <tr>
-                            <td>4. <span id="position" class="editable" contenteditable="true"></span></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            </tr>
-                            <tr>
-                            <td><strong>ตัวชี้วัดเป้าหมายผลผลิต</strong><br>(ใส่จำนวนตัวชี้วัดในช่วงเวลาปฏิบัติงาน)</td>
-                            <td><input type="text" id="name" name="name" style="width: 45px;"></td>
-                            <td><input type="text" id="name" name="name" style="width: 45px;"></td>
-                            <td><input type="text" id="name" name="name" style="width: 45px;"></td>
-                            <td><input type="text" id="name" name="name" style="width: 45px;"></td>
-                            <td><input type="text" id="name" name="name" style="width: 45px;"></td>
-                            <td><input type="text" id="name" name="name" style="width: 45px;"></td>
-                            <td><input type="text" id="name" name="name" style="width: 45px;"></td>
-                            <td><input type="text" id="name" name="name" style="width: 45px;"></td>
-                            <td><input type="text" id="name" name="name" style="width: 45px;"></td>
-                            <td><input type="text" id="name" name="name" style="width: 45px;"></td>
-                            <td><input type="text" id="name" name="name" style="width: 45px;"></td>
-                            <td><input type="text" id="name" name="name" style="width: 45px;"></td>
-                            </tr>
-                            <tr>
-                            <td><strong>- เชิงปริมาณ</strong></td>
-                            <td> </td>
-                            <td> </td>
-                            <td> </td>
-                            <td> </td>
-                            <td> </td>
-                            <td> </td>
-                            <td> </td>
-                            <td> </td>
-                            <td> </td>
-                            <td> </td>
-                            <td> </td>
-                            <td> </td>
-                            </tr>
-                            <tr>
-                            <td>- จำนวนครั้งที่ดำเนินโครงการ<span id="position" class="editable" contenteditable="true"></span></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            </tr>
-                            <tr>
-                            <td>- จำนวนกลุ่มเป้าหมายของโครงการ<span id="position" class="editable" contenteditable="true"></span></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            </tr>
-                            <tr>
-                            <td>- อื่นๆ<span id="position" class="editable" contenteditable="true"></span></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            <td><label><input type="checkbox" name="project_type" value="training"></td>
-                            </tr>
-                            <tr>
-                            <td colspan="13"><strong>- เชิงคุณภาพ</strong> (ร้อยละ) - ร้อยละความพึงพอใจของผู้เข้าร่วมโครงการ/ผู้รับบริการ ไม่ต่ำกว่าร้อยละ 75 <br>- อื่น ๆ <span id="position" class="editable" contenteditable="true"></span></td>
-                            </tr>
-                            <tr>
-                            <td colspan="13"><strong>- เชิงเวลา</strong> (ร้อยละ) - ร้อยละของโครงการแล้วเสร็จตามระยะเวลาที่กำหนด ไม่ต่ำกว่าร้อยละ 75<br>- อื่น ๆ<span id="position" class="editable" contenteditable="true"></span></td>
-                            </tr>
-                            <tr>
-                            <td colspan="13"><strong>- เชิงค่าใช้จ่าย</strong> (บาท) - งบประมาณที่ใช้ในการดำเนินโครงการ <span id="position" class="editable" contenteditable="true"></span>บาท</td>
-                            </tr>
-                        </tbody>
-                        </table>
-                    </div>
                     
-        
-                    
-        
-        
-        
-                    <div class="form-group">
-                        <label>16. ผลที่คาดว่าจะเกิด (Impact):</label>
-                        <div>16.1 <span id="impact1" class="editable form-control" contenteditable="true"></span></div>
-                        <div>16.2 <span id="impact2" class="editable form-control" contenteditable="true"></span></div>
-                      </div>
+                        <h3 class="mt-4">15. แผนปฏิบัติงาน (แผนงาน) แผนการใช้จ่ายงบประมาณ (แผนเงิน) และตัวชี้วัดเป้าหมายผลผลิต</h3>
+<div class="table-responsive">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th rowspan="2">กิจกรรมดำเนินงาน</th>
+                <th colspan="3">ปี พ.ศ. <span id="prevYear"></span></th>
+                <th colspan="9">ปี พ.ศ. <span id="currentYear"></span></th>
+                
+            </tr>
+            <tr>
+                <th>ต.ค.</th>
+                <th>พ.ย.</th>
+                <th>ธ.ค.</th>
+                <th>ม.ค.</th>
+                <th>ก.พ.</th>
+                <th>มี.ค.</th>
+                <th>เม.ย.</th>
+                <th>พ.ค.</th>
+                <th>มิ.ย.</th>
+                <th>ก.ค.</th>
+                <th>ส.ค.</th>
+                <th>ก.ย.</th>
+            </tr>
+        </thead>
+        <tbody id="activityTableBody">
+            <tr>
+                <td><input type="text" class="form-control" name="activity[]" required></td>
+                <td><input type="checkbox" name="month[0][]" value="ต.ค."></td>
+                <td><input type="checkbox" name="month[0][]" value="พ.ย."></td>
+                <td><input type="checkbox" name="month[0][]" value="ธ.ค."></td>
+                <td><input type="checkbox" name="month[0][]" value="ม.ค."></td>
+                <td><input type="checkbox" name="month[0][]" value="ก.พ."></td>
+                <td><input type="checkbox" name="month[0][]" value="มี.ค."></td>
+                <td><input type="checkbox" name="month[0][]" value="เม.ย."></td>
+                <td><input type="checkbox" name="month[0][]" value="พ.ค."></td>
+                <td><input type="checkbox" name="month[0][]" value="มิ.ย."></td>
+                <td><input type="checkbox" name="month[0][]" value="ก.ค."></td>
+                <td><input type="checkbox" name="month[0][]" value="ส.ค."></td>
+                <td><input type="checkbox" name="month[0][]" value="ก.ย."></td>
+               
+            </tr>
+        </tbody>
+    </table>
+</div>
+<button type="button" class="btn btn-secondary mt-2" id="add-activity">เพิ่มกิจกรรม</button>
+
+<h4 class="mt-4">ตัวชี้วัดเป้าหมายผลผลิต</h4>
+<div class="form-group">
+    <label>ตัวชี้วัดเชิงปริมาณ</label>
+    <div id="quantityIndicators">
+        <div class="input-group mb-2">
+            <label for="quantity_indicator"></label>
+    <input type="text" class="form-control" id="quantity_indicator" name="quantity_indicator">
+                <button class="btn btn-outline-secondary remove-indicator" type="button">ลบ</button>
+            </div>
+        </div>
+    </div>
+    <button type="button" class="btn btn-secondary btn-sm mt-2" id="add-quantity-indicator">เพิ่มตัวชี้วัดเชิงปริมาณ</button>
+</div>
+
+<div class="form-group">
+    <label>เชิงคุณภาพ:</label>
+    <textarea class="form-control" name="quality_indicator" rows="3" placeholder="ร้อยละความพึงพอใจของผู้เข้าร่วมโครงการ/ผู้รับบริการ ไม่ต่ำกว่าร้อยละ 75" required></textarea>
+</div>
+
+<div class="form-group">
+    <label>เชิงเวลา:</label>
+    <textarea class="form-control" name="time_indicator" rows="3" placeholder="ร้อยละของโครงการแล้วเสร็จตามระยะเวลาที่กำหนด ไม่ต่ำกว่าร้อยละ 75" required></textarea>
+</div>
+
+<div class="form-group">
+    <label>เชิงค่าใช้จ่าย:</label>
+    <input type="number" class="form-control" name="cost_indicator" placeholder="งบประมาณที่ใช้ในการดำเนินโครงการ (บาท)" required>
+</div>
+                        
+                        <div class="form-group">
+                            <label>16. ผลที่คาดว่าจะเกิด (Impact):</label>
+                            <textarea class="form-control" id="project_expected_result" name="project_expected_result" rows="4" placeholder= "16.1"required></textarea>
+                            <textarea class="form-control" id="project_expected_result" name="project_expected_result" rows="4" placeholder= "16.2" required></textarea>
+                        </div>
                     <div class="col-md-12">
                         <label for="note" class="note">หมายเหตุ:   กรุณากรอกข้อมูลให้ครบถ้วนสมบูรณ์ เพื่อประกอบการพิจารณางบประมาณ</label>
                     </div>
                     <div class="form-group text-right">
-                        <label>ลงชื่อ:</label>
-                        <span id="signature" class="editable form-control" contenteditable="true"></span>
+                        <label for="teacher_id"><i class="fas fa-chalkboard-teacher"></i>
+                            ลงชื่อ:</label>
+                       
+                            <p class="form-control">{{ teacher_info[0] }}</p>
+                           
+                            {% for teacher in teachers %}
+                            
+                            {% endfor %}
                         <label>ตำแหน่ง:</label>
-                        <span id="position" class="editable form-control" contenteditable="true"></span>
+                     <p class="form-control">อาจารย์ประจำสาขา{{ teacher_info[1] }}
+                       <br>  
+                      
+                       <div class="form-group">
                         <label>เบอร์โทรศัพท์:</label>
-                        <span id="phone" class="editable form-control" contenteditable="true"></span>
-                      </div>
-                
+                        <input type="tel" class="form-control" name="phone" required>
+                    </div>
                       <div class="text-center mt-4">
-                        <button type="submit" class="btn btn-primary">บันทึกโครงการ</button>
+                        <button type="submit">บันทึกโครงการ</button>
+                      
+                    </button>
                       </div>
                     </form>
                   </div>
@@ -491,6 +408,109 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentYear = new Date().getFullYear() + 543; // พ.ศ.
+            document.getElementById('currentYear').textContent = currentYear;
+            document.getElementById('prevYear').textContent = currentYear - 1;
+        
+            let activityCount = 1;
+            document.getElementById('add-activity').addEventListener('click', function() {
+                const tbody = document.getElementById('activityTableBody');
+                const newRow = tbody.insertRow();
+                newRow.innerHTML = `
+                    <td><input type="text" class="form-control" name="activity[]" required></td>
+                    <td><input type="checkbox" name="month[${activityCount}][]" value="ต.ค."></td>
+                    <td><input type="checkbox" name="month[${activityCount}][]" value="พ.ย."></td>
+                    <td><input type="checkbox" name="month[${activityCount}][]" value="ธ.ค."></td>
+                    <td><input type="checkbox" name="month[${activityCount}][]" value="ม.ค."></td>
+                    <td><input type="checkbox" name="month[${activityCount}][]" value="ก.พ."></td>
+                    <td><input type="checkbox" name="month[${activityCount}][]" value="มี.ค."></td>
+                    <td><input type="checkbox" name="month[${activityCount}][]" value="เม.ย."></td>
+                    <td><input type="checkbox" name="month[${activityCount}][]" value="พ.ค."></td>
+                    <td><input type="checkbox" name="month[${activityCount}][]" value="มิ.ย."></td>
+                    <td><input type="checkbox" name="month[${activityCount}][]" value="ก.ค."></td>
+                    <td><input type="checkbox" name="month[${activityCount}][]" value="ส.ค."></td>
+                    <td><input type="checkbox" name="month[${activityCount}][]" value="ก.ย."></td>
+                    
+                `;
+                activityCount++;
+            });
+        
+            document.getElementById('add-quantity-indicator').addEventListener('click', function() {
+                const container = document.getElementById('quantityIndicators');
+                const newIndicator = document.createElement('div');
+                newIndicator.className = 'input-group mb-2';
+                newIndicator.innerHTML = `
+                    <input type="text" class="form-control" name="quantity_indicator[]" required>
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary remove-indicator" type="button">ลบ</button>
+                    </div>
+                `;
+                container.appendChild(newIndicator);
+            });
+        
+            document.addEventListener('click', function(e) {
+                if (e.target && e.target.classList.contains('remove-indicator')) {
+                    e.target.closest('.input-group').remove();
+                }
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const addCompensation = document.getElementById('add-compensation');
+            const addExpense = document.getElementById('add-expense');
+            const compensationItems = document.getElementById('compensation-items');
+            const expenseItems = document.getElementById('expense-items');
+        
+            addCompensation.addEventListener('click', () => addItem(compensationItems, 'compensation'));
+            addExpense.addEventListener('click', () => addItem(expenseItems, 'expense'));
+        
+            document.addEventListener('input', function(e) {
+                if (e.target.classList.contains('expense-amount')) {
+                    calculateTotals();
+                }
+            });
+        
+            function addItem(container, type) {
+                const newItem = document.createElement('div');
+                newItem.className = 'expense-item';
+                newItem.innerHTML = `
+                    <input type="text" class="form-control expense-description" name="${type}_description[]" placeholder="รายการ${type === 'compensation' ? 'ค่าตอบแทน' : 'ค่าใช้สอย'}">
+                    <input type="number" class="form-control expense-amount ${type}" name="${type}_amount[]" placeholder="0">
+                    <span class="currency">บาท</span>
+                    <button type="button" class="btn btn-danger btn-sm remove-item">ลบ</button>
+                `;
+                container.appendChild(newItem);
+        
+                newItem.querySelector('.remove-item').addEventListener('click', function() {
+                    container.removeChild(newItem);
+                    calculateTotals();
+                });
+            }
+        
+            function calculateTotals() {
+                let compensationTotal = 0;
+                let expenseTotal = 0;
+        
+                document.querySelectorAll('.compensation').forEach(item => {
+                    compensationTotal += Number(item.value) || 0;
+                });
+        
+                document.querySelectorAll('.expense').forEach(item => {
+                    expenseTotal += Number(item.value) || 0;
+                });
+        
+                const grandTotal = compensationTotal + expenseTotal;
+        
+                document.getElementById('compensationSubtotal').textContent = compensationTotal.toLocaleString();
+                document.getElementById('expenseSubtotal').textContent = expenseTotal.toLocaleString();
+                document.getElementById('grandTotal').textContent = grandTotal.toLocaleString();
+                document.getElementById('project_budget').value = grandTotal;
+            }
+        });
+        </script>
     <script>
         // ฟังก์ชันสำหรับรับวันที่ปัจจุบันในรูปแบบ YYYY-MM-DD
         function getCurrentDate() {
@@ -552,6 +572,7 @@
             startDate.setDate(startDate.getDate() + 1);
             endDateInput.min = startDate.toISOString().split('T')[0];
         });
+        
     </script>
 
 

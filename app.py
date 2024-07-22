@@ -1,22 +1,37 @@
-from flask import ( Flask, render_template,request, redirect, url_for,session,flash,send_from_directory,send_file)
-import mysql.connector, base64, os
+from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory, send_file
+import mysql.connector
+import base64
+import os
 from contextlib import contextmanager
-from fpdf import FPDF
+from fpdf import FPDF, XPos, YPos, Align
 from io import BytesIO
 from functools import wraps
 from PIL import Image
 from werkzeug.utils import secure_filename
 from math import ceil
+from datetime import datetime
+
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.lib.units import mm
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
+app.static_folder = 'static'
 
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+# ลงทะเบียนฟอนต์ไทย
+pdfmetrics.registerFont(TTFont('THSarabunNew', 'THSarabunNew.ttf'))
+
 class ThaiPDF(FPDF):
     def __init__(self):
-        super().__init__()
+        super().__init__(orientation='P', unit='mm', format='A4')
         self.add_thai_font()
 
     def add_thai_font(self):
@@ -29,36 +44,54 @@ class ThaiPDF(FPDF):
 
     def header(self):
         self.set_font('THSarabunNew', 'B', 16)
-        self.cell(0, 10, 'มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน', 0, 1, 'C')
-        self.cell(0, 10, 'วิทยาเขตขอนแก่น', 0, 1, 'C')
-        self.ln(10)
-
+        self.cell(0, 10, 'รายละเอียดโครงการ', 0, 1, 'C')
+        
     def footer(self):
         self.set_y(-15)
         self.set_font('THSarabunNew', '', 8)
         self.cell(0, 10, f'หน้า {self.page_no()}', 0, 0, 'C')
 
-    def chapter_title(self, title):
+    def chapter_title(self, num, label):
         self.set_font('THSarabunNew', 'B', 14)
-        self.cell(0, 6, title, 0, 1)
+        self.cell(0, 6, f'{num}. {label}', 0, 1)
         self.ln(4)
 
     def chapter_body(self, body):
-        self.set_font('THSarabunNew', '', 14)
-        self.multi_cell(0, 6, body)
+        self.set_font('THSarabunNew', '', 12)
+        self.multi_cell(0, 5, body)
         self.ln()
 
-    def add_table(self, headers, data):
-        self.set_font('THSarabunNew', 'B', 12)
-        for header in headers:
-            self.cell(40, 7, header, 1)
-        self.ln()
-        self.set_font('THSarabunNew', '', 12)
-        for row in data:
-            for item in row:
-                self.cell(40, 6, str(item), 1)
-            self.ln()
+    def add_thai_text(self, txt):
+        encoded_text = txt.encode('latin-1', 'replace').decode('latin-1')
+        self.multi_cell(0, 5, encoded_text)
+class ProjectPDF(FPDF):
+    def __init__(self):
+        super().__init__()
+        self.add_font('THSarabunNew', '', 'THSarabunNew.ttf', uni=True)
+        self.add_font('THSarabunNew', 'B', 'THSarabunNew Bold.ttf', uni=True)
+
+    def header(self):
         
+        self.set_font('THSarabunNew', 'B', 16)
+        self.cell(0, 10, 'มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน', 0, 1, 'C')
+        self.cell(0, 10, 'วิทยาเขต....................................', 0, 1, 'C')
+        self.cell(0, 10, 'หน่วยงาน....................................', 0, 1, 'C')
+        self.ln(10)
+
+    def footer(self):
+        self.set_y(-15)
+        self.set_font('THSarabunNew', '', 8)
+        self.cell(0, 10, f'หน้า {self.page_no()}/{{nb}}', 0, 0, 'C')
+
+    def chapter_title(self, num, label):
+        self.set_font('THSarabunNew', 'B', 16)
+        self.cell(0, 6, f'{num}. {label}', 0, 1)
+        self.ln(4)
+
+    def chapter_body(self, body):
+        self.set_font('THSarabunNew', '', 16)
+        self.multi_cell(0, 10, body)
+        self.ln()
 @app.route("/home")
 def index():
     return "Welcome to the Flask Google Form Integration App"
@@ -361,15 +394,131 @@ def project_participants(project_id):
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
+
+def create_project_pdf(project_data):
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=18)
+
+    font_path = os.path.join(os.path.dirname(__file__), 'THSarabunNew.ttf')
+    pdfmetrics.registerFont(TTFont('THSarabunNew', font_path))
+    
+    # สร้างสไตล์
+    styles = getSampleStyleSheet()
+    styles['Normal'].fontName = 'THSarabunNew'
+    styles['Normal'].fontSize = 14
+    styles['Heading1'].fontName = 'THSarabunNew'
+    styles['Heading1'].fontSize = 18
+    styles['Heading2'].fontName = 'THSarabunNew'
+    styles['Heading2'].fontSize = 16
+    styles['Heading3'].fontName = 'THSarabunNew'
+    styles['Heading3'].fontSize = 14
+
+    # สร้างเนื้อหา PDF
+    content = []
+
+    # หัวข้อ
+    content.append(Paragraph('รายละเอียดโครงการ', styles['Heading1']))
+    content.append(Spacer(1, 12))
+
+    # ข้อมูลโครงการ
+    content.append(Paragraph(f"1. ชื่อโครงการ: {project_data['project_name']}", styles['Normal']))
+    content.append(Paragraph(f"2. ประเภทงบประมาณ: {project_data['project_budgettype']}", styles['Normal']))
+    content.append(Paragraph(f"3. ปีงบประมาณ: {project_data['project_year']}", styles['Normal']))
+    content.append(Paragraph(f"4. ลักษณะโครงการ: {project_data['project_style']}", styles['Normal']))
+    content.append(Paragraph(f"5. สถานที่ดำเนินการ: {project_data['project_address']}", styles['Normal']))
+    content.append(Paragraph(f"6. ระยะเวลาดำเนินการ: เริ่ม: {project_data['project_dotime']} สิ้นสุด: {project_data['project_endtime']}", styles['Normal']))
+    content.append(Paragraph(f"7. กลุ่มเป้าหมาย: {project_data['project_target']}", styles['Normal']))
+    content.append(Paragraph(f"8. ผู้รับผิดชอบโครงการ: {project_data['teacher_name']}", styles['Normal']))
+    content.append(Paragraph(f"9. หน่วยงาน: {project_data['branch_name']}", styles['Normal']))
+    content.append(Spacer(1, 12))
+
+    # เพิ่มข้อมูลใหม่
+    content.append(Paragraph('10. นโยบายและผลผลิต:', styles['Heading2']))
+    content.append(Paragraph(project_data.get('policy', ''), styles['Normal']))
+    content.append(Spacer(1, 12))
+
+    content.append(Paragraph('11. ความสอดคล้องประเด็นยุทธศาสตร์:', styles['Heading2']))
+    content.append(Paragraph(project_data.get('strategy', ''), styles['Normal']))
+    content.append(Spacer(1, 12))
+
+    content.append(Paragraph('12. ความสอดคล้องกับ Cluster/Commonality/Physical grouping:', styles['Heading2']))
+    content.append(Paragraph(project_data.get('cluster', ''), styles['Normal']))
+    content.append(Spacer(1, 12))
+
+    content.append(Paragraph('13. หลักการและเหตุผล:', styles['Heading2']))
+    content.append(Paragraph(project_data.get('rationale', ''), styles['Normal']))
+    content.append(Spacer(1, 12))
+
+    content.append(Paragraph('14. วัตถุประสงค์:', styles['Heading2']))
+    content.append(Paragraph(project_data.get('objectives', ''), styles['Normal']))
+    content.append(Spacer(1, 12))
+
+    content.append(Paragraph('15. กิจกรรมดำเนินงาน:', styles['Heading2']))
+    content.append(Paragraph(project_data.get('project_activity', ''), styles['Normal']))
+    content.append(Spacer(1, 12))
+
+
+    content.append(Paragraph('16. งบประมาณ', styles['Heading2']))
+    content.append(Paragraph(f"งบประมาณโครงการ: {project_data['project_budget']} บาท", styles['Normal']))
+    
+    content.append(Paragraph('16.1 ค่าตอบแทน', styles['Heading3']))
+    for item in project_data['compensation']:
+        content.append(Paragraph(f"{item['description']}: {item['amount']} บาท", styles['Normal']))
+    content.append(Paragraph(f"รวมค่าตอบแทน: {project_data['total_compensation']} บาท", styles['Normal']))
+
+    content.append(Paragraph('16.2 ค่าใช้สอย', styles['Heading3']))
+    for item in project_data['expenses']:
+        content.append(Paragraph(f"{item['description']}: {item['amount']} บาท", styles['Normal']))
+    content.append(Paragraph(f"รวมค่าใช้สอย: {project_data['total_expenses']} บาท", styles['Normal']))
+
+    content.append(Paragraph(f"รวมค่าใช้จ่ายทั้งสิ้น: {project_data['grand_total']} บาท", styles['Normal']))
+    
+    # แผนปฏิบัติงาน
+    content.append(Paragraph('17. แผนปฏิบัติงาน (แผนงาน) แผนการใช้จ่ายงบประมาณ (แผนเงิน) และตัวชี้วัดเป้าหมายผลผลิต', styles['Heading2']))
+    content.append(Spacer(1, 12))
+
+    months = ['ต.ค.', 'พ.ย.', 'ธ.ค.', 'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.']
+    start_date = project_data['project_dotime']
+    end_date = project_data['project_endtime']
+    
+    activity_data = [['กิจกรรมดำเนินงาน'] + [f"ปี พ.ศ. {int(project_data['project_year'])}"] * 3 + [f"ปี พ.ศ. {int(project_data['project_year']) + 1}"] * 9]
+    activity_data.append([''] + months)
+
+    for activity in project_data['activities']:
+        row = [activity['activity']] + [''] * 12
+        for month in activity['months']:
+            row[months.index(month) + 1] = 'X'
+        activity_data.append(row)
+
+    activity_table = Table(activity_data, colWidths=[150] + [35]*12)
+    activity_table.setStyle(TableStyle([
+        ('FONTNAME', (0, 0), (-1, -1), 'THSarabunNew'),
+        ('FONTSIZE', (0, 0), (-1, -1), 12),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('ALIGN', (1, 0), (-1, -1), 'CENTER'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('SPAN', (1, 0), (3, 0)),
+        ('SPAN', (4, 0), (-1, 0)),
+    ]))
+    content.append(activity_table)
+    content.append(Spacer(1, 12))
+
+    # ตัวชี้วัดเป้าหมายผลผลิต
+    content.append(Paragraph('ตัวชี้วัดเป้าหมายผลผลิต', styles['Heading3']))
+    content.append(Paragraph(f"เชิงปริมาณ: {project_data.get('quantity_indicator', '')}", styles['Normal']))
+    content.append(Paragraph(f"เชิงคุณภาพ: {project_data.get('quality_indicator', '')}", styles['Normal']))
+    content.append(Paragraph(f"เชิงเวลา: {project_data.get('time_indicator', '')}", styles['Normal']))
+    content.append(Paragraph(f"เชิงค่าใช้จ่าย: {project_data.get('cost_indicator', '')}", styles['Normal']))
+
+    doc.build(content)
+    buffer.seek(0)
+    return buffer
 @app.route("/add_project", methods=["GET", "POST"])
 @login_required("teacher")
 def add_project():
     if "teacher_id" not in session:
         return redirect(url_for("login"))
-
     teacher_id = session["teacher_id"]
-
-    # ดึงข้อมูลอาจารย์และสาขา
     with get_db_cursor() as (db, cursor):
         query = """SELECT teacher.teacher_name, branch.branch_name 
                    FROM teacher 
@@ -377,115 +526,109 @@ def add_project():
                    WHERE teacher.teacher_id = %s"""
         cursor.execute(query, (teacher_id,))
         teacher_info = cursor.fetchone()
-
     if request.method == "POST":
-        # รับข้อมูลจากฟอร์ม
-        project_budgettype = request.form["project_budgettype"]
-        project_year = request.form["project_year"]
-        project_name = request.form["project_name"]
-        project_style = request.form["project_style"]
-        project_address = request.form["project_address"]
-        project_dotime = request.form["project_dotime"]
-        project_endtime = request.form["project_endtime"]
-        project_target = request.form["project_target"]
-        project_budget = request.form["project_budget"]
-
-        # ตรวจสอบและแปลงข้อมูลเป็นตัวเลข
-        try:
-            project_target = int(project_target) if project_target else 0
-            project_budget = float(project_budget) if project_budget else 0
-        except ValueError:
-            flash('กรุณากรอกข้อมูลเป้าหมายและงบประมาณเป็นตัวเลขเท่านั้น', 'error')
-            return render_template("add_project.html", teacher_info=teacher_info)
-
-        project_status = 0
-
-        # สร้าง PDF
-        pdf = ThaiPDF()
-        pdf.add_page()
-
-        # หัวข้อโครงการ
-        pdf.chapter_title(f"1. ชื่อโครงการ: {project_name}")
+        project_data = {
+            "project_budgettype": request.form["project_budgettype"],
+            "project_year": request.form["project_year"],
+            "project_name": request.form["project_name"],
+            "project_style": request.form["project_style"],
+            "project_address": request.form["project_address"],
+            "project_dotime": request.form["project_dotime"],
+            "project_endtime": request.form["project_endtime"],
+            "project_target": request.form["project_target"],
+            "project_budget": request.form["project_budget"],  # เพิ่มงบประมาณ
+            
+            "teacher_name": teacher_info[0],
+            "branch_name": teacher_info[1],
+            "project_status": 0,
+        # ข้อมูลที่ไม่ได้บันทึกลงฐานข้อมูล แต่ต้องการแสดงใน PDF
+            "objectives": request.form["objectives"],
+            "project_activity": request.form["project_activity"],
+            "rationale": request.form["rationale"],
+            "policy": request.form["policy"],
+            "strategy": request.form["strategy"],
+            "cluster": request.form["cluster"],
+            "compensation": [],
+            "expenses": [],
+        }
         
-        # ลักษณะโครงการ
-        pdf.chapter_title("2. ลักษณะโครงการ")
-        pdf.chapter_body(f"({project_style})")
-
-        # ข้อมูลโครงการ
-        pdf.chapter_title("3. ข้อมูลโครงการ")
-        pdf.chapter_body(f"ประเภทงบประมาณ: {project_budgettype}")
-        pdf.chapter_body(f"ปีงบประมาณ: {project_year}")
-        pdf.chapter_body(f"สถานที่ดำเนินการ: {project_address}")
-        pdf.chapter_body(f"วันที่เริ่มโครงการ: {project_dotime}")
-        pdf.chapter_body(f"วันที่สิ้นสุดโครงการ: {project_endtime}")
-        pdf.chapter_body(f"กลุ่มเป้าหมาย: {project_target}")
-        pdf.chapter_body(f"งบประมาณ: {project_budget} บาท")
-
-        # ข้อมูลผู้รับผิดชอบ
-        pdf.chapter_title("4. ผู้รับผิดชอบโครงการ")
-        pdf.chapter_body(f"อาจารย์ผู้รับผิดชอบ: {teacher_info[0]}")
-        pdf.chapter_body(f"สาขา: {teacher_info[1]}")
-
-        # ตารางแผนการดำเนินงาน (ตัวอย่าง)
-        pdf.add_page()
-        pdf.chapter_title("5. แผนการดำเนินงาน")
-        headers = ['กิจกรรม', 'ระยะเวลา', 'งบประมาณ']
-        data = [
-            ['เตรียมการ', f'{project_dotime} - {project_endtime}', project_budget],
-            ['ดำเนินการ', f'{project_dotime} - {project_endtime}', ''],
-            ['สรุปผล', project_endtime, ''],
-        ]
-        pdf.add_table(headers, data)
-
-        # บันทึก PDF
-        filename = f'project_{secure_filename(project_name)}.pdf'
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        pdf.output(file_path)
-
-        # บันทึกข้อมูลลงฐานข้อมูล
+        # รับข้อมูลแผนปฏิบัติงาน
+        activities = request.form.getlist('activity[]')
+        project_data["activities"] = []
+        for i, activity in enumerate(activities):
+            if activity:
+                selected_months = request.form.getlist(f'month[{i}][]')
+                project_data["activities"].append({
+                    'activity': activity,
+                    'months': selected_months
+                })
+        
+        
+        # รับข้อมูลตัวชี้วัดเป้าหมายผลผลิต
+        project_data["quantity_indicator"] = request.form.get('quantity_indicator')
+        project_data["quality_indicator"] = request.form.get('quality_indicator')
+        project_data["time_indicator"] = request.form.get('time_indicator')
+        project_data["cost_indicator"] = request.form.get('cost_indicator')
+        
+        # รับข้อมูลค่าตอบแทน
+        compensation_descriptions = request.form.getlist('compensation_description[]')
+        compensation_amounts = request.form.getlist('compensation_amount[]')
+        for desc, amount in zip(compensation_descriptions, compensation_amounts):
+            if desc and amount:
+                project_data["compensation"].append({"description": desc, "amount": float(amount)})
+        
+        # รับข้อมูลค่าใช้สอย
+        expense_descriptions = request.form.getlist('expense_description[]')
+        expense_amounts = request.form.getlist('expense_amount[]')
+        for desc, amount in zip(expense_descriptions, expense_amounts):
+            if desc and amount:
+                project_data["expenses"].append({"description": desc, "amount": float(amount)})
+        
+        # คำนวณยอดรวม
+        total_compensation = sum(item['amount'] for item in project_data["compensation"])
+        total_expenses = sum(item['amount'] for item in project_data["expenses"])
+        grand_total = total_compensation + total_expenses
+        
         with get_db_cursor() as (db, cursor):
             query = """INSERT INTO project (project_budgettype, project_year, project_name, project_style, 
-                       project_address, project_dotime, project_endtime, project_target, project_budget, 
-                       project_status, teacher_id, project_file) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+                       project_address, project_dotime, project_endtime, project_target, 
+                       project_status, teacher_id, project_budget) 
+                       VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
             cursor.execute(
                 query,
                 (
-                    project_budgettype,
-                    project_year,
-                    project_name,
-                    project_style,
-                    project_address,
-                    project_dotime,
-                    project_endtime,
-                    project_target,
-                    project_budget,
-                    project_status,
+                    project_data["project_budgettype"],
+                    project_data["project_year"],
+                    project_data["project_name"],
+                    project_data["project_style"],
+                    project_data["project_address"],
+                    project_data["project_dotime"],
+                    project_data["project_endtime"],
+                    project_data["project_target"],
+                    project_data["project_status"],
                     teacher_id,
-                    filename,
+                    project_data["project_budget"],
+                   
                 ),
             )
             db.commit()
-
-        flash('โครงการถูกเพิ่มเรียบร้อยแล้ว', 'success')
-        return redirect(url_for('teacher_projects'))
-
+            project_id = cursor.lastrowid
+        
+        # เพิ่มข้อมูลยอดรวมใน project_data สำหรับใช้ในการสร้าง PDF
+        project_data["total_compensation"] = total_compensation
+        project_data["total_expenses"] = total_expenses
+        project_data["grand_total"] = grand_total
+        
+        # สร้าง PDF
+        pdf_buffer = create_project_pdf(project_data)
+        
+        return send_file(
+            pdf_buffer,
+            as_attachment=True,
+            download_name=f'project_{project_id}.pdf',
+            mimetype='application/pdf'
+        )
     return render_template("add_project.html", teacher_info=teacher_info)
-
-
-def get_teachers(teacher_id=None):
-    with get_db_cursor() as (db, cursor):
-        if teacher_id:
-            query = """SELECT teacher_id, teacher_name, teacher_username, teacher_password, teacher_phone, 
-                       teacher_email, branch_name FROM teacher JOIN branch ON teacher.branch_id = branch.branch_id 
-                       WHERE teacher_id = %s"""
-            cursor.execute(query, (teacher_id,))
-        else:
-            query = """SELECT teacher_id, teacher_name, teacher_username, teacher_password, teacher_phone, 
-                       teacher_email, branch_name FROM teacher JOIN branch ON teacher.branch_id = branch.branch_id"""
-            cursor.execute(query)
-        teachers = cursor.fetchall()
-    return teachers
-
 
 @app.route("/edit_basic_info", methods=["GET", "POST"])
 @login_required("admin")
