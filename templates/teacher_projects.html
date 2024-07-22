@@ -215,12 +215,8 @@
                   </td>
                   <td>
                     {% if project[4] %}
-                    <a
-                      href="{{ url_for('uploaded_file', filename=project[4]) }}"
-                      class="btn btn-info btn-sm"
-                      target="_blank"
-                      >ดูไฟล์ PDF</a
-                    >
+                    <a href="{{ url_for('download_project_pdf', project_id=project[0]) }}" class="btn btn-primary">ดาวน์โหลด PDF</a>
+                  </div>
                     {% else %}
                     <span class="text-muted">ไม่มีไฟล์</span>
                     {% endif %}

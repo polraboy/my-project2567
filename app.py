@@ -394,6 +394,31 @@ def project_participants(project_id):
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
+@app.route("/download_project_pdf/<int:project_id>")
+@login_required("teacher")
+def download_project_pdf(project_id):
+    teacher_id = session["teacher_id"]
+
+    with get_db_cursor() as (db, cursor):
+        query = """
+            SELECT project_pdf, project_name 
+            FROM project 
+            WHERE project_id = %s AND teacher_id = %s
+        """
+        cursor.execute(query, (project_id, teacher_id))
+        result = cursor.fetchone()
+
+    if result and result[0]:
+        pdf_content, project_name = result
+        return send_file(
+            BytesIO(pdf_content),
+            as_attachment=True,
+            download_name=f'{project_name}.pdf',
+            mimetype='application/pdf'
+        )
+    else:
+        flash('ไม่พบไฟล์ PDF สำหรับโครงการนี้', 'error')
+        return redirect(url_for('teacher_projects'))
 
 def create_project_pdf(project_data):
         buffer = BytesIO()
@@ -626,12 +651,15 @@ def add_project():
         # สร้าง PDF
         pdf_buffer = create_project_pdf(project_data)
         
-        return send_file(
-            pdf_buffer,
-            as_attachment=True,
-            download_name=f'project_{project_id}.pdf',
-            mimetype='application/pdf'
-        )
+        pdf_content = pdf_buffer.getvalue()
+        with get_db_cursor() as (db, cursor):
+            query = "UPDATE project SET project_pdf = %s WHERE project_id = %s"
+            cursor.execute(query, (pdf_content, project_id))
+            db.commit()
+
+        flash('โครงการถูกบันทึกเรียบร้อยแล้ว', 'success')
+        return redirect(url_for('teacher_projects'))
+
     return render_template("add_project.html", teacher_info=teacher_info)
 
 @app.route("/edit_basic_info", methods=["GET", "POST"])
@@ -815,7 +843,8 @@ def teacher_projects():
         # ดึงข้อมูลโปรเจคตามหน้าที่ต้องการ
         offset = (page - 1) * per_page
         query = """
-            SELECT project_id, project_name, project_status, project_statusStart, project_file 
+            SELECT project_id, project_name, project_status, project_statusStart, 
+                   CASE WHEN project_pdf IS NOT NULL THEN TRUE ELSE FALSE END as has_pdf
             FROM project 
             WHERE teacher_id = %s 
             LIMIT %s OFFSET %s
