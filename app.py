@@ -445,6 +445,7 @@ def create_project_pdf(project_data):
         content.append(Paragraph("10. วัตถุประสงค์", styles['Heading2']))
         content.append(Paragraph(project_data.get('objectives', ''), styles['Normal']))
         content.append(Paragraph("11. เป้าหมาย", styles['Heading2']))
+        content.append(Paragraph(project_data.get('goals', ''), styles['Normal']))
         content.append(Paragraph(f"11.1 เป้าหมายเชิงผลผลิต (Output): {project_data.get('output_target', '')}", styles['Normal']))
         content.append(Paragraph(f"11.2 เป้าหมายเชิงผลลัพธ์ (Outcome): {project_data.get('outcome_target', '')}", styles['Normal']))
         content.append(Paragraph("12. กิจกรรมดำเนินงาน", styles['Heading2']))
@@ -531,14 +532,26 @@ def add_project():
             "branch_name": teacher_info[1],
             "project_status": 0,
         # ข้อมูลที่ไม่ได้บันทึกลงฐานข้อมูล แต่ต้องการแสดงใน PDF
-            "objectives": request.form["objectives"],
-            "project_activity": request.form["project_activity"],
-            "rationale": request.form["rationale"],
-            "policy": request.form["policy"],
+            "output": request.form["output"],
             "strategy": request.form["strategy"],
+            "indicator": request.form["indicator"],
             "cluster": request.form["cluster"],
+            "commonality": request.form["commonality"],
+            "physical_grouping": request.form["physical_grouping"],
+            "rationale": request.form["rationale"],
+            "objectives": request.form["objectives"],
+            "goals": request.form["goals"],
+            "output_target": request.form["output_target"],
+            "outcome_target": request.form["outcome_target"],
+            "project_activity": request.form["project_activity"],
             "compensation": [],
             "expenses": [],
+            "activities": [],
+            "quantity_indicator": request.form["quantity_indicator"],
+            "quality_indicator": request.form["quality_indicator"],
+            "time_indicator": request.form["time_indicator"],
+            "cost_indicator": request.form["cost_indicator"],
+            "expected_results": request.form.get('expected_results', ''),
             
             
         }

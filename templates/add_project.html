@@ -195,38 +195,53 @@
             </div>
 
             <div class="form-group">
-                <label for="policy">นโยบายและผลผลิต:</label>
-                <textarea class="form-control" id="policy" name="policy" rows="3" required></textarea>
+                <label for="output">ผลผลิต:</label>
+                <input type="text" class="form-control" id="output" name="output">
             </div>
             <div class="form-group">
-                <label for="strategy">ความสอดคล้องประเด็นยุทธศาสตร์:</label>
-                <textarea class="form-control" id="strategy" name="strategy" rows="3" required></textarea>
+                <label for="strategy">ประเด็นยุทธศาสตร์:</label>
+                <input type="text" class="form-control" id="strategy" name="strategy">
             </div>
             <div class="form-group">
-                <label for="cluster">ความสอดคล้องกับ Cluster/Commonality/Physical grouping:</label>
-                <textarea class="form-control" id="cluster" name="cluster" rows="3" required></textarea>
+                <label for="indicator">ตัวชี้วัด:</label>
+                <input type="text" class="form-control" id="indicator" name="indicator">
             </div>
             <div class="form-group">
-                <label for="responsible_unit">หน่วยงานที่รับผิดชอบ:</label>
-                <input type="text" class="form-control" id="department" name="department" required>
+                <label for="cluster">Cluster:</label>
+                <input type="text" class="form-control" id="cluster" name="cluster">
+            </div>
+            <div class="form-group">
+                <label for="commonality">Commonality:</label>
+                <input type="text" class="form-control" id="commonality" name="commonality">
+            </div>
+            <div class="form-group">
+                <label for="physical_grouping">Physical grouping:</label>
+                <input type="text" class="form-control" id="physical_grouping" name="physical_grouping">
             </div>
             <div class="form-group">
                 <label for="rationale">หลักการและเหตุผล:</label>
-                <textarea class="form-control" id="rationale" name="rationale" rows="4" required></textarea>
+                <textarea class="form-control" id="rationale" name="rationale" rows="3"></textarea>
             </div>
             <div class="form-group">
                 <label for="objectives">วัตถุประสงค์:</label>
-                <textarea class="form-control" id="objectives" name="objectives" rows="3" required></textarea>
+                <textarea class="form-control" id="objectives" name="objectives" rows="3"></textarea>
             </div>
             <div class="form-group">
                 <label for="goals">เป้าหมาย:</label>
-                <textarea class="form-control" id="goals" name="goals" rows="3" required></textarea>
+                <textarea class="form-control" id="goals" name="goals" rows="3"></textarea>
             </div>
-
-                <div class="col-md-12 left-align">
-                    <label for="activities">12. กิจกรรมดำเนินงาน (ให้ระบุกิจกรรมที่จะทำในโครงการ)</label>
-                    <textarea class="form-control" id="project_activity" name="project_activity" rows="4" required></textarea>
-                </div>
+            <div class="form-group">
+                <label for="output_target">เป้าหมายเชิงผลผลิต (Output):</label>
+                <input type="text" class="form-control" id="output_target" name="output_target">
+            </div>
+            <div class="form-group">
+                <label for="outcome_target">เป้าหมายเชิงผลลัพธ์ (Outcome):</label>
+                <input type="text" class="form-control" id="outcome_target" name="outcome_target">
+            </div>
+            <div class="form-group">
+                <label for="project_activity">กิจกรรมดำเนินงาน:</label>
+                <textarea class="form-control" id="project_activity" name="project_activity" rows="3"></textarea>
+            </div>
 
                 <div class="col-md-12 left-align">
                     <label for="project_target">13. กลุ่มเป้าหมายผู้เข้าร่วมโครงการ (ให้ระบุกลุ่มเป้าหมาย และจำนวนให้ชัดเจน)</label>
@@ -338,8 +353,8 @@
 </div>
 
 <div class="form-group">
-    <label>เชิงคุณภาพ:</label>
-    <textarea class="form-control" name="quality_indicator" rows="3" placeholder="ร้อยละความพึงพอใจของผู้เข้าร่วมโครงการ/ผู้รับบริการ ไม่ต่ำกว่าร้อยละ 75" required></textarea>
+    <label for="quality_indicator">ตัวชี้วัดเชิงคุณภาพ:</label>
+    <input type="text" class="form-control" id="quality_indicator" name="quality_indicator">
 </div>
 
 <div class="form-group">
@@ -354,8 +369,8 @@
                         
                         <div class="form-group">
                             <label>16. ผลที่คาดว่าจะเกิด (Impact):</label>
-                            <textarea class="form-control" id="project_expected_result" name="project_expected_result" rows="4" placeholder= "16.1"required></textarea>
-                            <textarea class="form-control" id="project_expected_result" name="project_expected_result" rows="4" placeholder= "16.2" required></textarea>
+                            <textarea class="form-control" id="expected_results" name="expected_results" rows="4" placeholder= "16.1"required></textarea>
+                            <textarea class="form-control" id="expected_results" name="expected_results" rows="4" placeholder= "16.2" required></textarea>
                         </div>
                     <div class="col-md-12">
                         <label for="note" class="note">หมายเหตุ:   กรุณากรอกข้อมูลให้ครบถ้วนสมบูรณ์ เพื่อประกอบการพิจารณางบประมาณ</label>
