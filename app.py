@@ -435,6 +435,39 @@ def compress_pdf(pdf_content):
     writer.write(output)
     return output.getvalue()
 
+def prepare_logo(logo_path):
+    with Image.open(logo_path) as img:
+        img = img.convert('RGBA')
+        
+        # สร้างภาพใหม่ด้วยพื้นหลังสีขาว
+        background = Image.new('RGBA', img.size, (255, 255, 255, 255))
+        
+        # วางภาพโลโก้บนพื้นหลังสีขาว
+        composite = Image.alpha_composite(background, img)
+        
+        # แปลงกลับเป็น RGB
+        final_img = composite.convert('RGB')
+        
+        img_buffer = BytesIO()
+        final_img.save(img_buffer, format='PNG')
+        img_buffer.seek(0)
+        
+        return img_buffer
+def remove_yellow_background(image_path):
+    img = Image.open(image_path)
+    img = img.convert("RGBA")
+    data = img.getdata()
+
+    new_data = []
+    for item in data:
+        # ปรับค่าสีตามความเหมาะสม
+        if item[0] > 200 and item[1] > 200 and item[2] < 100:  # ถ้าเป็นสีเหลือง
+            new_data.append((255, 255, 255, 0))  # ทำให้โปร่งใส
+        else:
+            new_data.append(item)
+
+    img.putdata(new_data)
+    return img
 
 def create_project_pdf(project_data):
     try:
@@ -465,34 +498,46 @@ def create_project_pdf(project_data):
 
         def header(canvas, doc):
             canvas.saveState()
+            page_width = doc.pagesize[0]
+            page_height = doc.pagesize[1]
+            
             if canvas.getPageNumber() == 1:  # เฉพาะหน้าแรก
-                # ดึงโลโก้จาก URL
-                logo_url = "/static/image_2024-02-07_191338051.png"
-                try:
-                    response = requests.get(logo_url)
-                    if response.status_code == 200:
-                        logo = Image(BytesIO(response.content), width=40, height=40)
-                        logo.drawOn(canvas, 0.75*inch, doc.height + 0.25*inch)
-                    else:
-                        logging.warning(f"Failed to fetch logo from {logo_url}")
-                except Exception as e:
-                    logging.error(f"Error fetching logo: {e}")
+                # ดึงโลโก้
+                logo_path = os.path.join(app.static_folder, '2.png')
+                
+                if os.path.exists(logo_path):
+                    try:
+                        img = Image.open(logo_path)
+                        img = img.convert('RGB')
+                        img_buffer = BytesIO()
+                        img.save(img_buffer, format='PNG')
+                        img_buffer.seek(0)
+                        
+                        # ปรับขนาดและตำแหน่งของโลโก้
+                        logo_width = 0.5 * inch  # ลดขนาดลง
+                        logo_height = 0.5 * inch  # ลดขนาดลง
+                        logo_x = (page_width - logo_width) / 2  # กึ่งกลางแนวนอน
+                        logo_y = page_height - 0.5 * inch  # ด้านบนของหน้า
+                        
+                        canvas.drawImage(ImageReader(img_buffer), logo_x, logo_y, width=logo_width, height=logo_height)
+                    except Exception as e:
+                        print(f"Error loading logo: {e}")
+                else:
+                    print(f"Logo file not found at {logo_path}")
                 
                 # เพิ่มหัวเรื่อง
+                
                 canvas.setFont('THSarabunNew', 16)
-                canvas.drawCentredString(4.25*inch, doc.height + 0.5*inch, "มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน")
+                canvas.drawCentredString(page_width/2, logo_y - 0.3*inch, "มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน")
                 canvas.setFont('THSarabunNew', 14)
-                canvas.drawCentredString(4.25*inch, doc.height + 0.3*inch, f"วิทยาเขต ขอนแก่น")
-                canvas.drawCentredString(4.25*inch, doc.height + 0.1*inch, f"งบประมาณ{project_data['project_budgettype']} ประจำปีงบประมาณ พ.ศ. {project_data['project_year']}")
+                canvas.drawCentredString(page_width/2, logo_y - 0.5*inch, "วิทยาเขต ขอนแก่น")
+                canvas.drawCentredString(page_width/2, logo_y - 0.7*inch, f"งบประมาณ{project_data['project_budgettype']} ประจำปีงบประมาณ พ.ศ. {project_data['project_year']}")
             
             canvas.restoreState()
 
+        # ในส่วนของการสร้างเนื้อหา PDF
         content = []
-
-        # เพิ่ม Spacer เพื่อให้เนื้อหาเริ่มต้นหลังจากหัวเรื่อง
-        content.append(Spacer(1, 2*inch))
-
-        # ข้อมูลโครงการ
+        content.append(Spacer(1, 1*inch))  # เพิ่มระยะห่างด้านบน
         content.append(Paragraph(f"1. ชื่อโครงการ: {project_data['project_name']}", styles['Normal']))
         content.append(Paragraph(f"2. ลักษณะโครงการ: {project_data['project_style']}", styles['Normal']))
         content.append(Paragraph("3. โครงการนี้สอดคล้องกับนโยบายชาติ และผลผลิต", styles['Heading2']))
