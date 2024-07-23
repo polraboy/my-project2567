@@ -110,9 +110,7 @@
                 <li class="nav-item">
                     <a class="nav-link" href="#"><i class="fas fa-project-diagram"></i> โครงการ</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('add_project') }}"><i class="fas fa-plus-circle"></i> เพิ่มโครงการ</a>
-                </li>
+               
                 <li class="nav-item active">
                     <a class="nav-link" href="{{ url_for('approve_project') }}"><i class="fas fa-check-circle"></i> อนุมัติคำขอโครงการ</a>
                 </li>
@@ -132,13 +130,14 @@
     <div class="container">
         <div class="content-box">
             <h2 class="text-center mb-4">อนุมัติโครงการ</h2>
-            <form id="approval-form" action="/projects" method="get" class="mb-4">
+            <form id="approval-form" action="{{ url_for('approve_project') }}" method="get" class="mb-4">
                 <div class="form-group">
                     <label for="approval"><i class="fas fa-filter"></i> กรองสถานะโครงการ:</label>
-                    <select name="approval" id="approval" class="form-control">
-                        <option value="approved">อนุมัติแล้ว</option>
-                        <option value="pending">รออนุมัติ</option>
-                        <option value="unapproved">ยังไม่ยื่นอนุมัติ</option>
+                    <select name="approval" id="approval" class="form-control" onchange="this.form.submit()">
+                        <option value="all" {% if request.args.get('approval') == 'all' %}selected{% endif %}>ทั้งหมด</option>
+                        <option value="approved" {% if request.args.get('approval') == 'approved' %}selected{% endif %}>อนุมัติแล้ว</option>
+                        <option value="pending" {% if request.args.get('approval') == 'pending' %}selected{% endif %}>รออนุมัติ</option>
+                        <option value="unapproved" {% if request.args.get('approval') == 'unapproved' %}selected{% endif %}>ยังไม่ยื่นอนุมัติ</option>
                     </select>
                 </div>
             </form>
@@ -150,13 +149,13 @@
                             <th scope="col"><i class="fas fa-project-diagram"></i> ชื่อโครงการ</th>
                             <th scope="col"><i class="fas fa-info-circle"></i> สถานะโครงการ</th>
                             <th scope="col"><i class="fas fa-cogs"></i> การดำเนินการ</th>
-                            
+                            <th scope="col"><i class="fas fa-file-pdf"></i> ดาวน์โหลด PDF</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for project in projects %}
-                        <tr class="{% if project[2] == 0 %}unapproved-projects{% endif %} {% if project[2] == 1 %}pending-projects{% endif %} {% if project[2] == 2 %}approved-projects{% endif %}">
-                            <td>{{ project[0] }}</td>
+                        <tr>
+                            <td>{{ loop.index }}</td>
                             <td>{{ project[1] }}</td>
                             <td>
                                 {% if project[2] == 0 %}
@@ -168,18 +167,20 @@
                                 {% endif %}
                             </td>
                             <td>
-                                {% if project[3] %}
-                                    <span class="badge badge-info">เปิดโครงการ</span>
-                                {% else %}
-                                    <span class="badge badge-danger">ปิดโครงการ</span>
-                                {% endif %}
-                            </td>
-                            <td>
                                 {% if project[2] == 1 %}
                                 <form action="{{ url_for('approve_project') }}" method="post" style="display:inline;">
                                     <input type="hidden" name="project_id" value="{{ project[0] }}">
                                     <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-check"></i> อนุมัติ</button>
                                 </form>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if project[3] %}
+                                <a href="{{ url_for('download_project_pdf', project_id=project[0]) }}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-download"></i> ดาวน์โหลด PDF
+                                </a>
+                                {% else %}
+                                <span class="badge badge-secondary">ไม่มี PDF</span>
                                 {% endif %}
                             </td>
                         </tr>

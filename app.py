@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory, send_file
+from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory, send_file,make_response
 import mysql.connector
 import base64
 import os
@@ -100,15 +100,15 @@ class ProjectPDF(FPDF):
 def index():
     return "Welcome to the Flask Google Form Integration App"
 
-def login_required(user_type):
+def login_required(*allowed_roles):
     def decorator(f):
         @wraps(f)
-        def decorated_function(*args, **kwargs):
-            if "user_type" not in session or session["user_type"] != user_type:
-                flash("คุณไม่มีสิทธิ์เข้าถึงหน้านี้", "error")
-                return redirect(url_for("login"))
+        def wrapped_function(*args, **kwargs):
+            if 'user_type' not in session or session['user_type'] not in allowed_roles:
+                flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'error')
+                return redirect(url_for('login'))
             return f(*args, **kwargs)
-        return decorated_function
+        return wrapped_function
     return decorator
 
 @contextmanager
@@ -267,6 +267,8 @@ def admin_home():
     return render_template("admin_home.html", constants=constants)
 
 
+    
+
 @app.route("/approve_project", methods=["GET", "POST"])
 @login_required("admin")
 def approve_project():
@@ -277,11 +279,30 @@ def approve_project():
                 query = "UPDATE project SET project_status = 2 WHERE project_id = %s"
                 cursor.execute(query, (project_id,))
                 db.commit()
+            flash('โครงการได้รับการอนุมัติแล้ว', 'success')
             return redirect(url_for("approve_project"))
 
-        projects = get_projects()
+        approval_filter = request.args.get('approval', 'all')
+        with get_db_cursor() as (db, cursor):
+            query = """
+            SELECT p.project_id, p.project_name, p.project_status, 
+                   CASE WHEN p.project_pdf IS NOT NULL THEN TRUE ELSE FALSE END as has_pdf
+            FROM project p
+            """
+            if approval_filter == 'approved':
+                query += " WHERE p.project_status = 2"
+            elif approval_filter == 'pending':
+                query += " WHERE p.project_status = 1"
+            elif approval_filter == 'unapproved':
+                query += " WHERE p.project_status = 0"
+            
+            cursor.execute(query)
+            projects = cursor.fetchall()
+
         return render_template(
-            "approve_project.html", projects=projects, get_status=get_status
+            "approve_project.html", 
+            projects=projects,
+            approval_filter=approval_filter
         )
     else:
         return redirect(url_for("login"))
@@ -399,17 +420,27 @@ def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 @app.route("/download_project_pdf/<int:project_id>")
-@login_required("teacher")
+@login_required("teacher", "admin")
 def download_project_pdf(project_id):
-    teacher_id = session["teacher_id"]
-
+    user_type = session.get("user_type")
+    
     with get_db_cursor() as (db, cursor):
-        query = """
-            SELECT project_pdf, project_name 
-            FROM project 
-            WHERE project_id = %s AND teacher_id = %s
-        """
-        cursor.execute(query, (project_id, teacher_id))
+        if user_type == "teacher":
+            teacher_id = session["teacher_id"]
+            query = """
+                SELECT project_pdf, project_name 
+                FROM project 
+                WHERE project_id = %s AND teacher_id = %s
+            """
+            cursor.execute(query, (project_id, teacher_id))
+        else:  # admin
+            query = """
+                SELECT project_pdf, project_name 
+                FROM project 
+                WHERE project_id = %s
+            """
+            cursor.execute(query, (project_id,))
+        
         result = cursor.fetchone()
 
     if result and result[0]:
@@ -422,7 +453,8 @@ def download_project_pdf(project_id):
         )
     else:
         flash('ไม่พบไฟล์ PDF สำหรับโครงการนี้', 'error')
-        return redirect(url_for('teacher_projects'))
+        return redirect(url_for('teacher_projects' if user_type == "teacher" else 'approve_project'))
+
 def compress_pdf(pdf_content):
     reader = PdfReader(io.BytesIO(pdf_content))
     writer = PdfWriter()
@@ -987,7 +1019,6 @@ def request_approval():
 
 
 @app.route("/project/<int:project_id>")
-@login_required("teacher")
 def project_detail(project_id):
     with get_db_cursor() as (db, cursor):
         query = """SELECT project.project_id, project.project_name, project.project_year, project.project_style, 
@@ -1027,7 +1058,7 @@ def project_detail(project_id):
     )
 
 @app.route("/update_project_statusStart", methods=["POST"])
-@login_required("admin")
+@login_required("teacher")
 def update_project_statusStart():
     if "teacher_id" not in session:
         return redirect(url_for("login"))
@@ -1050,7 +1081,7 @@ def update_project_statusStart():
 
     return redirect(url_for("project_detail", project_id=project_id))
 @app.route("/active_projects")
-@login_required("teacher")
+
 def active_projects():
     with get_db_cursor() as (db, cursor):
         query = """
