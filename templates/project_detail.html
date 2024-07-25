@@ -1,140 +1,208 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>รายละเอียดโครงการ</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+    <link
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+      rel="stylesheet"
+    />
     <style>
-        :root {
-            --primary-color: #FF8C00;
-            --secondary-color: #007bff;
-            --background-color: #f8f9fa;
-        }
+      :root {
+        --primary-color: #ff8c00;
+        --secondary-color: #007bff;
+        --background-color: #f8f9fa;
+      }
 
-        body {
-            background-color: var(--background-color);
-            font-family: 'Kanit', sans-serif;
-            padding-bottom: 100px;
-        }
+      body {
+        background-color: var(--background-color);
+        font-family: "Kanit", sans-serif;
+        padding-bottom: 100px;
+      }
 
-        .navbar {
-            background-color: var(--primary-color) !important;
-        }
+      .navbar {
+        background-color: var(--primary-color) !important;
+      }
 
-        .navbar-brand img {
-            margin-right: 10px;
-        }
+      .navbar-brand img {
+        margin-right: 10px;
+      }
 
-        .navbar-brand span {
-            font-size: 1rem;
-            line-height: 1.2;
-            color: white;
-        }
+      .navbar-brand span {
+        font-size: 1rem;
+        line-height: 1.2;
+        color: white;
+      }
 
-        .nav-link {
-            color: white !important;
-        }
+      .nav-link {
+        color: white !important;
+      }
 
-        .content-box {
-            background-color: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            margin-top: 30px;
-            margin-bottom: 50px;
-        }
+      .content-box {
+        background-color: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        margin-top: 30px;
+        margin-bottom: 50px;
+      }
 
-        .btn-secondary {
-            background-color: var(--secondary-color);
-            border-color: var(--secondary-color);
-        }
+      .btn-secondary {
+        background-color: var(--secondary-color);
+        border-color: var(--secondary-color);
+      }
 
-        .btn-secondary:hover {
-            background-color: darken(var(--secondary-color), 10%);
-            border-color: darken(var(--secondary-color), 10%);
-        }
+      .btn-secondary:hover {
+        background-color: darken(var(--secondary-color), 10%);
+        border-color: darken(var(--secondary-color), 10%);
+      }
 
-        .footer {
-            background-color: var(--secondary-color);
-            color: white;
-            padding: 20px 0;
-            text-align: center;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-        }
+      .footer {
+        background-color: var(--secondary-color);
+        color: white;
+        padding: 20px 0;
+        text-align: center;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+      }
 
-        .footer img {
-            max-width: 100px;
-            margin-bottom: 10px;
-        }
+      .footer img {
+        max-width: 100px;
+        margin-bottom: 10px;
+      }
 
-        .form-check-input {
-            margin-top: 0.3rem;
-        }
+      .form-check-input {
+        margin-top: 0.3rem;
+      }
     </style>
-</head>
+  </head>
 
-<body>
-    
-
+  <body>
     <div class="container">
-        <div class="content-box">
-            <h2 class="text-center mb-4">รายละเอียดโครงการ</h2>
-            <p><strong><i class="fas fa-project-diagram"></i> ชื่อโครงการ:</strong> {{ project.project_name }}</p>
-            <p><strong><i class="fas fa-calendar-alt"></i> ปี:</strong> {{ project.project_year }}</p>
-            <p><strong><i class="fas fa-clipboard-list"></i> รูปแบบโครงการ:</strong> {{ project.project_style }}</p>
-            <p><strong><i class="fas fa-map-marker-alt"></i> ที่อยู่โครงการ:</strong> {{ project.project_address }}</p>
-            <p><strong><i class="fas fa-clock"></i> เวลาเริ่มโครงการ:</strong> {{ project.project_dotime }}</p>
-            <p><strong><i class="fas fa-clock"></i> เวลาสิ้นสุดโครงการ:</strong> {{ project.project_endtime }}</p>
-            <p><strong><i class="fas fa-bullseye"></i> เป้าหมายโครงการ:</strong> {{ project.project_target }}</p>
-            <p><strong><i class="fas fa-user-tie"></i> ชื่อครู:</strong> {{ project.teacher_name }}</p>
+      <div class="content-box">
+        <h2 class="text-center mb-4">รายละเอียดโครงการ</h2>
+        <p>
+          <strong><i class="fas fa-project-diagram"></i> ชื่อโครงการ:</strong>
+          {{ project.project_name }}
+        </p>
+        <p>
+          <strong><i class="fas fa-calendar-alt"></i> ปี:</strong> {{
+          project.project_year }}
+        </p>
+        <p>
+          <strong><i class="fas fa-clipboard-list"></i> รูปแบบโครงการ:</strong>
+          {{ project.project_style }}
+        </p>
+        <p>
+          <strong><i class="fas fa-map-marker-alt"></i> ที่อยู่โครงการ:</strong>
+          {{ project.project_address }}
+        </p>
+        <p>
+          <strong><i class="fas fa-clock"></i> เวลาเริ่มโครงการ:</strong> {{
+          project.project_dotime }}
+        </p>
+        <p>
+          <strong><i class="fas fa-clock"></i> เวลาสิ้นสุดโครงการ:</strong> {{
+          project.project_endtime }}
+        </p>
+        <p>
+          <strong><i class="fas fa-bullseye"></i> เป้าหมายโครงการ:</strong> {{
+          project.project_target }}
+        </p>
+        <p>
+          <strong><i class="fas fa-user-tie"></i> ชื่อครู:</strong> {{
+          project.teacher_name }}
+        </p>
 
-            <p>จำนวนผู้เข้าร่วมปัจจุบัน: {{ current_count }} / {{ project.project_target|default(0) }}</p>
+        <p>
+          จำนวนผู้เข้าร่วมปัจจุบัน: {{ current_count }} / {{
+          project.project_target|default(0) }}
+        </p>
 
-            {% if current_count < (project.project_target|int if project.project_target else 0) %} 
-            <a href="{{ url_for('join_project', project_id=project.project_id) }}" class="btn btn-primary">สมัครเข้าร่วมโครงการ</a>
-                {% else %}
-                <p class="text-danger">ขออภัย โครงการนี้มีผู้เข้าร่วมเต็มแล้ว</p>
-                {% endif %}
+        {% if current_count < (project.project_target|int if
+        project.project_target else 0) %}
+        <a
+          href="{{ url_for('join_project', project_id=project.project_id) }}"
+          class="btn btn-primary"
+          >สมัครเข้าร่วมโครงการ</a
+        >
+        {% else %}
+        <p class="text-danger">ขออภัย โครงการนี้มีผู้เข้าร่วมเต็มแล้ว</p>
+        {% endif %}
 
-                <a href="{{ url_for('project_participants', project_id=project.project_id) }}"
-                    class="btn btn-info">ดูรายชื่อผู้เข้าร่วมโครงการ</a>
+        <a
+          href="{{ url_for('project_participants', project_id=project.project_id) }}"
+          class="btn btn-info"
+          >ดูรายชื่อผู้เข้าร่วมโครงการ</a
+        >
 
-                {% if is_logged_in %}
-                <form id="projectStatusForm" action="{{ url_for('update_project_statusStart') }}" method="POST">
-                    <input type="hidden" name="project_id" value="{{ project.project_id }}">
-                    <div class="form-check form-switch mb-3">
-                        <input class="form-check-input" type="radio" id="openProject" name="projectStatus" value="1" {%
-                            if project.project_statusStart==1 %}checked{% endif %}>
-                        <label class="form-check-label" for="openProject">เปิดโครงการ</label>
-                    </div>
-                    <div class="form-check form-switch mb-3">
-                        <input class="form-check-input" type="radio" id="closeProject" name="projectStatus" value="0" {%
-                            if project.project_statusStart==0 %}checked{% endif %}>
-                        <label class="form-check-label" for="closeProject">ปิดโครงการ</label>
-                    </div>
-                   
-                
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> บันทึก</button>
-                </form>
-                {% endif %}
+        {% if is_logged_in %}
+        <form
+          id="projectStatusForm"
+          action="{{ url_for('update_project_statusStart') }}"
+          method="POST"
+        >
+          <input
+            type="hidden"
+            name="project_id"
+            value="{{ project.project_id }}"
+          />
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="radio" id="openProject"
+            name="projectStatus" value="1" {% if project.project_statusStart==1
+            %}checked{% endif %}>
+            <label class="form-check-label" for="openProject"
+              >เปิดโครงการ</label
+            >
+          </div>
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="radio" id="closeProject"
+            name="projectStatus" value="0" {% if project.project_statusStart==0
+            %}checked{% endif %}>
+            <label class="form-check-label" for="closeProject"
+              >ปิดโครงการ</label
+            >
+          </div>
 
-                <button onclick="goBack()" class="btn btn-secondary back-button">กลับ</button>
-        </div>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> บันทึก
+          </button>
+        </form>
+        {% endif %}
+
+        <button onclick="goBack()" class="btn btn-secondary back-button">
+          กลับ
+        </button>
+      </div>
     </div>
 
     <footer class="footer">
-        <div class="container">
-            <img src="/static/image_2024-02-07_191338051.png" alt="Logo" class="mb-3">
-            <p>คณะบริหารธุรกิจและเทคโนโลยีสารสนเทศ - มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน วิทยาเขตขอนแก่น</p>
-            <p>150 ถ.ศรีจันทร์ ต.ในเมือง อ.เมือง จ.ขอนแก่น 40000</p>
-            <p>โทร: 043-283-705 | เวลาทำการ: 8.00-16.0       
-    <script>
-        function goBack() {
-            window.history.back();
-        }
-    </script>
+      <div class="container">
+        <img
+          src="/static/image_2024-02-07_191338051.png"
+          alt="Logo"
+          class="mb-3"
+        />
+        <p>
+          คณะบริหารธุรกิจและเทคโนโลยีสารสนเทศ - มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน
+          วิทยาเขตขอนแก่น
+        </p>
+        <p>150 ถ.ศรีจันทร์ ต.ในเมือง อ.เมือง จ.ขอนแก่น 40000</p>
+        <p>
+          โทร: 043-283-705 | เวลาทำการ: 8.00-16.0
+          <script>
+            function goBack() {
+              window.history.back();
+            }
+          </script>
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

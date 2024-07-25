@@ -1,139 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
+    <link
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kanit&display=swap"
+      rel="stylesheet"
+    />
     <style>
-        :root {
-            --primary-color: #FF8C00;
-            --secondary-color: #007bff;
-            --background-color: #f8f9fa;
-        }
-        
-        body {
-            background-color: var(--background-color);
-            font-family: 'Kanit', sans-serif;
-            padding-bottom: 100px;
-        }
+      :root {
+        --primary-color: #ff8c00;
+        --secondary-color: #007bff;
+        --background-color: #f8f9fa;
+      }
 
-        .navbar {
-            background-color: var(--primary-color) !important;
-        }
+      body {
+        background-color: var(--background-color);
+        font-family: "Kanit", sans-serif;
+        padding-bottom: 100px;
+      }
 
-        .navbar-brand img {
-            margin-right: 10px;
-        }
+      .navbar {
+        background-color: var(--primary-color) !important;
+      }
 
-        .navbar-brand span {
-            font-size: 1rem;
-            line-height: 1.2;
-            color: white;
-        }
+      .navbar-brand img {
+        margin-right: 10px;
+      }
 
-        .nav-link {
-            color: white !important;
-        }
+      .navbar-brand span {
+        font-size: 1rem;
+        line-height: 1.2;
+        color: white;
+      }
 
-        .content-box {
-            background-color: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            margin-top: 30px;
-            margin-bottom: 50px;
-        }
+      .nav-link {
+        color: white !important;
+      }
 
-        .btn-primary {
-            background-color: var(--secondary-color);
-            border-color: var(--secondary-color);
-        }
+      .content-box {
+        background-color: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        margin-top: 30px;
+        margin-bottom: 50px;
+      }
 
-        .btn-primary:hover {
-            background-color: darken(var(--secondary-color), 10%);
-            border-color: darken(var(--secondary-color), 10%);
-        }
+      .btn-primary {
+        background-color: var(--secondary-color);
+        border-color: var(--secondary-color);
+      }
 
-        .footer {
-            background-color: var(--secondary-color);
-            color: white;
-            padding: 20px 0;
-            text-align: center;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-        }
+      .btn-primary:hover {
+        background-color: darken(var(--secondary-color), 10%);
+        border-color: darken(var(--secondary-color), 10%);
+      }
 
-        .footer img {
-            max-width: 100px;
-            margin-bottom: 10px;
-        }
+      .footer {
+        background-color: var(--secondary-color);
+        color: white;
+        padding: 20px 0;
+        text-align: center;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+      }
+
+      .footer img {
+        max-width: 100px;
+        margin-bottom: 10px;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
-        <a class="navbar-brand" href="#">
-            <img src="/static/image_2024-02-07_191338051.png" width="40" height="40" class="d-inline-block align-top" alt="Logo">
-            <span>มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน<br>วิทยาเขตขอนแก่น</span>
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/"><i class="fas fa-home"></i> หน้าหลัก</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#"><i class="fas fa-info-circle"></i> เกี่ยวกับ</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#"><i class="fas fa-project-diagram"></i> โครงการ</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="/login"><i class="fas fa-sign-in-alt"></i> เข้าสู่ระบบ</a>
-                </li>
-            </ul>
-        </div>
+      <a class="navbar-brand" href="#">
+        <img
+          src="/static/image_2024-02-07_191338051.png"
+          width="40"
+          height="40"
+          class="d-inline-block align-top"
+          alt="Logo"
+        />
+        <span>มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน<br />วิทยาเขตขอนแก่น</span>
+      </a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="/"
+              ><i class="fas fa-home"></i> หน้าหลัก</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#"
+              ><i class="fas fa-info-circle"></i> เกี่ยวกับ</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#"
+              ><i class="fas fa-project-diagram"></i> โครงการ</a
+            >
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="/login"
+              ><i class="fas fa-sign-in-alt"></i> เข้าสู่ระบบ</a
+            >
+          </li>
+        </ul>
+      </div>
     </nav>
 
     <div class="container">
-        <div class="content-box">
-            <h2 class="text-center mb-4"><i class="fas fa-user-lock"></i> เข้าสู่ระบบ</h2>
-            <form action="{{ url_for('login') }}" method="post">
-                <div class="form-group">
-                    <label for="username"><i class="fas fa-user"></i> ชื่อผู้ใช้</label>
-                    <input type="text" class="form-control" id="username" name="username" placeholder="กรอกชื่อผู้ใช้">
-                </div>
-                <div class="form-group">
-                    <label for="password"><i class="fas fa-key"></i> รหัสผ่าน</label>
-                    <input type="password" class="form-control" id="password" name="password" placeholder="กรอกรหัสผ่าน">
-                </div>
-                <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-sign-in-alt"></i> เข้าสู่ระบบ</button>
-            </form>
-        </div>
+      <div class="content-box">
+        <h2 class="text-center mb-4">
+          <i class="fas fa-user-lock"></i> เข้าสู่ระบบ
+        </h2>
+        <form action="{{ url_for('login') }}" method="post">
+          <div class="form-group">
+            <label for="username"><i class="fas fa-user"></i> ชื่อผู้ใช้</label>
+            <input
+              type="text"
+              class="form-control"
+              id="username"
+              name="username"
+              placeholder="กรอกชื่อผู้ใช้"
+            />
+          </div>
+          <div class="form-group">
+            <label for="password"><i class="fas fa-key"></i> รหัสผ่าน</label>
+            <input
+              type="password"
+              class="form-control"
+              id="password"
+              name="password"
+              placeholder="กรอกรหัสผ่าน"
+            />
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">
+            <i class="fas fa-sign-in-alt"></i> เข้าสู่ระบบ
+          </button>
+        </form>
+      </div>
     </div>
 
     <!-- Footer -->
     <footer class="footer">
-        <div class="container">
-            <img src="/static/image_2024-02-07_191338051.png" alt="Logo" class="mb-3">
-            <p>คณะบริหารธุรกิจและเทคโนโลยีสารสนเทศ - มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน วิทยาเขตขอนแก่น</p>
-            <p>150 ถ.ศรีจันทร์ ต.ในเมือง อ.เมือง จ.ขอนแก่น 40000</p>
-            <p>โทร: 043-283-705 | เวลาทำการ: 8.00-16.00 น.</p>
-        </div>
+      <div class="container">
+        <img
+          src="/static/image_2024-02-07_191338051.png"
+          alt="Logo"
+          class="mb-3"
+        />
+        <p>
+          คณะบริหารธุรกิจและเทคโนโลยีสารสนเทศ - มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน
+          วิทยาเขตขอนแก่น
+        </p>
+        <p>150 ถ.ศรีจันทร์ ต.ในเมือง อ.เมือง จ.ขอนแก่น 40000</p>
+        <p>โทร: 043-283-705 | เวลาทำการ: 8.00-16.00 น.</p>
+      </div>
     </footer>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-
+  </body>
 </html>
