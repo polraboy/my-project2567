@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>เพิ่มโครงการใหม่ - มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน</title>
+    <title>แก้ไขโครงการ - มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
@@ -45,24 +45,25 @@
             background-color: #0056b3;
             border-color: #0056b3;
         }
+        
         .navbar {
-                background-color: var(--primary-color) !important;
-            }
-    
-            .navbar-brand img {
-                margin-right: 10px;
-            }
-    
-            .navbar-brand span {
-                font-size: 1rem;
-                line-height: 1.2;
-                color: white;
-            }
-    
-            .nav-link {
-                color: white !important;
-            }
-            .expense-form {
+            background-color: var(--primary-color) !important;
+        }
+
+        .navbar-brand img {
+            margin-right: 10px;
+        }
+
+        .navbar-brand span {
+            font-size: 1rem;
+            line-height: 1.2;
+            color: white;
+        }
+
+        .nav-link {
+            color: white !important;
+        }
+        .expense-form {
                 width: 100%;
                 max-width: 600px;
                 margin: left auto;
@@ -94,104 +95,101 @@
         </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container">
-            <a class="navbar-brand" href="#">
-                <img src="/static/image_2024-02-07_191338051.png" width="40" height="40" class="d-inline-block align-top" alt="Logo">
-                มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน วิทยาเขตขอนแก่น
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="teacher_home"
-              ><i class="fas fa-home"></i> หน้าหลัก</a
-            >
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">เกี่ยวกับ</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('add_project') }}">เพิ่มโครงการ</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="teacher_projects"
-                        ><i class="fas fa-tasks"></i> จัดการโครงการ</a
-                      >
-                    </li>
-                    
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">{{ session['admin_name'] }}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('logout') }}">ออกจากระบบ</a>
-                    </li>
-                </ul>
-            </div>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="#">
+            <img src="/static/image_2024-02-07_191338051.png" width="40" height="40" class="d-inline-block align-top" alt="Logo">
+            <span>มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน<br>วิทยาเขตขอนแก่น</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="teacher_home"><i class="fas fa-home"></i> หน้าหลัก</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-info-circle"></i> เกี่ยวกับ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="add_project"><i class="fas fa-tasks"></i> เพิ่มโครงการ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="teacher_projects"><i class="fas fa-tasks"></i> จัดการโครงการ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-user"></i> {{ session['teacher_name'] }}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</a>
+                </li>
+            </ul>
         </div>
     </nav>
 
     <div class="container mt-5">
-        <h2 class="text-center mb-4">เพิ่มโครงการใหม่</h2>
-        <form method="POST" enctype="multipart/form-data">
+        <h2 class="text-center mb-4">แก้ไขโครงการ</h2>
+        <form method="POST">
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="project_budgettype">ประเภทงบประมาณ:</label>
                         <select class="form-control" id="project_budgettype" name="project_budgettype" required>
-                            <option value="">เลือกประเภทงบประมาณ</option>
-                            <option value="งบประมาณเงินรายได้">งบประมาณเงินรายได้</option>
-                            <option value="งบประมาณเงินรายจ่าย">งบประมาณเงินรายจ่าย</option>
+                            <option value="งบประมาณเงินรายได้" {% if project.project_budgettype == "งบประมาณเงินรายได้" %}selected{% endif %}>งบประมาณเงินรายได้</option>
+                            <option value="งบประมาณเงินรายจ่าย" {% if project.project_budgettype == "งบประมาณเงินรายจ่าย" %}selected{% endif %}>งบประมาณเงินรายจ่าย</option>
                         </select>
                     </div>
+    
                     <div class="form-group">
                         <label for="project_year">ปีงบประมาณ (พ.ศ.):</label>
-                        <input type="number" class="form-control" id="project_year" name="project_year" required>
+                        <input type="text" class="form-control" id="project_year" name="project_year" value="{{ project.project_year }}" required>
                     </div>
+    
                     <div class="form-group">
                         <label for="project_name">ชื่อโครงการ:</label>
-                        <input type="text" class="form-control" id="project_name" name="project_name" required>
+                        <input type="text" class="form-control" id="project_name" name="project_name" value="{{ project.project_name }}" required>
                     </div>
+    
                     <div class="form-group">
                         <label>ลักษณะโครงการ:</label>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="project_style" id="style1" value="จัดฝึกอบรม" required>
+                            <input class="form-check-input" type="radio" name="project_style" id="style1" value="จัดฝึกอบรม" {% if project.project_style == "จัดฝึกอบรม" %}checked{% endif %} required>
                             <label class="form-check-label" for="style1">จัดฝึกอบรม</label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="project_style" id="style2" value="จัดงาน">
+                            <input class="form-check-input" type="radio" name="project_style" id="style2" value="จัดงาน" {% if project.project_style == "จัดงาน" %}checked{% endif %}>
                             <label class="form-check-label" for="style2">จัดงาน</label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="project_style" id="style3" value="จัดตามภารกิจปกติ">
+                            <input class="form-check-input" type="radio" name="project_style" id="style3" value="จัดตามภารกิจปกติ" {% if project.project_style == "จัดตามภารกิจปกติ" %}checked{% endif %}>
                             <label class="form-check-label" for="style3">จัดตามภารกิจปกติ</label>
                         </div>
                     </div>
+    
                     <div class="form-group">
                         <label for="project_address">สถานที่ดำเนินการ:</label>
-                        <input type="text" class="form-control" id="project_address" name="project_address" required>
+                        <input type="text" class="form-control" id="project_address" name="project_address" value="{{ project.project_address }}" required>
                     </div>
                 </div>
+    
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="project_dotime">วันที่เริ่มโครงการ:</label>
-                        <input type="date" class="form-control" id="project_dotime" name="project_dotime" required>
+                        <input type="date" class="form-control" id="project_dotime" name="project_dotime" value="{{ project.project_dotime }}" required>
                     </div>
+    
                     <div class="form-group">
                         <label for="project_endtime">วันที่สิ้นสุดโครงการ:</label>
-                        <input type="date" class="form-control" id="project_endtime" name="project_endtime" required>
+                        <input type="date" class="form-control" id="project_endtime" name="project_endtime" value="{{ project.project_endtime }}" required>
                     </div>
-                    
-                    
+    
                     <div class="form-group">
                         <label>อาจารย์ผู้รับผิดชอบ:</label>
                         <p>{{ teacher_info[0] }} - {{ teacher_info[1] }}</p>
                     </div>
                 </div>
             </div>
-
             <div class="form-group">
                 <label for="output">ผลผลิต:</label>
                 <input type="text" class="form-control" id="output" name="output">
@@ -241,17 +239,18 @@
                 <textarea class="form-control" id="project_activity" name="project_activity" rows="3"></textarea>
             </div>
 
-                <div class="col-md-12 left-align">
-                    <label for="project_target">13. กลุ่มเป้าหมายผู้เข้าร่วมโครงการ (ให้ระบุกลุ่มเป้าหมาย และจำนวนให้ชัดเจน)</label>
-                    <textarea class="form-control" id="project_target" name="project_target" rows="3" required></textarea>
+            <div class="form-group">
+                <label for="project_target">13. กลุ่มเป้าหมายผู้เข้าร่วมโครงการ:</label>
+                <input type="text" class="form-control" id="project_target" name="project_target" value="{{ project.project_target }}" required>
+            </div>
+
+            <h3 class="mt-4">14. งบประมาณ</h3>
+            <div class="expense-form">
+                <div class="form-group">
+                    <label for="project_budget">งบประมาณโครงการ:</label>
+                    <input type="number" class="form-control" id="project_budget" name="project_budget" value="{{ project.project_budget }}" required>
                 </div>
-        
-                <h3 class="mt-4">14. งบประมาณ</h3>
-                <div class="expense-form">
-                    <div class="form-group">
-                        <label for="project_budget">งบประมาณโครงการ:</label>
-                        <input type="number" class="form-control" id="project_budget" name="project_budget" required placeholder="งบประมาณโครงการ">
-                    </div>
+            </div>
                     
                     <h4>14.1 ค่าตอบแทน</h4>
                     <div id="compensation-items">
@@ -390,10 +389,11 @@
                         <label>เบอร์โทรศัพท์:</label>
                         <input type="tel" class="form-control" name="phone" required>
                     </div>
-                      <div class="text-center mt-4">
-                        <button type="submit">บันทึกโครงการ</button>
-                      
-                    </button>
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary">บันทึกการแก้ไขโครงการ</button>
+                        <a href="{{ url_for('teacher_projects') }}" class="btn btn-secondary">ยกเลิก</a>
+                    </div>
+                </form>
                       </div>
                     </form>
                   </div>
@@ -405,17 +405,10 @@
                 </div>
 
             </div>
-            
 
-
-
-
-    
-
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+            <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const currentYear = new Date().getFullYear() + 543; // พ.ศ.

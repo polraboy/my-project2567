@@ -104,11 +104,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('admin_home') }}"><i class="fas fa-home"></i> หน้าหลัก</a>
                 </li>
+                
                 <li class="nav-item">
-                    <a class="nav-link" href="#"><i class="fas fa-info-circle"></i> เกี่ยวกับ</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#"><i class="fas fa-project-diagram"></i> โครงการ</a>
+                    <a class="nav-link" href="active_projects"><i class="fas fa-project-diagram"></i> โครงการ</a>
                 </li>
                
                 <li class="nav-item active">
@@ -168,11 +166,42 @@
                             </td>
                             <td>
                                 {% if project[2] == 1 %}
-                                <form action="{{ url_for('approve_project') }}" method="post" style="display:inline;">
-                                    <input type="hidden" name="project_id" value="{{ project[0] }}">
-                                    <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-check"></i> อนุมัติ</button>
-                                </form>
-                                {% endif %}
+<form action="{{ url_for('approve_project') }}" method="post" class="d-inline">
+    <input type="hidden" name="project_id" value="{{ project[0] }}">
+    <button type="submit" class="btn btn-success btn-sm">อนุมัติ</button>
+</form>
+<button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#rejectModal{{ project[0] }}">
+    ตีกลับ
+</button>
+
+<!-- Modal for rejection reason -->
+<div class="modal fade" id="rejectModal{{ project[0] }}" tabindex="-1" role="dialog" aria-labelledby="rejectModalLabel{{ project[0] }}" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rejectModalLabel{{ project[0] }}">เหตุผลในการตีกลับโครงการ</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="{{ url_for('reject_project') }}" method="post">
+                <div class="modal-body">
+                    <input type="hidden" name="project_id" value="{{ project[0] }}">
+                    <div class="form-group">
+                        <label for="project_reject">เหตุผลในการตีกลับ:</label>
+                        <textarea class="form-control" id="project_reject" name="project_reject" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">ยกเลิก</button>
+                    <button type="submit" class="btn btn-danger">ยืนยันการตีกลับ</button>
+                </div>
+            </form>
+               
+        </div>
+    </div>
+</div>
+{% endif %}
                             </td>
                             <td>
                                 {% if project[3] %}
