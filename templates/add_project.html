@@ -98,39 +98,95 @@
 </head>
 <body>
     
-        <nav class="navbar navbar-expand-lg navbar-dark">
-            <a class="navbar-brand" href="#">
-                <img src="/static/image_2024-02-07_191338051.png" width="40" height="40" class="d-inline-block align-top" alt="Logo">
-                <span>มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน<br>วิทยาเขตขอนแก่น</span>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="#">
+          <img
+            src="/static/image_2024-02-07_191338051.png"
+            width="40"
+            height="40"
+            class="d-inline-block align-top"
+            alt="Logo"
+          />
+          <span>มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน<br />วิทยาเขตขอนแก่น</span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="teacher_home"
+                ><i class="fas fa-home"></i> หน้าหลัก</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#"
+                ><i class="fas fa-info-circle"></i> เกี่ยวกับ</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="add_project"
+                ><i class="fas fa-tasks"></i> เพิ่มโครงการ</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="teacher_projects"
+                ><i class="fas fa-tasks"></i> จัดการโครงการ</a
+              >
+            </li>
+            {% if g.user %}
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              href="#"
+              data-toggle="modal"
+              data-target="#userInfoModal"
+            >
+              <i class="fas fa-user"></i> {{ g.user.name }}
             </a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="teacher_home"><i class="fas fa-home"></i> หน้าหลัก</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fas fa-info-circle"></i> เกี่ยวกับ</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="add_project"><i class="fas fa-tasks"></i> เพิ่มโครงการ</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="teacher_projects"><i class="fas fa-tasks"></i> จัดการโครงการ</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fas fa-user"></i> {{ session['teacher_name'] }}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</a>
-                    </li>
-                </ul>
+          </li>
+          {% endif %}
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('logout') }}"
+                ><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</a
+              >
+            </li>
+          </ul>
+        </div>
+      </nav>
+      {% if g.user %}
+      <div class="modal fade" id="userInfoModal" tabindex="-1" role="dialog" aria-labelledby="userInfoModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="userInfoModalLabel">ข้อมูลผู้ใช้</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
             </div>
-        </nav>
-    <div class="container mt-5">
+            <div class="modal-body">
+              <p><strong>ชื่อ:</strong> {{ g.user.name }}</p>
+              <p><strong>อีเมล:</strong> {{ g.user.email or 'ไม่มีข้อมูล' }}</p>
+              {% if g.user.type == 'teacher' %}
+                <p><strong>เบอร์โทรศัพท์:</strong> {{ g.user.phone or 'ไม่มีข้อมูล' }}</p>
+              {% endif %}
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">ปิด</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      <div class="container mt-5">
         <h2 class="text-center mb-4">เพิ่มโครงการใหม่</h2>
         <form method="POST" enctype="multipart/form-data">
             <div class="row">

@@ -85,101 +85,59 @@
 
   <body>
     <div class="container">
-      <div class="content-box">
-        <h2 class="text-center mb-4">รายละเอียดโครงการ</h2>
-        <p>
-          <strong><i class="fas fa-project-diagram"></i> ชื่อโครงการ:</strong>
-          {{ project.project_name }}
-        </p>
-        <p>
-          <strong><i class="fas fa-calendar-alt"></i> ปี:</strong> {{
-          project.project_year }}
-        </p>
-        <p>
-          <strong><i class="fas fa-clipboard-list"></i> รูปแบบโครงการ:</strong>
-          {{ project.project_style }}
-        </p>
-        <p>
-          <strong><i class="fas fa-map-marker-alt"></i> ที่อยู่โครงการ:</strong>
-          {{ project.project_address }}
-        </p>
-        <p>
-          <strong><i class="fas fa-clock"></i> เวลาเริ่มโครงการ:</strong> {{
-          project.project_dotime }}
-        </p>
-        <p>
-          <strong><i class="fas fa-clock"></i> เวลาสิ้นสุดโครงการ:</strong> {{
-          project.project_endtime }}
-        </p>
-        <p>
-          <strong><i class="fas fa-bullseye"></i> เป้าหมายโครงการ:</strong> {{
-          project.project_target }}
-        </p>
-        <p>
-          <strong><i class="fas fa-user-tie"></i> ชื่อครู:</strong> {{
-          project.teacher_name }}
-        </p>
-
-        <p>
-          จำนวนผู้เข้าร่วมปัจจุบัน: {{ current_count }} / {{
-          project.project_target|default(0) }}
-        </p>
-
-        {% if current_count < (project.project_target|int if
-        project.project_target else 0) %}
-        <a
-          href="{{ url_for('join_project', project_id=project.project_id) }}"
-          class="btn btn-primary"
-          >สมัครเข้าร่วมโครงการ</a
-        >
+        <div class="content-box">
+            <h2 class="text-center mb-4">รายละเอียดโครงการ</h2>
+    
+            <p><strong>ชื่อโครงการ:</strong> {{ project.project_name }}</p>
+            <p><strong>ปี:</strong> {{ project.project_year }}</p>
+            <p><strong>รูปแบบโครงการ:</strong> {{ project.project_style }}</p>
+            <p><strong>ที่อยู่โครงการ:</strong> {{ project.project_address }}</p>
+            <p><strong>เวลาเริ่มโครงการ:</strong> {{ project.project_dotime }}</p>
+            <p><strong>เวลาสิ้นสุดโครงการ:</strong> {{ project.project_endtime }}</p>
+            <p><strong>เป้าหมายโครงการ:</strong> {{ project.project_target }}</p>
+            <p><strong>ชื่อครู:</strong> {{ project.teacher_name }}</p>
+    
+            <p>จำนวนผู้เข้าร่วมปัจจุบัน: {{ current_count }} / {{ project.project_target|default(0) }}</p>
+    
+            {% if current_count < (project.project_target|int if project.project_target else 0) %}
+                <a href="{{ url_for('join_project', project_id=project.project_id) }}" class="btn btn-primary">สมัครเข้าร่วมโครงการ</a>
+            {% else %}
+                <p class="text-danger">ขออภัย โครงการนี้มีผู้เข้าร่วมเต็มแล้ว</p>
+            {% endif %}
+    
+            <a href="{{ url_for('project_participants', project_id=project.project_id) }}" class="btn btn-info">ดูรายชื่อผู้เข้าร่วมโครงการ</a>
+    
+            {% if is_logged_in %}
+                {% if project.project_status == 2 %}  <!-- ตรวจสอบว่าโครงการได้รับการอนุมัติแล้ว -->
+                    <form id="projectStatusForm" action="{{ url_for('update_project_statusStart') }}" method="POST">
+                        <input type="hidden" name="project_id" value="{{ project.project_id }}">
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="radio" id="openProject" name="projectStatus" value="1" {% if project.project_statusStart == 1 %}checked{% endif %}>
+                            <label class="form-check-label" for="openProject">เริ่มดำเนินโครงการ</label>
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="radio" id="closeProject" name="projectStatus" value="0" {% if project.project_statusStart == 0 %}checked{% endif %}>
+                            <label class="form-check-label" for="closeProject">ปิดโครงการ</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">บันทึก</button>
+                    </form>
+                {% else %}
+                    <p class="text-warning">โครงการยังไม่ได้รับการอนุมัติ ไม่สามารถเริ่มดำเนินการได้</p>
+                {% endif %}
+            {% endif %}
+    
+            {% if is_logged_in %}
+            {% if session['user_type'] == 'teacher' %}
+                <a href="{{ url_for('teacher_home') }}" class="btn btn-secondary mt-3">กลับ</a>
+            {% elif session['user_type'] == 'admin' %}
+                <a href="{{ url_for('admin_home') }}" class="btn btn-secondary mt-3">กลับ</a>
+            {% endif %}
         {% else %}
-        <p class="text-danger">ขออภัย โครงการนี้มีผู้เข้าร่วมเต็มแล้ว</p>
+            <a href="{{ url_for('home') }}" class="btn btn-secondary mt-3">กลับ</a>
         {% endif %}
-
-        <a
-          href="{{ url_for('project_participants', project_id=project.project_id) }}"
-          class="btn btn-info"
-          >ดูรายชื่อผู้เข้าร่วมโครงการ</a
-        >
-
-        {% if is_logged_in %}
-        <form
-          id="projectStatusForm"
-          action="{{ url_for('update_project_statusStart') }}"
-          method="POST"
-        >
-          <input
-            type="hidden"
-            name="project_id"
-            value="{{ project.project_id }}"
-          />
-          <div class="form-check form-switch mb-3">
-            <input class="form-check-input" type="radio" id="openProject"
-            name="projectStatus" value="1" {% if project.project_statusStart==1
-            %}checked{% endif %}>
-            <label class="form-check-label" for="openProject"
-              >เปิดโครงการ</label
-            >
-          </div>
-          <div class="form-check form-switch mb-3">
-            <input class="form-check-input" type="radio" id="closeProject"
-            name="projectStatus" value="0" {% if project.project_statusStart==0
-            %}checked{% endif %}>
-            <label class="form-check-label" for="closeProject"
-              >ปิดโครงการ</label
-            >
-          </div>
-
-          <button type="submit" class="btn btn-primary">
-            <i class="fas fa-save"></i> บันทึก
-          </button>
-        </form>
-        {% endif %}
-
-        <button onclick="goBack()" class="btn btn-secondary back-button">
-          กลับ
-        </button>
-      </div>
+    </div>
+</div>
+        </div>
     </div>
 
     <footer class="footer">

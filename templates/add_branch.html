@@ -127,11 +127,18 @@
               ><i class="fas fa-cog"></i> ข้อมูลพื้นฐาน</a
             >
           </li>
+          {% if g.user %}
           <li class="nav-item">
-            <a class="nav-link" href="#"
-              ><i class="fas fa-user"></i> {{ session['admin_name'] }}</a
+            <a
+              class="nav-link"
+              href="#"
+              data-toggle="modal"
+              data-target="#userInfoModal"
             >
+              <i class="fas fa-user"></i> {{ g.user.name }}
+            </a>
           </li>
+          {% endif %}
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('logout') }}"
               ><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</a
@@ -140,7 +147,30 @@
         </ul>
       </div>
     </nav>
-
+    {% if g.user %}
+    <div class="modal fade" id="userInfoModal" tabindex="-1" role="dialog" aria-labelledby="userInfoModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="userInfoModalLabel">ข้อมูลผู้ใช้</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p><strong>ชื่อ:</strong> {{ g.user.name }}</p>
+            <p><strong>อีเมล:</strong> {{ g.user.email or 'ไม่มีข้อมูล' }}</p>
+            {% if g.user.type == 'teacher' %}
+              <p><strong>เบอร์โทรศัพท์:</strong> {{ g.user.phone or 'ไม่มีข้อมูล' }}</p>
+            {% endif %}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">ปิด</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
     <div class="container">
       <div class="content-box">
         <h2 class="text-center mb-4">เพิ่มข้อมูลสาขา</h2>
