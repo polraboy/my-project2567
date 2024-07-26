@@ -174,96 +174,50 @@
     {% endif %}
     <div class="container">
       <div class="content-box">
-        <h2 class="text-center mb-4">เพิ่มอาจารย์ใหม่</h2>
-        <form action="" method="POST">
-          <div class="form-group">
-            <label for="teacher_name"
-              ><i class="fas fa-user"></i> ชื่อ-สกุล:</label
-            >
-            <input
-              type="text"
-              class="form-control"
-              id="teacher_name"
-              name="teacher_name"
-              required
-              placeholder="กรอกชื่อ-สกุล"
-            />
-          </div>
-          <div class="form-group">
-            <label for="teacher_username"
-              ><i class="fas fa-user-tag"></i> Username:</label
-            >
-            <input
-              type="text"
-              class="form-control"
-              id="teacher_username"
-              name="teacher_username"
-              required
-              placeholder="กรอก Username"
-            />
-          </div>
-          <div class="form-group">
-            <label for="teacher_password"
-              ><i class="fas fa-lock"></i> Password:</label
-            >
-            <input
-              type="password"
-              class="form-control"
-              id="teacher_password"
-              name="teacher_password"
-              required
-              placeholder="กรอก Password"
-            />
-          </div>
-          <div class="form-group">
-            <label for="teacher_phone"
-              ><i class="fas fa-phone"></i> เบอร์โทร:</label
-            >
-            <input
-              type="text"
-              class="form-control"
-              id="teacher_phone"
-              name="teacher_phone"
-              required
-              placeholder="กรอกเบอร์โทร"
-            />
-          </div>
-          <div class="form-group">
-            <label for="teacher_email"
-              ><i class="fas fa-envelope"></i> อีเมลล์:</label
-            >
-            <input
-              type="email"
-              class="form-control"
-              id="teacher_email"
-              name="teacher_email"
-              required
-              placeholder="กรอกอีเมลล์"
-            />
-          </div>
-          <div class="form-group">
-            <label for="branch_id"><i class="fas fa-building"></i> สาขา:</label>
-            <select
-              class="form-control"
-              id="branch_id"
-              name="branch_id"
-              required
-            >
-              <option value="">เลือกสาขา</option>
-              {% for branch in branches %}
-              <option value="{{ branch[0] }}">{{ branch[1] }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="text-center mt-4">
-            <button type="submit" class="btn btn-primary btn-lg">
-              <i class="fas fa-save"></i> บันทึก
-            </button>
-          </div>
-        </form>
+          <h2 class="text-center mb-4">เพิ่มอาจารย์ใหม่</h2>
+          <form method="POST" action="{{ url_for('add_teacher') }}">
+              <div class="form-group">
+                  <label for="teacher_name">ชื่อ-สกุล:</label>
+                  <input type="text" class="form-control" id="teacher_name" name="teacher_name" required>
+              </div>
+              <div class="form-group">
+                  <label for="teacher_username">Username:</label>
+                  <input type="text" class="form-control" id="teacher_username" name="teacher_username" required>
+              </div>
+              <div class="form-group">
+                  <label for="teacher_password">Password:</label>
+                  <input type="password" class="form-control" id="teacher_password" name="teacher_password" required>
+              </div>
+              <div class="form-group">
+                  <label for="teacher_phone">เบอร์โทร:</label>
+                  <input type="tel" class="form-control" id="teacher_phone" name="teacher_phone">
+              </div>
+              <div class="form-group">
+                  <label for="teacher_email">อีเมลล์:</label>
+                  <input type="email" class="form-control" id="teacher_email" name="teacher_email">
+              </div>
+              <div class="form-group">
+                  <label for="line_notify_token">Line Notify Token:</label>
+                  <input type="text" class="form-control" id="line_notify_token" name="line_notify_token">
+              </div>
+              <div class="form-group">
+                  <label for="branch_id">สาขา:</label>
+                  <select class="form-control" id="branch_id" name="branch_id" required>
+                      <option value="">เลือกสาขา</option>
+                      {% for branch in branches %}
+                          <option value="{{ branch[0] }}">{{ branch[1] }}</option>
+                      {% endfor %}
+                  </select>
+              </div>
+              <div class="text-center mt-4">
+                  <button type="submit" class="btn btn-primary">บันทึก</button>
+              </div>
+          </form>
       </div>
-    </div>
-
+  </div>
+  
+  
+ 
     <!-- Footer -->
     <!-- เพิ่ม Bootstrap JS และ jQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

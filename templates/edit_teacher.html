@@ -166,97 +166,44 @@
           </div>
         </div>
       </div>
-    <div class="container">
-      <div class="content-box">
-        <h2 class="text-center mb-4">แก้ไขข้อมูลอาจารย์</h2>
-        <form action="" method="POST">
-          <div class="form-group">
-            <label for="teacher_name"
-              ><i class="fas fa-user"></i> ชื่อ-สกุล:</label
-            >
-            <input
-              type="text"
-              class="form-control"
-              id="teacher_name"
-              name="teacher_name"
-              value="{{ teacher[1] }}"
-            />
-          </div>
-          <div class="form-group">
-            <label for="teacher_username"
-              ><i class="fas fa-user-circle"></i> Username:</label
-            >
-            <input
-              type="text"
-              class="form-control"
-              id="teacher_username"
-              name="teacher_username"
-              value="{{ teacher[2] }}"
-            />
-          </div>
-          <div class="form-group">
-            <label for="teacher_password"
-              ><i class="fas fa-lock"></i> Password:</label
-            >
-            <input
-              type="password"
-              class="form-control"
-              id="teacher_password"
-              name="teacher_password"
-              value="{{ teacher[3] }}"
-            />
-          </div>
-          <div class="form-group">
-            <label for="teacher_phone"
-              ><i class="fas fa-phone"></i> เบอร์โทร:</label
-            >
-            <input
-              type="text"
-              class="form-control"
-              id="teacher_phone"
-              name="teacher_phone"
-              value="{{ teacher[4] }}"
-            />
-          </div>
-          <div class="form-group">
-            <label for="teacher_email"
-              ><i class="fas fa-envelope"></i> อีเมลล์:</label
-            >
-            <input
-              type="email"
-              class="form-control"
-              id="teacher_email"
-              name="teacher_email"
-              value="{{ teacher[5] }}"
-            />
-          </div>
-
-          <button type="submit" class="btn btn-primary">
-            <i class="fas fa-save"></i> บันทึก
-          </button>
-          <a href="{{ url_for('admin_home') }}" class="btn btn-secondary"
-            ><i class="fas fa-arrow-left"></i> กลับ</a
-          >
-        </form>
-      </div>
+      <div class="container">
+        <div class="content-box">
+            <h2 class="text-center mb-4">แก้ไขข้อมูลอาจารย์</h2>
+            <form method="POST" action="{{ url_for('edit_teacher', teacher_id=teacher[0]) }}">
+                <div class="form-group">
+                    <label for="teacher_name">ชื่อ-สกุล:</label>
+                    <input type="text" class="form-control" id="teacher_name" name="teacher_name" value="{{ teacher[1] }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="teacher_username">Username:</label>
+                    <input type="text" class="form-control" id="teacher_username" name="teacher_username" value="{{ teacher[2] }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="teacher_password">Password:</label>
+                    <input type="password" class="form-control" id="teacher_password" name="teacher_password" value="{{ teacher[3] }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="teacher_phone">เบอร์โทร:</label>
+                    <input type="tel" class="form-control" id="teacher_phone" name="teacher_phone" value="{{ teacher[4] }}">
+                </div>
+                <div class="form-group">
+                    <label for="teacher_email">อีเมลล์:</label>
+                    <input type="email" class="form-control" id="teacher_email" name="teacher_email" value="{{ teacher[5] }}">
+                </div>
+                <div class="form-group">
+                    <label for="line_notify_token">Line Notify Token:</label>
+                    <input type="text" class="form-control" id="line_notify_token" name="line_notify_token" value="{{ teacher[7] }}">
+                </div>
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary">บันทึก</button>
+                    <a href="{{ url_for('admin_home') }}" class="btn btn-secondary">กลับ</a>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- Footer -->
-    <footer class="footer">
-      <div class="container">
-        <img
-          src="/static/image_2024-02-07_191338051.png"
-          alt="Logo"
-          class="mb-3"
-        />
-        <p>
-          คณะบริหารธุรกิจและเทคโนโลยีสารสนเทศ - มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน
-          วิทยาเขตขอนแก่น
-        </p>
-        <p>150 ถ.ศรีจันทร์ ต.ในเมือง อ.เมือง จ.ขอนแก่น 40000</p>
-        <p>โทร: 043-283-705 | เวลาทำการ: 8.00-16.00 น.</p>
-      </div>
-    </footer>
+      
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>

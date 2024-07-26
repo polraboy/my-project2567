@@ -34,6 +34,7 @@ from reportlab.lib.utils import ImageReader
 import logging
 from reportlab.lib.utils import simpleSplit
 from datetime import timedelta
+import requests
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
@@ -122,6 +123,18 @@ class ProjectPDF(FPDF):
 def index():
     return "Welcome to the Flask Google Form Integration App"
 
+
+
+def send_line_notify(message, token):
+    if not token:
+        return  # ไม่ส่งข้อความถ้าไม่มี token
+    url = 'https://notify-api.line.me/api/notify'
+    headers = {'Authorization': f'Bearer {token}'}
+    payload = {'message': message}
+    requests.post(url, headers=headers, data=payload)
+
+# เพิ่ม LINE_NOTIFY_TOKEN ในส่วนบนของไฟล์
+LINE_NOTIFY_TOKEN = 'YOUR_LINE_NOTIFY_TOKEN'
 
 def login_required(*allowed_roles):
     def decorator(f):
@@ -360,11 +373,43 @@ def approve_project():
     if "admin_id" in session:
         if request.method == "POST":
             project_id = request.form.get("project_id")
+            action = request.form.get("action")
+            reason = request.form.get("reason", "")
+
             with get_db_cursor() as (db, cursor):
-                query = "UPDATE project SET project_status = 2 WHERE project_id = %s"
-                cursor.execute(query, (project_id,))
+                # ดึงข้อมูลโครงการและ Line Notify Token ของอาจารย์
+                cursor.execute("""
+                    SELECT p.project_name, t.line_notify_token, t.teacher_name
+                    FROM project p
+                    JOIN teacher t ON p.teacher_id = t.teacher_id
+                    WHERE p.project_id = %s
+                """, (project_id,))
+                result = cursor.fetchone()
+                if result:
+                    project_name, line_token, teacher_name = result
+                else:
+                    project_name, line_token, teacher_name = "ไม่ทราบชื่อโครงการ", None, "ไม่ทราบชื่อ"
+
+                if action == "approve":
+                    new_status = 2
+                    status_text = "อนุมัติ"
+                    query = "UPDATE project SET project_status = %s WHERE project_id = %s"
+                    cursor.execute(query, (new_status, project_id))
+                elif action == "reject":
+                    new_status = 0
+                    status_text = "ตีกลับ"
+                    query = "UPDATE project SET project_status = %s, project_reject = %s WHERE project_id = %s"
+                    cursor.execute(query, (new_status, reason, project_id))
+                
                 db.commit()
-            flash("โครงการได้รับการอนุมัติแล้ว", "success")
+
+            # ส่งการแจ้งเตือนไปยัง Line ของอาจารย์เจ้าของโครงการ
+            message = f"เรียน อาจารย์{teacher_name}\n\nโครงการ: {project_name}\nสถานะ: {status_text}"
+            if reason:
+                message += f"\nเหตุผล: {reason}"
+            send_line_notify(message, line_token)
+
+            flash(f'โครงการได้รับการ{status_text}แล้ว', 'success')
             return redirect(url_for("approve_project"))
 
         page = request.args.get("page", 1, type=int)
@@ -405,7 +450,7 @@ def approve_project():
             total_pages = ceil(total_projects / per_page)
 
             # Get projects for current page
-            base_query += " LIMIT %s OFFSET %s"
+            base_query += " ORDER BY p.project_id DESC LIMIT %s OFFSET %s"
             query_params.extend([per_page, (page - 1) * per_page])
 
             cursor.execute(base_query, query_params)
@@ -1329,14 +1374,13 @@ def edit_basic_info():
 def get_teacher_by_id(teacher_id):
     with get_db_cursor() as (db, cursor):
         query = """SELECT t.teacher_id, t.teacher_name, t.teacher_username, t.teacher_password, 
-                          t.teacher_phone, t.teacher_email, b.branch_name 
+                          t.teacher_phone, t.teacher_email, b.branch_name, t.line_notify_token
                    FROM teacher t 
                    JOIN branch b ON t.branch_id = b.branch_id 
                    WHERE t.teacher_id = %s"""
         cursor.execute(query, (teacher_id,))
         teacher = cursor.fetchone()
     return teacher
-
 
 def update_teacher(
     teacher_id,
@@ -1345,10 +1389,12 @@ def update_teacher(
     teacher_password,
     teacher_phone,
     teacher_email,
+    line_notify_token
 ):
     with get_db_cursor() as (db, cursor):
         query = """UPDATE teacher SET teacher_name = %s, teacher_username = %s, 
-                   teacher_password = %s, teacher_phone = %s, teacher_email = %s WHERE teacher_id = %s"""
+                   teacher_password = %s, teacher_phone = %s, teacher_email = %s, 
+                   line_notify_token = %s WHERE teacher_id = %s"""
         cursor.execute(
             query,
             (
@@ -1357,6 +1403,7 @@ def update_teacher(
                 teacher_password,
                 teacher_phone,
                 teacher_email,
+                line_notify_token,
                 teacher_id,
             ),
         )
@@ -1378,6 +1425,7 @@ def edit_teacher(teacher_id):
         teacher_password = request.form["teacher_password"]
         teacher_phone = request.form["teacher_phone"]
         teacher_email = request.form["teacher_email"]
+        line_notify_token = request.form["line_notify_token"]
 
         update_teacher(
             teacher_id,
@@ -1386,6 +1434,7 @@ def edit_teacher(teacher_id):
             teacher_password,
             teacher_phone,
             teacher_email,
+            line_notify_token
         )
 
         return redirect(url_for("edit_basic_info"))
@@ -1426,10 +1475,12 @@ def add_teacher():
         teacher_phone = request.form["teacher_phone"]
         teacher_email = request.form["teacher_email"]
         branch_id = request.form["branch_id"]
+        line_notify_token = request.form["line_notify_token"]
 
         with get_db_cursor() as (db, cursor):
             query = """INSERT INTO teacher (teacher_name, teacher_username, teacher_password, 
-                                            teacher_phone, teacher_email, branch_id) VALUES (%s, %s, %s, %s, %s, %s)"""
+                                            teacher_phone, teacher_email, branch_id, line_notify_token) 
+                       VALUES (%s, %s, %s, %s, %s, %s, %s)"""
             cursor.execute(
                 query,
                 (
@@ -1439,12 +1490,12 @@ def add_teacher():
                     teacher_phone,
                     teacher_email,
                     branch_id,
+                    line_notify_token
                 ),
             )
             db.commit()
 
         return redirect(url_for("edit_basic_info"))
-
 
 @app.route("/add_branch", methods=["GET", "POST"])
 @login_required("admin")
