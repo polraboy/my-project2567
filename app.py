@@ -393,13 +393,15 @@ def approve_project():
                 if action == "approve":
                     new_status = 2
                     status_text = "อนุมัติ"
-                    query = "UPDATE project SET project_status = %s WHERE project_id = %s"
+                    query = "UPDATE project SET project_status = %s, project_approve_date = NOW() WHERE project_id = %s"
                     cursor.execute(query, (new_status, project_id))
                 elif action == "reject":
                     new_status = 0
                     status_text = "ตีกลับ"
-                    query = "UPDATE project SET project_status = %s, project_reject = %s WHERE project_id = %s"
+                    query = "UPDATE project SET project_status = %s, project_reject = %s, project_reject_date = NOW() WHERE project_id = %s"
                     cursor.execute(query, (new_status, reason, project_id))
+                else:
+                    status_text = "ไม่ทราบสถานะ"
                 
                 db.commit()
 
@@ -420,7 +422,8 @@ def approve_project():
         with get_db_cursor() as (db, cursor):
             base_query = """
             SELECT p.project_id, p.project_name, p.project_status, 
-                   CASE WHEN p.project_pdf IS NOT NULL THEN TRUE ELSE FALSE END as has_pdf
+                   CASE WHEN p.project_pdf IS NOT NULL THEN TRUE ELSE FALSE END as has_pdf,
+                   p.project_submit_date, p.project_approve_date, p.project_reject_date
             FROM project p
             """
             count_query = "SELECT COUNT(*) FROM project p"
@@ -463,10 +466,10 @@ def approve_project():
             page=page,
             total_pages=total_pages,
             search_query=search_query,
+            per_page=per_page
         )
     else:
         return redirect(url_for("login"))
-
 
 @app.route("/teacher_home")
 @login_required("teacher")
@@ -1566,9 +1569,10 @@ def teacher_projects():
         query = """
             SELECT project_id, project_name, project_status, project_statusStart, 
                    CASE WHEN project_pdf IS NOT NULL THEN TRUE ELSE FALSE END as has_pdf,
-                   project_reject
+                   project_reject, project_submit_date, project_reject_date
             FROM project 
             WHERE teacher_id = %s 
+            ORDER BY project_submit_date DESC
             LIMIT %s OFFSET %s
         """
         cursor.execute(query, (teacher_id, per_page, offset))
@@ -1588,7 +1592,7 @@ def teacher_projects():
 def request_approval():
     project_id = request.form.get("project_id")
     with get_db_cursor() as (db, cursor):
-        query = "UPDATE project SET project_status = 1 WHERE project_id = %s"
+        query = "UPDATE project SET project_status = 1, project_submit_date = NOW() WHERE project_id = %s"
         cursor.execute(query, (project_id,))
         db.commit()
     return redirect(url_for("teacher_projects"))

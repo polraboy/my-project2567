@@ -196,38 +196,50 @@
                     </thead>
                     <tbody>
                         {% for project in projects %}
-                        <tr>
-                            <td>{{ loop.index }}</td>
-                            <td>{{ project[1] }}</td>
-                            <td>
-                                {% if project[2] == 0 %}
-                                    <span class="badge badge-secondary">ยังไม่ยื่นอนุมัติ</span>
-                                {% elif project[2] == 1 %}
-                                    <span class="badge badge-warning">รออนุมัติ</span>
-                                {% elif project[2] == 2 %}
-                                    <span class="badge badge-success">อนุมัติแล้ว</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if project[2] == 1 %}
-                                    <form method="POST" action="{{ url_for('approve_project') }}" class="d-inline">
-                                        <input type="hidden" name="project_id" value="{{ project[0] }}">
-                                        <button type="submit" name="action" value="approve" class="btn btn-success btn-sm">อนุมัติ</button>
-                                        <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#rejectModal{{ project[0] }}">ตีกลับ</button>
-                                    </form>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if project[3] %}
-                                    <a href="{{ url_for('download_project_pdf', project_id=project[0]) }}" class="btn btn-primary btn-sm">ดาวน์โหลด PDF</a>
-                                {% else %}
-                                    <span class="badge badge-secondary">ไม่มี PDF</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+    <tr>
+      <td>{{ loop.index + (page - 1) * per_page }}</td>
+      <td>{{ project[1] }}</td>
+      <td>
+        {% if project[2] == 0 %}
+          <span class="badge badge-secondary">ยังไม่ยื่นอนุมัติ</span>
+        {% elif project[2] == 1 %}
+          <span class="badge badge-warning">รออนุมัติ</span>
+          {% if project[4] %}
+            <br><small>ส่งเมื่อ: {{ project[4].strftime('%Y-%m-%d %H:%M:%S') }}</small>
+          {% endif %}
+        {% elif project[2] == 2 %}
+          <span class="badge badge-success">อนุมัติแล้ว</span>
+          {% if project[5] %}
+            <br><small>อนุมัติเมื่อ: {{ project[5].strftime('%Y-%m-%d %H:%M:%S') }}</small>
+          {% endif %}
+        {% elif project[2] == 3 %}
+          <span class="badge badge-danger">ตีกลับ</span>
+          {% if project[6] %}
+            <br><small>ตีกลับเมื่อ: {{ project[6].strftime('%Y-%m-%d %H:%M:%S') }}</small>
+          {% endif %}
+        {% endif %}
+      </td>
+      <td>
+        {% if project[2] == 1 %}
+<form method="POST" action="{{ url_for('approve_project') }}" style="display: inline;">
+    <input type="hidden" name="project_id" value="{{ project[0] }}">
+    <input type="hidden" name="action" value="approve">
+    <button type="submit" class="btn btn-success btn-sm">อนุมัติ</button>
+</form>
+<button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#rejectModal{{ project[0] }}">ตีกลับ</button>
+{% endif %}
+      </td>
+      <td>
+        {% if project[3] %}
+          <a href="{{ url_for('download_project_pdf', project_id=project[0]) }}" class="btn btn-primary btn-sm">ดาวน์โหลด PDF</a>
+        {% else %}
+          <span class="badge badge-secondary">ไม่มี PDF</span>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
             </div>
         </div>
     </div>

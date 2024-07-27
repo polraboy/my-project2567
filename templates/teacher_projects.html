@@ -14,42 +14,42 @@
     />
     <style>
       :root {
-        --primary-color: #FF8C00;
+        --primary-color: #ff8c00;
         --secondary-color: #007bff;
         --background-color: #f8f9fa;
-    }
+      }
 
-    body {
+      body {
         background-color: var(--background-color);
-        font-family: 'Kanit', sans-serif;
+        font-family: "Kanit", sans-serif;
         padding-bottom: 100px;
-    }
+      }
 
-    .navbar {
+      .navbar {
         background-color: var(--primary-color) !important;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
-    }
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
 
-    .navbar-brand img {
+      .navbar-brand img {
         margin-right: 10px;
-    }
+      }
 
-    .navbar-brand span {
+      .navbar-brand span {
         font-size: 1rem;
         line-height: 1.2;
         color: white;
-    }
+      }
 
-    .nav-link {
+      .nav-link {
         color: white !important;
         transition: all 0.3s ease;
-    }
+      }
 
-    .nav-link:hover {
+      .nav-link:hover {
         transform: translateY(-2px);
-    }
+      }
 
-    .footer {
+      .footer {
         background-color: var(--secondary-color);
         color: white;
         padding: 20px 0;
@@ -61,41 +61,41 @@
         justify-content: space-between;
         align-items: center;
         font-size: 14px;
-    }
+      }
 
-    .footer .container {
+      .footer .container {
         text-align: center;
         flex-grow: 1;
-    }
+      }
 
-    .footer img {
+      .footer img {
         max-width: 25%;
         max-height: 25%;
         margin-right: 20px;
-    }
+      }
 
-    .content-box {
+      .content-box {
         background-color: white;
         padding: 30px;
         border-radius: 15px;
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
         margin-top: 30px;
         margin-bottom: 50px;
-    }
+      }
 
-    .btn-primary {
+      .btn-primary {
         background-color: var(--primary-color);
         border-color: var(--primary-color);
         transition: all 0.3s ease;
-    }
+      }
 
-    .btn-primary:hover {
+      .btn-primary:hover {
         background-color: darken(var(--primary-color), 10%);
         border-color: darken(var(--primary-color), 10%);
         transform: translateY(-2px);
-    }
+      }
 
-    .edit-mode-button {
+      .edit-mode-button {
         background-color: var(--primary-color);
         border-color: var(--primary-color);
         color: white;
@@ -111,35 +111,35 @@
         bottom: 100px;
         right: 30px;
         transition: all 0.3s ease;
-    }
+      }
 
-    .edit-mode-button:hover {
+      .edit-mode-button:hover {
         transform: scale(1.1) rotate(90deg);
         background-color: darken(var(--primary-color), 10%);
         border-color: darken(var(--primary-color), 10%);
-    }
+      }
 
-    .card {
+      .card {
         transition: all 0.3s ease;
         overflow: hidden;
-    }
+      }
 
-    .card:hover {
+      .card:hover {
         transform: translateY(-5px);
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    }
+      }
 
-    .card-img-top {
+      .card-img-top {
         height: 200px;
         object-fit: cover;
         transition: all 0.3s ease;
-    }
+      }
 
-    .card:hover .card-img-top {
+      .card:hover .card-img-top {
         transform: scale(1.1);
-    }
+      }
 
-    .delete-btn {
+      .delete-btn {
         position: absolute;
         top: 10px;
         right: 10px;
@@ -154,21 +154,21 @@
         justify-content: center;
         align-items: center;
         transition: all 0.3s ease;
-    }
+      }
 
-    .delete-btn:hover {
+      .delete-btn:hover {
         background-color: red;
         transform: scale(1.1);
-    }
+      }
 
-    .mb-4 {
+      .mb-4 {
         text-align: center;
         color: var(--primary-color);
         font-weight: bold;
         margin-bottom: 30px !important;
-    }
+      }
 
-    .edit-mode-button {
+      .edit-mode-button {
         background-color: var(--primary-color);
         border-color: var(--primary-color);
         color: white;
@@ -187,25 +187,24 @@
         transition: all 0.3s ease;
         z-index: 1000;
         /* ให้แน่ใจว่าปุ่มอยู่ด้านหน้าสุด */
-    }
+      }
 
-    .edit-mode-button:hover {
+      .edit-mode-button:hover {
         transform: scale(1.1) rotate(90deg);
         background-color: darken(var(--primary-color), 10%);
         border-color: darken(var(--primary-color), 10%);
-    }
-    
-    
-    .constant-item {
+      }
+
+      .constant-item {
         margin-bottom: 20px;
         padding: 15px;
         border: 1px solid #ddd;
         border-radius: 5px;
-    }
-    
-    .pagination {
+      }
+
+      .pagination {
         margin-top: 20px;
-    }
+      }
     </style>
   </head>
   <nav class="navbar navbar-expand-lg navbar-dark">
@@ -273,14 +272,25 @@
     </div>
   </nav>
   <body>
-    
     {% if g.user %}
-    <div class="modal fade" id="userInfoModal" tabindex="-1" role="dialog" aria-labelledby="userInfoModalLabel" aria-hidden="true">
+    <div
+      class="modal fade"
+      id="userInfoModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="userInfoModalLabel"
+      aria-hidden="true"
+    >
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="userInfoModalLabel">ข้อมูลผู้ใช้</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
@@ -288,11 +298,20 @@
             <p><strong>ชื่อ:</strong> {{ g.user.name }}</p>
             <p><strong>อีเมล:</strong> {{ g.user.email or 'ไม่มีข้อมูล' }}</p>
             {% if g.user.type == 'teacher' %}
-              <p><strong>เบอร์โทรศัพท์:</strong> {{ g.user.phone or 'ไม่มีข้อมูล' }}</p>
+            <p>
+              <strong>เบอร์โทรศัพท์:</strong> {{ g.user.phone or 'ไม่มีข้อมูล'
+              }}
+            </p>
             {% endif %}
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">ปิด</button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              ปิด
+            </button>
           </div>
         </div>
       </div>
@@ -331,11 +350,21 @@
                   <span class="badge bg-secondary">ยังไม่ยื่นอนุมัติ</span>
                   {% elif project[2] == 1 %}
                   <span class="badge bg-warning text-dark">รออนุมัติ</span>
-                  {% elif project[2] == 2 %}
+                  {% if project[6] %}
+                  <br /><small
+                    >ส่งเมื่อ: {{ project[6].strftime('%Y-%m-%d %H:%M:%S')
+                    }}</small
+                  >
+                  {% endif %} {% elif project[2] == 2 %}
                   <span class="badge bg-success">อนุมัติแล้ว</span>
                   {% elif project[2] == 3 %}
                   <span class="badge bg-danger">ตีกลับ</span>
-                  {% if project[5] %}
+                  {% if project[7] %}
+                  <br /><small
+                    >ตีกลับเมื่อ: {{ project[7].strftime('%Y-%m-%d %H:%M:%S')
+                    }}</small
+                  >
+                  {% endif %} {% if project[5] %}
                   <button
                     type="button"
                     class="btn btn-sm btn-info mt-1"
