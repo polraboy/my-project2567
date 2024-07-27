@@ -929,39 +929,19 @@ def create_project_pdf(project_data):
             )
         )
 
-        # สร้างตารางแผนปฏิบัติงาน
         months = [
-            "ต.ค.",
-            "พ.ย.",
-            "ธ.ค.",
-            "ม.ค.",
-            "ก.พ.",
-            "มี.ค.",
-            "เม.ย.",
-            "พ.ค.",
-            "มิ.ย.",
-            "ก.ค.",
-            "ส.ค.",
-            "ก.ย.",
+            "ต.ค.", "พ.ย.", "ธ.ค.", "ม.ค.", "ก.พ.", "มี.ค.", 
+            "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย."
         ]
         table_data = [
-            ["กิจกรรมดำเนินงาน"]
-            + [
-                (
-                    f"ปี พ.ศ. {int(project_data['project_year'])}"
-                    if i < 3
-                    else f"ปี พ.ศ. {int(project_data['project_year']) + 1}"
-                )
+            ["กิจกรรมดำเนินงาน"] + [
+                (f"ปี พ.ศ. {int(project_data['project_year'])}" if i < 3 else f"ปี พ.ศ. {int(project_data['project_year']) + 1}")
                 for i in range(12)
             ],
             [""] + months,
         ]
-        col_widths = [8 * cm] + [
-            0.7 * cm
-        ] * 12  # เพิ่มความกว้างคอลัมน์แรกเป็น 8 cm และลดความกว้างคอลัมน์อื่นๆ
 
         for activity in project_data.get("activities", []):
-            # ตัดข้อความให้พอดีกับความกว้างของคอลัมน์
             wrapped_activity = "\n".join(
                 simpleSplit(activity["activity"], "THSarabunNew", 8, 6 * cm)
             )
@@ -970,48 +950,36 @@ def create_project_pdf(project_data):
             ]
             table_data.append(row)
 
+        # เพิ่มส่วนของตัวชี้วัดเป้าหมายผลผลิต
+        table_data.extend([
+            ["ตัวชี้วัดเป้าหมายผลผลิต", ""] + [""] * 11,
+            ["เชิงปริมาณ", project_data.get('quantity_indicator', '')] + [""] * 11,
+            ["เชิงคุณภาพ", project_data.get('quality_indicator', '')] + [""] * 11,
+            ["เชิงเวลา", project_data.get('time_indicator', '')] + [""] * 11,
+            ["เชิงค่าใช้จ่าย", project_data.get('cost_indicator', '')] + [""] * 11,
+        ])
+
+        col_widths = [8 * cm] + [0.7 * cm] * 12
         table = Table(table_data, colWidths=col_widths)
-        table.setStyle(
-            TableStyle(
-                [
-                    ("FONT", (0, 0), (-1, -1), "THSarabunNew", 8),  # ลดขนาดฟอนต์
-                    ("GRID", (0, 0), (-1, -1), 1, colors.black),
-                    ("ALIGN", (1, 0), (-1, -1), "CENTER"),
-                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                    ("SPAN", (1, 0), (3, 0)),
-                    ("SPAN", (4, 0), (-1, 0)),
-                    ("WORDWRAP", (0, 0), (0, -1), True),  # เพิ่มการตัดคำอัตโนมัติ
-                ]
-            )
-        )
+        table.setStyle(TableStyle([
+            ('FONT', (0, 0), (-1, -1), "THSarabunNew", 8),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('ALIGN', (1, 0), (-1, -1), "CENTER"),
+            ('VALIGN', (0, 0), (-1, -1), "MIDDLE"),
+            ('SPAN', (1, 0), (3, 0)),
+            ('SPAN', (4, 0), (-1, 0)),
+            ('WORDWRAP', (0, 0), (0, -1), True),
+            ('SPAN', (0, -5), (-1, -5)),  # ส่วนหัวของตัวชี้วัด
+            ('SPAN', (1, -4), (-1, -4)),  # เชิงปริมาณ
+            ('SPAN', (1, -3), (-1, -3)),  # เชิงคุณภาพ
+            ('SPAN', (1, -2), (-1, -2)),  # เชิงเวลา
+            ('SPAN', (1, -1), (-1, -1)),  # เชิงค่าใช้จ่าย
+            ('BACKGROUND', (0, -5), (0, -1), colors.lightgrey),
+        ]))
 
         content.append(table)
 
-        # เพิ่มตัวชี้วัดเป้าหมายผลผลิตหลังจากตาราง
-        content.append(Paragraph("ตัวชี้วัดเป้าหมายผลผลิต", styles["Heading3"]))
-        content.append(
-            Paragraph(
-                f"เชิงปริมาณ: {project_data.get('quantity_indicator', '')}",
-                styles["Normal"],
-            )
-        )
-        content.append(
-            Paragraph(
-                f"เชิงคุณภาพ: {project_data.get('quality_indicator', '')}",
-                styles["Normal"],
-            )
-        )
-        content.append(
-            Paragraph(
-                f"เชิงเวลา: {project_data.get('time_indicator', '')}", styles["Normal"]
-            )
-        )
-        content.append(
-            Paragraph(
-                f"เชิงค่าใช้จ่าย: {project_data.get('cost_indicator', '')}",
-                styles["Normal"],
-            )
-        )
+        
 
         content.append(Paragraph("16. ผลที่คาดว่าจะเกิด (Impact)", styles["Heading2"]))
         content.append(
