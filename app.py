@@ -1120,6 +1120,20 @@ def edit_project(project_id):
             }
         )
 
+        error_messages = []
+
+        # ตรวจสอบชื่อโครงการซ้ำ
+        if is_project_name_duplicate(project_data["project_name"], project_id):
+            error_messages.append("ไม่สามารถแก้ไขโครงการได้เนื่องจากชื่อโครงการ '{}' มีอยู่แล้ว กรุณาใช้ชื่อโครงการอื่น".format(project_data["project_name"]))
+
+        # ตรวจสอบวันที่ซ้ำสำหรับครูคนเดียวกัน
+        if is_date_overlap_for_teacher(teacher_id, project_data["project_dotime"], project_data["project_endtime"], project_id):
+            error_messages.append("ไม่สามารถแก้ไขโครงการได้เนื่องจากคุณมีโครงการอื่นในช่วงเวลา {} ถึง {} แล้ว กรุณาเลือกวันที่อื่น".format(project_data["project_dotime"], project_data["project_endtime"]))
+
+        if error_messages:
+            for message in error_messages:
+                flash(message, "error")
+            return render_template("edit_project.html", project=project_data, teacher_info=teacher_info)
         # รับข้อมูลแผนปฏิบัติงาน
         activities = request.form.getlist("activity[]")
         project_data["activities"] = []
@@ -1204,7 +1218,39 @@ def edit_project(project_id):
     return render_template(
         "edit_project.html", project=project_data, teacher_info=teacher_info
     )
-
+def is_project_name_duplicate(project_name, project_id=None):
+    with get_db_cursor() as (db, cursor):
+        if project_id:
+            query = "SELECT COUNT(*) FROM project WHERE project_name = %s AND project_id != %s"
+            cursor.execute(query, (project_name, project_id))
+        else:
+            query = "SELECT COUNT(*) FROM project WHERE project_name = %s"
+            cursor.execute(query, (project_name,))
+        count = cursor.fetchone()[0]
+    return count > 0
+def is_date_overlap_for_teacher(teacher_id, start_date, end_date, project_id=None):
+    with get_db_cursor() as (db, cursor):
+        if project_id:
+            query = """
+            SELECT COUNT(*) FROM project 
+            WHERE teacher_id = %s 
+            AND project_id != %s
+            AND ((project_dotime <= %s AND project_endtime >= %s)
+            OR (project_dotime <= %s AND project_endtime >= %s)
+            OR (project_dotime >= %s AND project_endtime <= %s))
+            """
+            cursor.execute(query, (teacher_id, project_id, end_date, start_date, start_date, start_date, start_date, end_date))
+        else:
+            query = """
+            SELECT COUNT(*) FROM project 
+            WHERE teacher_id = %s 
+            AND ((project_dotime <= %s AND project_endtime >= %s)
+            OR (project_dotime <= %s AND project_endtime >= %s)
+            OR (project_dotime >= %s AND project_endtime <= %s))
+            """
+            cursor.execute(query, (teacher_id, end_date, start_date, start_date, start_date, start_date, end_date))
+        count = cursor.fetchone()[0]
+    return count > 0
 
 @app.route("/add_project", methods=["GET", "POST"])
 @login_required("teacher")
@@ -1255,7 +1301,20 @@ def add_project():
             "cost_indicator": request.form["cost_indicator"],
             "expected_results": request.form.get("expected_results", ""),
         }
+        error_messages = []
 
+        # ตรวจสอบชื่อโครงการซ้ำ
+        if is_project_name_duplicate(project_data["project_name"]):
+            error_messages.append("ไม่สามารถเพิ่มโครงการได้เนื่องจากชื่อโครงการ '{}' มีอยู่แล้ว กรุณาใช้ชื่อโครงการอื่น".format(project_data["project_name"]))
+
+        # ตรวจสอบวันที่ซ้ำสำหรับครูคนเดียวกัน
+        if is_date_overlap_for_teacher(teacher_id, project_data["project_dotime"], project_data["project_endtime"]):
+            error_messages.append("ไม่สามารถเพิ่มโครงการได้เนื่องจากคุณมีโครงการอื่นในช่วงเวลา {} ถึง {} แล้ว กรุณาเลือกวันที่อื่น".format(project_data["project_dotime"], project_data["project_endtime"]))
+
+        if error_messages:
+            for message in error_messages:
+                flash(message, "error")
+            return render_template("add_project.html", teacher_info=teacher_info, project_data=project_data)
         # รับข้อมูลแผนปฏิบัติงาน
         activities = request.form.getlist("activity[]")
         project_data["activities"] = []

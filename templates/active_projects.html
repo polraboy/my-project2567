@@ -1,228 +1,141 @@
 <!DOCTYPE html>
 <html lang="th">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>โครงการที่เปิดรับสมัคร</title>
-    <link
-      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Kanit&display=swap"
-      rel="stylesheet"
-    />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-      :root {
-        --primary-color: #ff8c00;
-        --secondary-color: #007bff;
-        --background-color: #f8f9fa;
-      }
-
-      body {
-        background-color: var(--background-color);
-        font-family: "Kanit", sans-serif;
-        padding-bottom: 100px;
-      }
-
-      .navbar {
-        background-color: var(--primary-color) !important;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-
-      .navbar-brand img {
-        margin-right: 10px;
-      }
-
-      .navbar-brand span {
-        font-size: 1rem;
-        line-height: 1.2;
-        color: white;
-      }
-
-      .nav-link {
-        color: white !important;
-        transition: all 0.3s ease;
-      }
-
-      .nav-link:hover {
-        transform: translateY(-2px);
-      }
-
-      .footer {
-        background-color: var(--secondary-color);
-        color: white;
-        padding: 20px 0;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 14px;
-      }
-
-      .footer .container {
-        text-align: center;
-        flex-grow: 1;
-      }
-
-      .footer img {
-        max-width: 25%;
-        max-height: 25%;
-        margin-right: 20px;
-      }
-
-      .content-box {
-        background-color: white;
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-        margin-top: 30px;
-        margin-bottom: 50px;
-      }
-
-      .card {
-        transition: all 0.3s ease;
-        overflow: hidden;
-        height: 100%;
-      }
-
-      .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-      }
-
-      .card-img-top {
-        height: 200px;
-        object-fit: cover;
-        transition: all 0.3s ease;
-      }
-
-      .card:hover .card-img-top {
-        transform: scale(1.1);
-      }
-
-      .mb-4 {
-        text-align: center;
-        color: var(--primary-color);
-        font-weight: bold;
-        margin-bottom: 30px !important;
-      }
-
-      .login-button,
-      .active-projects-button {
-        background-color: white;
-        color: var(--primary-color);
-        border: 2px solid var(--primary-color);
-        border-radius: 5px;
-        padding: 5px 10px;
-        transition: all 0.3s ease;
-      }
-
-      .login-button:hover,
-      .active-projects-button:hover {
-        background-color: var(--primary-color);
-        color: white;
-      }
-
-      .active-projects-button {
-        display: block;
-        width: 200px;
-        margin: 30px auto;
-        text-align: center;
-        text-decoration: none;
-        padding: 10px;
-        font-size: 1.1em;
-      }
-      /* คัดลอกสไตล์จาก home.html มาใช้ที่นี่ */
-      body {
-        font-family: "Kanit", sans-serif;
-      }
-      .content-box {
-        background-color: white;
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-        margin-top: 30px;
-        margin-bottom: 50px;
-      }
-      .card {
-        transition: all 0.3s ease;
-        margin-bottom: 20px;
-      }
-      .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-      }
+        body {
+            background-color: #fff5e6;
+        }
+        .navbar {
+            background-color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+        }
+        .navbar-brand {
+            color: #ff8c00 !important;
+            font-weight: bold;
+        }
+        .nav-link {
+            color: #ff8c00 !important;
+        }
+        .nav-link:hover {
+            color: #e67300 !important;
+        }
+        .content-box {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .card {
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: none;
+        }
+        .card-title {
+            color: #ff8c00;
+        }
+        .btn-primary {
+            background-color: #ff8c00;
+            border-color: #ff8c00;
+        }
+        .btn-primary:hover {
+            background-color: #e67300;
+            border-color: #e67300;
+        }
+        .btn-secondary {
+            background-color: #ffa333;
+            border-color: #ffa333;
+        }
+        .btn-secondary:hover {
+            background-color: #ff8c00;
+            border-color: #ff8c00;
+        }
+        h2 {
+            color: #ff8c00;
+        }
     </style>
-  </head>
-  <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-      <!-- เพิ่ม Navbar ตามที่ใช้ในหน้าอื่นๆ -->
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <a class="navbar-brand" href="#">
+            <img src="/static/image_2024-02-07_191338051.png" width="30" height="30" class="d-inline-block align-top" alt="Logo">
+            มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน วิทยาเขต ขอนแก่น
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('active_projects') }}">โครงการ</a>
+                </li>
+                {% if is_logged_in %}
+                    {% if session['user_type'] == 'teacher' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('teacher_home') }}">หน้าหลัก</a>
+                        </li>
+                    {% elif session['user_type'] == 'admin' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_home') }}">หน้าหลัก</a>
+                        </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">ออกจากระบบ</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('home') }}">หน้าหลัก</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('login') }}">เข้าสู่ระบบ</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
     </nav>
 
     <div class="container mt-5">
-      <div class="content-box">
-        <h2 class="text-center mb-4">
-          <i class="fas fa-project-diagram"></i> โครงการที่เปิดรับสมัคร
-        </h2>
-        {% if projects %}
-        <div class="row">
-          {% for project in projects %}
-          <div class="col-md-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">{{ project[1] }}</h5>
-                <p class="card-text">
-                  <strong>วันที่เริ่ม:</strong> {{
-                  project[2].strftime('%d/%m/%Y') }}<br />
-                  <strong>วันที่สิ้นสุด:</strong> {{
-                  project[3].strftime('%d/%m/%Y') }}
-                </p>
-                <a
-                  href="{{ url_for('project_detail', project_id=project[0]) }}"
-                  class="btn btn-primary"
-                  >ดูรายละเอียด</a
-                >
-              </div>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-        {% else %}
-        <p class="text-center">ไม่มีโครงการที่เปิดรับสมัครในขณะนี้</p>
-        {% endif %}
-        {% if is_logged_in %}
-            {% if session['user_type'] == 'teacher' %}
-                <a href="{{ url_for('teacher_home') }}" class="btn btn-secondary mt-3">กลับ</a>
-            {% elif session['user_type'] == 'admin' %}
-                <a href="{{ url_for('admin_home') }}" class="btn btn-secondary mt-3">กลับ</a>
-            {% endif %}
-        {% else %}
-            <a href="{{ url_for('home') }}" class="btn btn-secondary mt-3">กลับ</a>
-        {% endif %}
-    </div>
-</div>
-      </div>
-    </div>
+        <div class="content-box">
+            <h2 class="text-center mb-4">โครงการที่เปิดรับสมัคร</h2>
 
-    <footer class="bg-dark text-white text-center py-3 mt-5">
-      <!-- เพิ่ม Footer ตามที่ใช้ในหน้าอื่นๆ -->
-    </footer>
+            {% if projects %}
+                <div class="row">
+                    {% for project in projects %}
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ project[1] }}</h5>
+                                    <p class="card-text">
+                                        <strong>วันที่เริ่ม:</strong> {{ project[2].strftime('%d/%m/%Y') }}<br>
+                                        <strong>วันที่สิ้นสุด:</strong> {{ project[3].strftime('%d/%m/%Y') }}
+                                    </p>
+                                    <a href="{{ url_for('project_detail', project_id=project[0]) }}" class="btn btn-primary">ดูรายละเอียด</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-center">ไม่มีโครงการที่เปิดรับสมัครในขณะนี้</p>
+            {% endif %}
+
+            {% if is_logged_in %}
+                {% if session['user_type'] == 'teacher' %}
+                    <a href="{{ url_for('teacher_home') }}" class="btn btn-secondary mt-3">กลับ</a>
+                {% elif session['user_type'] == 'admin' %}
+                    <a href="{{ url_for('admin_home') }}" class="btn btn-secondary mt-3">กลับ</a>
+                {% endif %}
+            {% else %}
+                <a href="{{ url_for('home') }}" class="btn btn-secondary mt-3">กลับ</a>
+            {% endif %}
+        </div>
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script>
-      function goBack() {
-        window.history.back();
-      }
-    </script>
-  </body>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
 </html>
