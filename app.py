@@ -1102,7 +1102,7 @@ def edit_project(project_id):
             for message in error_messages:
                 flash(message, "error")
             return render_template("edit_project.html", project=project_data, teacher_info=teacher_info)
-        # รับข้อมูลแผนปฏิบัติงาน
+          # รับข้อมูลแผนปฏิบัติงาน
         activities = request.form.getlist("activity[]")
         project_data["activities"] = []
         for i, activity in enumerate(activities):
@@ -1111,7 +1111,6 @@ def edit_project(project_id):
                 project_data["activities"].append(
                     {"activity": activity, "months": selected_months}
                 )
-
         # รับข้อมูลค่าตอบแทนและค่าใช้สอย
         compensation_descriptions = request.form.getlist("compensation_description[]")
         compensation_amounts = request.form.getlist("compensation_amount[]")
@@ -1166,7 +1165,7 @@ def edit_project(project_id):
         project_data["total_expenses"] = total_expenses
         project_data["grand_total"] = grand_total
 
-        # สร้าง PDF
+         # สร้าง PDF
         pdf_buffer = create_project_pdf(project_data)
         if pdf_buffer:
             pdf_content = pdf_buffer.getvalue()
@@ -1175,13 +1174,14 @@ def edit_project(project_id):
                 query = "UPDATE project SET project_pdf = %s WHERE project_id = %s"
                 cursor.execute(query, (pdf_content, project_id))
                 db.commit()
-                logging.info(f"PDF updated for project_id: {project_id}")
-                flash("โครงการและ PDF ได้รับการอัปเดตเรียบร้อยแล้ว", "success")
+                logging.info(f"PDF uploaded for project_id: {project_id}")
+                flash("โครงการและ PDF ถูกบันทึกเรียบร้อยแล้ว", "success")
         else:
             logging.error("PDF buffer is None")
             flash("เกิดข้อผิดพลาดในการสร้าง PDF", "error")
 
         return redirect(url_for("teacher_projects"))
+
 
     return render_template(
         "edit_project.html", project=project_data, teacher_info=teacher_info
