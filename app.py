@@ -1182,6 +1182,7 @@ def edit_project(project_id):
 
         return redirect(url_for("teacher_projects"))
 
+    project_data["activities"] = []  # เริ่มต้นด้วยลิสต์ว่าง
 
     return render_template(
         "edit_project.html", project=project_data, teacher_info=teacher_info
