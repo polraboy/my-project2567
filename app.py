@@ -1021,7 +1021,7 @@ def edit_project(project_id):
         # ดึงข้อมูลโครงการเดิม
         query = """SELECT project_id, project_budgettype, project_year, project_name, 
                    project_style, project_address, project_dotime, project_endtime, 
-                   project_target, project_status, project_budget 
+                   project_target, project_status, project_budget ,project_detail
                    FROM project WHERE project_id = %s AND teacher_id = %s"""
         cursor.execute(query, (project_id, teacher_id))
         project = cursor.fetchone()
@@ -1053,6 +1053,7 @@ def edit_project(project_id):
         "project_budget": project[10],
         "teacher_name": teacher_info[0],
         "branch_name": teacher_info[1],
+        "project_detail": project[11],
     }
 
     if request.method == "POST":
@@ -1088,6 +1089,7 @@ def edit_project(project_id):
                 "time_indicator": request.form["time_indicator"],
                 "cost_indicator": request.form["cost_indicator"],
                 "expected_results": request.form.get("expected_results", ""),
+                "project_detail": request.form["project_detail"],
             }
         )
 
@@ -1143,7 +1145,8 @@ def edit_project(project_id):
             query = """UPDATE project SET 
                        project_budgettype = %s, project_year = %s, project_name = %s, 
                        project_style = %s, project_address = %s, project_dotime = %s, 
-                       project_endtime = %s, project_target = %s, project_budget = %s
+                       project_endtime = %s, project_target = %s, project_budget = %s,
+                       project_detail = %s
                        WHERE project_id = %s AND teacher_id = %s"""
             cursor.execute(
                 query,
@@ -1159,6 +1162,7 @@ def edit_project(project_id):
                     project_data["project_budget"],
                     project_id,
                     teacher_id,
+                    project_data["project_detail"],
                 ),
             )
             db.commit()
