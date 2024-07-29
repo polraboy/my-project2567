@@ -95,6 +95,7 @@
             <p><strong>เวลาเริ่มโครงการ:</strong> {{ project.project_dotime }}</p>
             <p><strong>เวลาสิ้นสุดโครงการ:</strong> {{ project.project_endtime }}</p>
             <p><strong>เป้าหมายโครงการ:</strong> {{ project.project_target }}</p>
+            <p><strong>รายละเอียดโครงการ:</strong> {{ project.project_detail }}</p>
             <p><strong>ชื่อครู:</strong> {{ project.teacher_name }}</p>
     
             <p>จำนวนผู้เข้าร่วมปัจจุบัน: {{ current_count }} / {{ project.project_target|default(0) }}</p>

@@ -1272,6 +1272,7 @@ def add_project():
             "time_indicator": request.form["time_indicator"],
             "cost_indicator": request.form["cost_indicator"],
             "expected_results": request.form.get("expected_results", ""),
+            "project_detail ": request.form["project_detail"],
         }
         error_messages = []
 
@@ -1331,7 +1332,7 @@ def add_project():
         with get_db_cursor() as (db, cursor):
             query = """INSERT INTO project (project_budgettype, project_year, project_name, project_style, 
                        project_address, project_dotime, project_endtime, project_target, 
-                       project_status, teacher_id, project_budget) 
+                       project_status, teacher_id, project_budget,project_detail) 
                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
             cursor.execute(
                 query,
@@ -1347,6 +1348,7 @@ def add_project():
                     project_data["project_status"],
                     teacher_id,
                     project_data["project_budget"],
+                    project_detail,
                 ),
             )
             db.commit()
@@ -1621,7 +1623,7 @@ def project_detail(project_id):
                           project.project_address, DATE(project.project_dotime) as project_dotime, 
                           DATE(project.project_endtime) as project_endtime, 
                           project.project_target, teacher.teacher_name, project.project_statusStart,
-                          project.project_status
+                          project.project_status,project.project_detail
                    FROM project
                    JOIN teacher ON project.teacher_id = teacher.teacher_id
                    WHERE project.project_id = %s"""
@@ -1651,6 +1653,7 @@ def project_detail(project_id):
             "teacher_name": project[8],
             "project_statusStart": project[9],
             "project_status": project[10],
+            "project_detail": project[11],
         }
 
     is_logged_in = "teacher_id" in session
