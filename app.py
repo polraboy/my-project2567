@@ -10,12 +10,13 @@ from flask import (
     send_file,
     make_response,
     g,
+    jsonify
 )
 import mysql.connector
 import base64
 import os
 from contextlib import contextmanager
-from fpdf import FPDF, XPos, YPos, Align
+
 from io import BytesIO
 from functools import wraps
 from PIL import Image
@@ -35,8 +36,10 @@ import logging
 from reportlab.lib.utils import simpleSplit
 from datetime import timedelta
 import requests
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 app.secret_key = "your_secret_key"
 app.static_folder = "static"
 app.config["SESSION_TYPE"] = "filesystem"
@@ -52,71 +55,6 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 pdfmetrics.registerFont(TTFont("THSarabunNew", "THSarabunNew.ttf"))
 
 
-class ThaiPDF(FPDF):
-    def __init__(self):
-        super().__init__(orientation="P", unit="mm", format="A4")
-        self.add_thai_font()
-
-    def add_thai_font(self):
-        font_path = os.path.join(os.path.dirname(__file__), "THSarabunNew.ttf")
-        if os.path.exists(font_path):
-            self.add_font("THSarabunNew", "", font_path, uni=True)
-            self.add_font("THSarabunNew", "B", font_path, uni=True)
-        else:
-            raise FileNotFoundError(f"ไม่พบไฟล์ฟอนต์ที่ {font_path}")
-
-    def header(self):
-        self.set_font("THSarabunNew", "B", 16)
-        self.cell(0, 10, "รายละเอียดโครงการ", 0, 1, "C")
-
-    def footer(self):
-        self.set_y(-15)
-        self.set_font("THSarabunNew", "", 8)
-        self.cell(0, 10, f"หน้า {self.page_no()}", 0, 0, "C")
-
-    def chapter_title(self, num, label):
-        self.set_font("THSarabunNew", "B", 14)
-        self.cell(0, 6, f"{num}. {label}", 0, 1)
-        self.ln(4)
-
-    def chapter_body(self, body):
-        self.set_font("THSarabunNew", "", 12)
-        self.multi_cell(0, 5, body)
-        self.ln()
-
-    def add_thai_text(self, txt):
-        encoded_text = txt.encode("latin-1", "replace").decode("latin-1")
-        self.multi_cell(0, 5, encoded_text)
-
-
-class ProjectPDF(FPDF):
-    def __init__(self):
-        super().__init__()
-        self.add_font("THSarabunNew", "", "THSarabunNew.ttf", uni=True)
-        self.add_font("THSarabunNew", "B", "THSarabunNew Bold.ttf", uni=True)
-
-    def header(self):
-
-        self.set_font("THSarabunNew", "B", 16)
-        self.cell(0, 10, "มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน", 0, 1, "C")
-        self.cell(0, 10, "วิทยาเขต....................................", 0, 1, "C")
-        self.cell(0, 10, "หน่วยงาน....................................", 0, 1, "C")
-        self.ln(10)
-
-    def footer(self):
-        self.set_y(-15)
-        self.set_font("THSarabunNew", "", 8)
-        self.cell(0, 10, f"หน้า {self.page_no()}/{{nb}}", 0, 0, "C")
-
-    def chapter_title(self, num, label):
-        self.set_font("THSarabunNew", "B", 16)
-        self.cell(0, 6, f"{num}. {label}", 0, 1)
-        self.ln(4)
-
-    def chapter_body(self, body):
-        self.set_font("THSarabunNew", "", 16)
-        self.multi_cell(0, 10, body)
-        self.ln()
 
 
 @app.route("/home")
@@ -1227,7 +1165,25 @@ def is_date_overlap_for_teacher(teacher_id, start_date, end_date, project_id=Non
             cursor.execute(query, (teacher_id, end_date, start_date, start_date, start_date, start_date, end_date))
         count = cursor.fetchone()[0]
     return count > 0
-
+@app.route('/check_project_name', methods=['POST'])
+def check_project_name():
+    app.logger.info("Received request to check_project_name")
+    try:
+        data = request.json
+        app.logger.info(f"Received data: {data}")
+        project_name = data.get('project_name')
+        
+        with get_db_cursor() as (db, cursor):
+            query = "SELECT COUNT(*) FROM project WHERE project_name = %s"
+            cursor.execute(query, (project_name,))
+            count = cursor.fetchone()[0]
+        
+        result = {'exists': count > 0}
+        app.logger.info(f"Sending response: {result}")
+        return jsonify(result)
+    except Exception as e:
+        app.logger.error(f"Error in check_project_name: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 @app.route("/add_project", methods=["GET", "POST"])
 @login_required("teacher")
 def add_project():
@@ -1276,7 +1232,7 @@ def add_project():
             "time_indicator": request.form["time_indicator"],
             "cost_indicator": request.form["cost_indicator"],
             "expected_results": request.form.get("expected_results", ""),
-            "project_detail ": request.form["project_detail"],
+            "project_detail": request.form["project_detail"],
         }
         error_messages = []
 
@@ -1337,7 +1293,7 @@ def add_project():
             query = """INSERT INTO project (project_budgettype, project_year, project_name, project_style, 
                        project_address, project_dotime, project_endtime, project_target, 
                        project_status, teacher_id, project_budget,project_detail) 
-                       VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+                       VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s)"""
             cursor.execute(
                 query,
                 (
@@ -1352,7 +1308,7 @@ def add_project():
                     project_data["project_status"],
                     teacher_id,
                     project_data["project_budget"],
-                    project_detail,
+                    project_data["project_detail"],
                 ),
             )
             db.commit()
