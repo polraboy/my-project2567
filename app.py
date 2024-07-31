@@ -37,6 +37,7 @@ from reportlab.lib.utils import simpleSplit
 from datetime import timedelta
 import requests
 from flask_cors import CORS
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
@@ -681,7 +682,12 @@ def create_project_pdf(project_data):
         styles["Heading2"].fontSize = 12
         styles["Heading3"].fontName = "THSarabunNew"
         styles["Heading3"].fontSize = 12
-
+        styles.add(ParagraphStyle(name='Signature', 
+                          parent=styles['Normal'],
+                          fontSize=16,  # เพิ่มขนาดจาก 12 เป็น 16
+                          alignment=1,  # 1 คือการจัดกึ่งกลาง
+                          spaceAfter=6))
+        
         def header(canvas, doc):
             canvas.saveState()
             page_width = doc.pagesize[0]
@@ -754,17 +760,15 @@ def create_project_pdf(project_data):
             Paragraph(f"ผลผลิต : {project_data.get('output', '')}", styles["Normal"])
         )
         content.append(
-            Paragraph("4. ความสอดคล้องประเด็นยุทธศาสตร์ และตัวชี้วัด", styles["Heading2"])
+            Paragraph("4. ความสอดคล้องประเด็นยุทธศาสตร์ และตัวชี้วัด ของมหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน ", styles["Heading2"])
         )
         content.append(
             Paragraph(
-                f"ประเด็นยุทธศาสตร์ที่ : {project_data.get('strategy', '')}",
+                f" {project_data.get('strategy', '')}",
                 styles["Normal"],
             )
         )
-        content.append(
-            Paragraph(f"ตัวชี้วัดที่ : {project_data.get('indicator', '')}", styles["Normal"])
-        )
+       
         content.append(
             Paragraph(
                 "5. ความสอดคล้องกับ Cluster / Commonality / Physical grouping",
@@ -924,11 +928,27 @@ def create_project_pdf(project_data):
         content.append(
             Paragraph(project_data.get("expected_results", ""), styles["Normal"])
         )
-
+        content.append(Spacer(1, 2*inch))  # เพิ่มระยะห่างก่อนส่วนลงชื่อ
+        content.append(Paragraph(f"ลงชื่อ _______________________________", styles['Signature']))
+        content.append(Paragraph(f"({project_data['teacher_name']})", styles['Signature']))
+        content.append(Paragraph(f"ตำแหน่ง อาจารย์ประจำสาขา{project_data.get('branch_name', '')}", styles['Signature']))
+        content.append(Paragraph(f"วันที่ {datetime.now().strftime('%d/%m/%Y')}", styles['Signature']))
+        content.append(Paragraph(f"เบอร์โทรศัพท์ที่สามารถติดต่อโดยตรง", styles['Signature']))
+        content.append(Paragraph(f"{project_data.get('teacher_phone', 'ไม่ระบุ')}", styles['Signature']))
+        content.append(Spacer(1, 0.5*inch))  # เพิ่มระยะห่างก่อนส่วนความคิดเห็น
+        content.append(Paragraph("ความคิดเห็นของผู้บังคับบัญชา.....จึงเรียนมาเพื่อโปรดพิจารณา", styles['Signature']))
+        content.append(Paragraph("_____________________________________________", styles['Signature']))
+        content.append(Spacer(1, 0.5*inch))
+        content.append(Paragraph("ลงชื่อ _______________________________", styles['Signature']))
+        content.append(Paragraph("(นายศราวุธ ซื่อวุฒิกุล)", styles['Signature']))
+        content.append(Paragraph("หัวหน้าสาขาระบบสารสนเทศ", styles['Signature']))
+        content.append(Paragraph(f"วันที่ {datetime.now().strftime('%d/%m/%Y')}", styles['Signature']))
+            
         try:
             doc.build(content, onFirstPage=header, onLaterPages=header)
             buffer.seek(0)
             return buffer
+        
         except Exception as e:
             logging.error(f"Error building PDF: {e}", exc_info=True)
             return None
@@ -944,7 +964,6 @@ print(
     f"Full path to logo: {os.path.abspath(os.path.join(os.path.dirname(__file__), 'static', '1.png'))}"
 )
 
-
 @app.route("/edit_project/<int:project_id>", methods=["GET", "POST"])
 @login_required("teacher")
 def edit_project(project_id):
@@ -952,12 +971,15 @@ def edit_project(project_id):
         return redirect(url_for("login"))
 
     teacher_id = session["teacher_id"]
+    
+    db = get_db_connection()
+    cursor = db.cursor()
 
-    with get_db_cursor() as (db, cursor):
+    try:
         # ดึงข้อมูลโครงการเดิม
         query = """SELECT project_id, project_budgettype, project_year, project_name, 
                    project_style, project_address, project_dotime, project_endtime, 
-                   project_target, project_status, project_budget ,project_detail
+                   project_target, project_status, project_budget, project_detail
                    FROM project WHERE project_id = %s AND teacher_id = %s"""
         cursor.execute(query, (project_id, teacher_id))
         project = cursor.fetchone()
@@ -974,28 +996,27 @@ def edit_project(project_id):
         cursor.execute(query_teacher, (teacher_id,))
         teacher_info = cursor.fetchone()
 
-    # สร้าง project_data สำหรับ GET request
-    project_data = {
-        "project_id": project[0],
-        "project_budgettype": project[1],
-        "project_year": project[2],
-        "project_name": project[3],
-        "project_style": project[4],
-        "project_address": project[5],
-        "project_dotime": project[6],
-        "project_endtime": project[7],
-        "project_target": project[8],
-        "project_status": project[9],
-        "project_budget": project[10],
-        "teacher_name": teacher_info[0],
-        "branch_name": teacher_info[1],
-        "project_detail": project[11],
-    }
+        # สร้าง project_data
+        project_data = {
+            "project_id": project[0],
+            "project_budgettype": project[1],
+            "project_year": project[2],
+            "project_name": project[3],
+            "project_style": project[4],
+            "project_address": project[5],
+            "project_dotime": project[6],
+            "project_endtime": project[7],
+            "project_target": project[8],
+            "project_status": project[9],
+            "project_budget": project[10],
+            "teacher_name": teacher_info[0],
+            "branch_name": teacher_info[1],
+            "project_detail": project[11],
+        }
 
-    if request.method == "POST":
-        # อัปเดต project_data ด้วยข้อมูลจากฟอร์ม
-        project_data.update(
-            {
+        if request.method == "POST":
+            # อัปเดต project_data ด้วยข้อมูลจากฟอร์ม
+            project_data.update({
                 "project_budgettype": request.form["project_budgettype"],
                 "project_year": request.form["project_year"],
                 "project_name": request.form["project_name"],
@@ -1007,7 +1028,6 @@ def edit_project(project_id):
                 "project_budget": request.form["project_budget"],
                 "output": request.form["output"],
                 "strategy": request.form["strategy"],
-                "indicator": request.form["indicator"],
                 "cluster": request.form["cluster"],
                 "commonality": request.form["commonality"],
                 "physical_grouping": request.form["physical_grouping"],
@@ -1017,119 +1037,103 @@ def edit_project(project_id):
                 "output_target": request.form["output_target"],
                 "outcome_target": request.form["outcome_target"],
                 "project_activity": request.form["project_activity"],
-                "compensation": [],
-                "expenses": [],
-                "activities": [],
                 "quantity_indicator": request.form["quantity_indicator"],
                 "quality_indicator": request.form["quality_indicator"],
                 "time_indicator": request.form["time_indicator"],
                 "cost_indicator": request.form["cost_indicator"],
                 "expected_results": request.form.get("expected_results", ""),
                 "project_detail": request.form["project_detail"],
-            }
-        )
+            })
 
-        error_messages = []
+            # รับข้อมูลแผนปฏิบัติงาน
+            activities = request.form.getlist("activity[]")
+            project_data["activities"] = []
+            for i, activity in enumerate(activities):
+                if activity:
+                    selected_months = request.form.getlist(f"month[{i}][]")
+                    project_data["activities"].append(
+                        {"activity": activity, "months": selected_months}
+                    )
 
-        # ตรวจสอบชื่อโครงการซ้ำ
-        if is_project_name_duplicate(project_data["project_name"], project_id):
-            error_messages.append("ไม่สามารถแก้ไขโครงการได้เนื่องจากชื่อโครงการ '{}' มีอยู่แล้ว กรุณาใช้ชื่อโครงการอื่น".format(project_data["project_name"]))
+            # รับข้อมูลค่าตอบแทนและค่าใช้สอย
+            project_data["compensation"] = []
+            project_data["expenses"] = []
+            
+            compensation_descriptions = request.form.getlist("compensation_description[]")
+            compensation_amounts = request.form.getlist("compensation_amount[]")
+            for desc, amount in zip(compensation_descriptions, compensation_amounts):
+                if desc and amount:
+                    project_data["compensation"].append(
+                        {"description": desc, "amount": float(amount)}
+                    )
 
-        # ตรวจสอบวันที่ซ้ำสำหรับครูคนเดียวกัน
-        if is_date_overlap_for_teacher(teacher_id, project_data["project_dotime"], project_data["project_endtime"], project_id):
-            error_messages.append("ไม่สามารถแก้ไขโครงการได้เนื่องจากคุณมีโครงการอื่นในช่วงเวลา {} ถึง {} แล้ว กรุณาเลือกวันที่อื่น".format(project_data["project_dotime"], project_data["project_endtime"]))
+            expense_descriptions = request.form.getlist("expense_description[]")
+            expense_amounts = request.form.getlist("expense_amount[]")
+            for desc, amount in zip(expense_descriptions, expense_amounts):
+                if desc and amount:
+                    project_data["expenses"].append(
+                        {"description": desc, "amount": float(amount)}
+                    )
 
-        if error_messages:
-            for message in error_messages:
-                flash(message, "error")
-            return render_template("edit_project.html", project=project_data, teacher_info=teacher_info)
-          # รับข้อมูลแผนปฏิบัติงาน
-        activities = request.form.getlist("activity[]")
-        project_data["activities"] = []
-        for i, activity in enumerate(activities):
-            if activity:
-                selected_months = request.form.getlist(f"month[{i}][]")
-                project_data["activities"].append(
-                    {"activity": activity, "months": selected_months}
-                )
-        # รับข้อมูลค่าตอบแทนและค่าใช้สอย
-        compensation_descriptions = request.form.getlist("compensation_description[]")
-        compensation_amounts = request.form.getlist("compensation_amount[]")
-        for desc, amount in zip(compensation_descriptions, compensation_amounts):
-            if desc and amount:
-                project_data["compensation"].append(
-                    {"description": desc, "amount": float(amount)}
-                )
+            # คำนวณยอดรวม
+            total_compensation = sum(item["amount"] for item in project_data["compensation"])
+            total_expenses = sum(item["amount"] for item in project_data["expenses"])
+            grand_total = total_compensation + total_expenses
 
-        expense_descriptions = request.form.getlist("expense_description[]")
-        expense_amounts = request.form.getlist("expense_amount[]")
-        for desc, amount in zip(expense_descriptions, expense_amounts):
-            if desc and amount:
-                project_data["expenses"].append(
-                    {"description": desc, "amount": float(amount)}
-                )
+            project_data["total_compensation"] = total_compensation
+            project_data["total_expenses"] = total_expenses
+            project_data["grand_total"] = grand_total
 
-        # คำนวณยอดรวม
-        total_compensation = sum(
-            item["amount"] for item in project_data["compensation"]
-        )
-        total_expenses = sum(item["amount"] for item in project_data["expenses"])
-        grand_total = total_compensation + total_expenses
-
-        with get_db_cursor() as (db, cursor):
-            # อัปเดตข้อมูลโครงการในฐานข้อมูล
-            query = """UPDATE project SET 
-                       project_budgettype = %s, project_year = %s, project_name = %s, 
-                       project_style = %s, project_address = %s, project_dotime = %s, 
-                       project_endtime = %s, project_target = %s, project_budget = %s,
-                       project_detail = %s
-                       WHERE project_id = %s AND teacher_id = %s"""
-            cursor.execute(
-                query,
-                (
-                    project_data["project_budgettype"],
-                    project_data["project_year"],
-                    project_data["project_name"],
-                    project_data["project_style"],
-                    project_data["project_address"],
-                    project_data["project_dotime"],
-                    project_data["project_endtime"],
-                    project_data["project_target"],
-                    project_data["project_budget"],
-                    project_id,
-                    teacher_id,
-                    project_data["project_detail"],
-                ),
-            )
+            # อัปเดตข้อมูลในฐานข้อมูล
+            update_query = """UPDATE project SET 
+                              project_budgettype = %s, project_year = %s, project_name = %s, 
+                              project_style = %s, project_address = %s, project_dotime = %s, 
+                              project_endtime = %s, project_target = %s, project_budget = %s,
+                              project_detail = %s
+                              WHERE project_id = %s AND teacher_id = %s"""
+            cursor.execute(update_query, (
+                project_data["project_budgettype"],
+                project_data["project_year"],
+                project_data["project_name"],
+                project_data["project_style"],
+                project_data["project_address"],
+                project_data["project_dotime"],
+                project_data["project_endtime"],
+                project_data["project_target"],
+                project_data["project_budget"],
+                project_data["project_detail"],
+                project_id,
+                teacher_id
+            ))
             db.commit()
 
-        # เพิ่มข้อมูลยอดรวมใน project_data สำหรับใช้ในการสร้าง PDF
-        project_data["total_compensation"] = total_compensation
-        project_data["total_expenses"] = total_expenses
-        project_data["grand_total"] = grand_total
-
-         # สร้าง PDF
-        pdf_buffer = create_project_pdf(project_data)
-        if pdf_buffer:
-            pdf_content = pdf_buffer.getvalue()
-
-            with get_db_cursor() as (db, cursor):
+            # สร้าง PDF
+            pdf_buffer = create_project_pdf(project_data)
+            if pdf_buffer:
+                pdf_content = pdf_buffer.getvalue()
+                
                 query = "UPDATE project SET project_pdf = %s WHERE project_id = %s"
                 cursor.execute(query, (pdf_content, project_id))
                 db.commit()
+                
                 logging.info(f"PDF uploaded for project_id: {project_id}")
                 flash("โครงการและ PDF ถูกบันทึกเรียบร้อยแล้ว", "success")
-        else:
-            logging.error("PDF buffer is None")
-            flash("เกิดข้อผิดพลาดในการสร้าง PDF", "error")
+            else:
+                logging.error("PDF buffer is None")
+                flash("เกิดข้อผิดพลาดในการสร้าง PDF", "error")
 
+            return redirect(url_for("teacher_projects"))
+
+        return render_template("edit_project.html", project=project_data, teacher_info=teacher_info)
+
+    except mysql.connector.Error as err:
+        logging.error(f"Database error: {err}")
+        flash(f"เกิดข้อผิดพลาดในการเข้าถึงฐานข้อมูล: {err}", "error")
         return redirect(url_for("teacher_projects"))
 
-    project_data["activities"] = []  # เริ่มต้นด้วยลิสต์ว่าง
-
-    return render_template(
-        "edit_project.html", project=project_data, teacher_info=teacher_info
-    )
+    finally:
+        cursor.close()
+        db.close()
 
 def is_date_overlap_for_teacher(teacher_id, start_date, end_date, project_id=None):
     with get_db_cursor() as (db, cursor):
@@ -1213,7 +1217,6 @@ def add_project():
             # ข้อมูลที่ไม่ได้บันทึกลงฐานข้อมูล แต่ต้องการแสดงใน PDF
             "output": request.form["output"],
             "strategy": request.form["strategy"],
-            "indicator": request.form["indicator"],
             "cluster": request.form["cluster"],
             "commonality": request.form["commonality"],
             "physical_grouping": request.form["physical_grouping"],
@@ -1232,6 +1235,7 @@ def add_project():
             "cost_indicator": request.form["cost_indicator"],
             "expected_results": request.form.get("expected_results", ""),
             "project_detail": request.form["project_detail"],
+            "teacher_phone": session.get("teacher_phone"),
         }
         error_messages = []
 
