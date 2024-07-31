@@ -573,11 +573,11 @@ def get_teachers_from_database():
 @app.route("/download_project_pdf/<int:project_id>")
 @login_required("teacher", "admin")
 def download_project_pdf(project_id):
-    user_type = g.user["type"]  # ใช้ g.user แทน session
+    user_type = g.user["type"]
 
     with get_db_cursor() as (db, cursor):
         if user_type == "teacher":
-            teacher_id = g.user["id"]  # ใช้ g.user แทน session
+            teacher_id = g.user["id"]
             query = """
                 SELECT project_pdf, project_name 
                 FROM project 
@@ -604,9 +604,7 @@ def download_project_pdf(project_id):
         )
     else:
         flash("ไม่พบไฟล์ PDF สำหรับโครงการนี้", "error")
-        return redirect(
-            url_for("teacher_projects" if user_type == "teacher" else "approve_project")
-        )
+        return redirect(url_for("teacher_projects" if user_type == "teacher" else "approve_project"))
 
 
 def prepare_logo(logo_path):
@@ -1550,13 +1548,17 @@ def teacher_projects():
 @app.route("/request_approval", methods=["POST"])
 @login_required("teacher")
 def request_approval():
-    project_id = request.form.get("project_id")
-    with get_db_cursor() as (db, cursor):
-        query = "UPDATE project SET project_status = 1, project_submit_date = NOW() WHERE project_id = %s"
-        cursor.execute(query, (project_id,))
-        db.commit()
-    return redirect(url_for("teacher_projects"))
-
+    data = request.json
+    project_id = data.get("project_id")
+    try:
+        with get_db_cursor() as (db, cursor):
+            query = "UPDATE project SET project_status = 1, project_submit_date = NOW() WHERE project_id = %s"
+            cursor.execute(query, (project_id,))
+            db.commit()
+        return jsonify({"success": True})
+    except Exception as e:
+        logging.error(f"Error in request_approval: {str(e)}")
+        return jsonify({"success": False}), 500
 
 @app.route("/reject_project", methods=["POST"])
 @login_required("admin")
