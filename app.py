@@ -929,7 +929,7 @@ def create_project_pdf(project_data):
             Paragraph(project_data.get("expected_results", ""), styles["Normal"])
         )
         content.append(Spacer(1, 2*inch))  # เพิ่มระยะห่างก่อนส่วนลงชื่อ
-        content.append(Paragraph(f"ลงชื่อ _______________________________", styles['Signature']))
+        content.append(Paragraph(f"ลงชื่อ _____________________{project_data['teacher_name']}_____________________", styles['Signature']))
         content.append(Paragraph(f"({project_data['teacher_name']})", styles['Signature']))
         content.append(Paragraph(f"ตำแหน่ง อาจารย์ประจำสาขา{project_data.get('branch_name', '')}", styles['Signature']))
         content.append(Paragraph(f"วันที่ {datetime.now().strftime('%d/%m/%Y')}", styles['Signature']))

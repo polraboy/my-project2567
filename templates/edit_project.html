@@ -153,6 +153,7 @@
                 </ul>
             </div>
         </nav>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     </head>
 <body>
     {% if g.user %}
@@ -210,11 +211,12 @@
                         <label for="project_year">ปีงบประมาณ (พ.ศ.):</label>
                         <input type="text" class="form-control" id="project_year" name="project_year" value="{{ project.project_year }}" required>
                     </div>
-    
                     <div class="form-group">
-                        <label for="project_name">ชื่อโครงการ:</label>
+                        <label for="project_name">ชื่อโครงการ: <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="project_name" name="project_name" value="{{ project.project_name }}" required>
+                        <div class="invalid-feedback" id="project_name_feedback">กรุณากรอกชื่อโครงการ</div>
                     </div>
+                   
     
                     <div class="form-group">
                         <label>ลักษณะโครงการ:</label>
@@ -237,18 +239,16 @@
                         <input type="text" class="form-control" id="project_address" name="project_address" value="{{ project.project_address }}" required>
                     </div>
                 </div>
-    
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="project_dotime">วันที่เริ่มโครงการ:</label>
-                        <input type="date" class="form-control" id="project_dotime" name="project_dotime" value="{{ project.project_dotime }}" required>
+                        <input type="date" class="form-control" id="project_dotime" name="project_dotime"value="{{ project.project_dotime }}" required>
                     </div>
-    
                     <div class="form-group">
                         <label for="project_endtime">วันที่สิ้นสุดโครงการ:</label>
                         <input type="date" class="form-control" id="project_endtime" name="project_endtime" value="{{ project.project_endtime }}" required>
                     </div>
-    
+            
                     <div class="form-group">
                     </div>
                 </div>
@@ -471,8 +471,7 @@
                 </div>
 
             </div>
-
-            <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
             <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
             <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
@@ -658,7 +657,119 @@
         });
         
     </script>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const projectNameInput = document.getElementById('project_name');
+        const projectStartInput = document.getElementById('project_dotime');
+        const projectEndInput = document.getElementById('project_endtime');
+    
+        // ตรวจสอบชื่อโครงการ
+        projectNameInput.addEventListener('blur', function() {
+            checkProjectName(this.value);
+        });
+    
+        // ตรวจสอบวันที่โครงการ
+        projectEndInput.addEventListener('change', function() {
+            if (projectStartInput.value && projectEndInput.value) {
+                checkProjectDates(projectStartInput.value, projectEndInput.value);
+            }
+        });
+    
+        function checkProjectName(projectName) {
+            fetch('/check_project_name', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({project_name: projectName})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.exists) {
+                    Swal.fire({
+                        title: 'ชื่อโครงการซ้ำ',
+                        text: 'ชื่อโครงการนี้มีอยู่แล้ว กรุณาใช้ชื่ออื่น',
+                        icon: 'warning',
+                        confirmButtonText: 'เข้าใจแล้ว'
+                    });
+                    projectNameInput.classList.add('is-invalid');
+                } else {
+                    projectNameInput.classList.remove('is-invalid');
+                }
+            });
+        }
+    
+        function checkProjectDates(startDate, endDate) {
+            fetch('/check_project_dates', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({start_date: startDate, end_date: endDate})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.overlap) {
+                    Swal.fire({
+                        title: 'วันที่ซ้ำซ้อน',
+                        text: 'คุณมีโครงการอื่นในช่วงเวลานี้แล้ว กรุณาเลือกวันที่อื่น',
+                        icon: 'warning',
+                        confirmButtonText: 'เข้าใจแล้ว'
+                    });
+                    projectStartInput.classList.add('is-invalid');
+                    projectEndInput.classList.add('is-invalid');
+                } else {
+                    projectStartInput.classList.remove('is-invalid');
+                    projectEndInput.classList.remove('is-invalid');
+                }
+            });
+        }
+    
+        // ตรวจสอบก่อนส่งฟอร์ม
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // ตรวจสอบชื่อโครงการและวันที่อีกครั้งก่อนส่ง
+            Promise.all([
+                fetch('/check_project_name', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({project_name: projectNameInput.value})
+                }),
+                fetch('/check_project_dates', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({start_date: projectStartInput.value, end_date: projectEndInput.value})
+                })
+            ])
+            .then(responses => Promise.all(responses.map(r => r.json())))
+            .then(([nameData, dateData]) => {
+                if (nameData.exists || dateData.overlap) {
+                    if (nameData.exists) {
+                        Swal.fire({
+                            title: 'ชื่อโครงการซ้ำ',
+                            text: 'ชื่อโครงการนี้มีอยู่แล้ว กรุณาใช้ชื่ออื่น',
+                            icon: 'error',
+                            confirmButtonText: 'เข้าใจแล้ว'
+                        });
+                    }
+                    if (dateData.overlap) {
+                        Swal.fire({
+                            title: 'วันที่ซ้ำซ้อน',
+                            text: 'คุณมีโครงการอื่นในช่วงเวลานี้แล้ว กรุณาเลือกวันที่อื่น',
+                            icon: 'error',
+                            confirmButtonText: 'เข้าใจแล้ว'
+                        });
+                    }
+                } else {
+                    // ถ้าไม่มีปัญหา ให้ส่งฟอร์ม
+                    this.submit();
+                }
+            });
+        });
+    });
+    </script>
 
 </body>
 
