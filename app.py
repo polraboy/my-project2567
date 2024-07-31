@@ -1132,16 +1132,7 @@ def edit_project(project_id):
     return render_template(
         "edit_project.html", project=project_data, teacher_info=teacher_info
     )
-def is_project_name_duplicate(project_name, project_id=None):
-    with get_db_cursor() as (db, cursor):
-        if project_id:
-            query = "SELECT COUNT(*) FROM project WHERE project_name = %s AND project_id != %s"
-            cursor.execute(query, (project_name, project_id))
-        else:
-            query = "SELECT COUNT(*) FROM project WHERE project_name = %s"
-            cursor.execute(query, (project_name,))
-        count = cursor.fetchone()[0]
-    return count > 0
+
 def is_date_overlap_for_teacher(teacher_id, start_date, end_date, project_id=None):
     with get_db_cursor() as (db, cursor):
         if project_id:
@@ -1165,6 +1156,16 @@ def is_date_overlap_for_teacher(teacher_id, start_date, end_date, project_id=Non
             cursor.execute(query, (teacher_id, end_date, start_date, start_date, start_date, start_date, end_date))
         count = cursor.fetchone()[0]
     return count > 0
+@app.route('/check_project_dates', methods=['POST'])
+def check_project_dates():
+    data = request.json
+    teacher_id = session.get('teacher_id')
+    start_date = data.get('start_date')
+    end_date = data.get('end_date')
+    
+    overlap = is_date_overlap_for_teacher(teacher_id, start_date, end_date)
+    
+    return jsonify({'overlap': overlap})
 @app.route('/check_project_name', methods=['POST'])
 def check_project_name():
     app.logger.info("Received request to check_project_name")
@@ -1236,13 +1237,10 @@ def add_project():
         }
         error_messages = []
 
-        # ตรวจสอบชื่อโครงการซ้ำ
-        if is_project_name_duplicate(project_data["project_name"]):
-            error_messages.append("ไม่สามารถเพิ่มโครงการได้เนื่องจากชื่อโครงการ '{}' มีอยู่แล้ว กรุณาใช้ชื่อโครงการอื่น".format(project_data["project_name"]))
+        
 
         # ตรวจสอบวันที่ซ้ำสำหรับครูคนเดียวกัน
-        if is_date_overlap_for_teacher(teacher_id, project_data["project_dotime"], project_data["project_endtime"]):
-            error_messages.append("ไม่สามารถเพิ่มโครงการได้เนื่องจากคุณมีโครงการอื่นในช่วงเวลา {} ถึง {} แล้ว กรุณาเลือกวันที่อื่น".format(project_data["project_dotime"], project_data["project_endtime"]))
+        
 
         if error_messages:
             for message in error_messages:
