@@ -835,34 +835,14 @@ def create_project_pdf(project_data):
         )
         content.append(Paragraph("14.1 ค่าตอบแทน", styles["Heading3"]))
         for item in project_data["compensation"]:
-            content.append(
-                Paragraph(
-                    f"{item['description']}: {item['amount']} บาท", styles["Normal"]
-                )
-            )
-        content.append(
-            Paragraph(
-                f"รวมค่าตอบแทน: {project_data['total_compensation']} บาท",
-                styles["Normal"],
-            )
-        )
+            content.append(Paragraph(f"{item['description']}: {item['amount']} บาท", styles["Normal"]))
+        content.append(Paragraph(f"รวมค่าตอบแทน: {project_data['total_compensation']} บาท", styles["Normal"]))
+
         content.append(Paragraph("14.2 ค่าใช้สอย", styles["Heading3"]))
         for item in project_data["expenses"]:
-            content.append(
-                Paragraph(
-                    f"{item['description']}: {item['amount']} บาท", styles["Normal"]
-                )
-            )
-        content.append(
-            Paragraph(
-                f"รวมค่าใช้สอย: {project_data['total_expenses']} บาท", styles["Normal"]
-            )
-        )
-        content.append(
-            Paragraph(
-                f"รวมค่าใช้จ่ายทั้งสิ้น: {project_data['grand_total']} บาท", styles["Normal"]
-            )
-        )
+            content.append(Paragraph(f"{item['description']}: {item['amount']} บาท", styles["Normal"]))
+        content.append(Paragraph(f"รวมค่าใช้สอย: {project_data['total_expenses']} บาท", styles["Normal"]))
+          
 
         # แผนปฏิบัติงาน (ใช้ตารางตามต้นฉบับ)
         content.append(
