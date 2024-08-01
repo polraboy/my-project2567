@@ -527,12 +527,27 @@ def join_project(project_id):
         join_telephone = request.form["join_telephone"]
         join_email = request.form["join_email"]
 
+        # ตรวจสอบการสมัครซ้ำ
+        cursor.execute(
+            """
+            SELECT COUNT(*) as duplicate_count
+            FROM `join`
+            WHERE project_id = %s AND (join_name = %s OR join_telephone = %s OR join_email = %s)
+            """,
+            (project_id, join_name, join_telephone, join_email)
+        )
+        duplicate_result = cursor.fetchone()
+        
+        if duplicate_result["duplicate_count"] > 0:
+            flash("คุณได้สมัครเข้าร่วมโครงการนี้แล้ว ไม่สามารถสมัครซ้ำได้", "error")
+            return redirect(url_for("project_detail", project_id=project_id))
+
         try:
             cursor.execute(
                 """
                 INSERT INTO `join` (join_name, join_telephone, join_email, project_id, join_status)
                 VALUES (%s, %s, %s, %s, 0)
-            """,
+                """,
                 (join_name, join_telephone, join_email, project_id),
             )
             conn.commit()
@@ -1563,10 +1578,35 @@ def add_branch():
         branch_name = request.form["branch_name"]
 
         with get_db_cursor() as (db, cursor):
-            query = "INSERT INTO branch (branch_name) VALUES (%s)"
-            cursor.execute(query, (branch_name,))
+            # ตรวจสอบว่ามีสาขานี้อยู่แล้วหรือไม่
+            check_query = "SELECT COUNT(*) FROM branch WHERE branch_name = %s"
+            cursor.execute(check_query, (branch_name,))
+            count = cursor.fetchone()[0]
+
+            if count > 0:
+                flash("สาขานี้มีอยู่ในระบบแล้ว กรุณาตรวจสอบอีกครั้ง", "error")
+                return render_template("add_branch.html", branch_name=branch_name)
+
+            # หา branch_id ล่าสุด
+            cursor.execute("SELECT MAX(branch_id) FROM branch")
+            last_id = cursor.fetchone()[0]
+
+            if last_id:
+                # ถ้ามี branch_id อยู่แล้ว ให้เพิ่มต่อจากเลขล่าสุด
+                last_num = int(last_id[6:])  # ตัดเอาเฉพาะตัวเลข
+                new_num = last_num + 1
+            else:
+                # ถ้ายังไม่มี branch_id เลย ให้เริ่มที่ 1
+                new_num = 1
+
+            new_branch_id = f"branch{new_num:03d}"  # สร้าง branch_id ใหม่
+
+            # เพิ่มสาขาใหม่
+            insert_query = "INSERT INTO branch (branch_id, branch_name) VALUES (%s, %s)"
+            cursor.execute(insert_query, (new_branch_id, branch_name))
             db.commit()
 
+        flash(f"เพิ่มสาขาใหม่ '{branch_name}' (รหัส: {new_branch_id}) เรียบร้อยแล้ว", "success")
         return redirect(url_for("edit_basic_info"))
 
     return render_template("add_branch.html")
@@ -1828,6 +1868,102 @@ def approve_participants(project_id):
         "approve_participants.html", project_id=project_id, participants=participants
     )
 
+@app.route("/participation_history", methods=["GET", "POST"])
+def participation_history():
+    if request.method == "POST":
+        phone_number = request.form.get("phone_number")
+        with get_db_cursor() as (db, cursor):
+            query = """
+            SELECT p.project_name, p.project_dotime, p.project_endtime, j.join_status
+            FROM `join` j
+            JOIN project p ON j.project_id = p.project_id
+            WHERE j.join_telephone = %s
+            ORDER BY p.project_dotime DESC
+            """
+            cursor.execute(query, (phone_number,))
+            history = cursor.fetchall()
+        return render_template("participation_history.html", history=history, phone_number=phone_number)
+    return render_template("participation_history.html")
+@app.route("/get_participant_info", methods=["POST"])
+def get_participant_info():
+    data = request.json
+    name = data.get('name')
+    project_id = data.get('project_id')
+    
+    with get_db_cursor() as (db, cursor):
+        query = """
+        SELECT DISTINCT join_telephone, join_email
+        FROM `join`
+        WHERE join_name = %s
+        ORDER BY join_id DESC
+        LIMIT 1
+        """
+        cursor.execute(query, (name,))
+        result = cursor.fetchone()
+        
+        if result:
+            # ตรวจสอบว่าเคยสมัครโครงการนี้แล้วหรือไม่
+            check_query = """
+            SELECT COUNT(*) as joined_count
+            FROM `join`
+            WHERE join_name = %s AND project_id = %s
+            """
+            cursor.execute(check_query, (name, project_id))
+            joined_result = cursor.fetchone()
+            
+            return jsonify({
+                'found': True,
+                'telephone': result[0],
+                'email': result[1],
+                'already_joined': joined_result[0] > 0
+            })
+        else:
+            return jsonify({'found': False})
+@app.route("/delete_teacher/<int:teacher_id>")
+@login_required("admin")
+def delete_teacher(teacher_id):
+    with get_db_cursor() as (db, cursor):
+        cursor.execute("DELETE FROM teacher WHERE teacher_id = %s", (teacher_id,))
+        db.commit()
+    flash("ลบข้อมูลอาจารย์เรียบร้อยแล้ว", "success")
+    return redirect(url_for("edit_basic_info"))
+
+@app.route("/delete_branch/<string:branch_id>")
+@login_required("admin")
+def delete_branch(branch_id):
+    with get_db_cursor() as (db, cursor):
+        cursor.execute("DELETE FROM branch WHERE branch_id = %s", (branch_id,))
+        db.commit()
+    flash("ลบข้อมูลสาขาเรียบร้อยแล้ว", "success")
+    return redirect(url_for("edit_basic_info"))
+@app.route("/edit_branch/<string:branch_id>", methods=["GET", "POST"])
+@login_required("admin")
+def edit_branch(branch_id):
+    with get_db_cursor() as (db, cursor):
+        if request.method == "POST":
+            new_branch_name = request.form["branch_name"]
+            
+            # ตรวจสอบว่ามีชื่อสาขาซ้ำหรือไม่
+            cursor.execute("SELECT COUNT(*) FROM branch WHERE branch_name = %s AND branch_id != %s", (new_branch_name, branch_id))
+            if cursor.fetchone()[0] > 0:
+                flash("ชื่อสาขานี้มีอยู่แล้ว กรุณาใช้ชื่ออื่น", "error")
+                return redirect(url_for("edit_branch", branch_id=branch_id))
+            
+            # อัพเดทข้อมูลสาขา
+            cursor.execute("UPDATE branch SET branch_name = %s WHERE branch_id = %s", (new_branch_name, branch_id))
+            db.commit()
+            flash("แก้ไขข้อมูลสาขาเรียบร้อยแล้ว", "success")
+            return redirect(url_for("edit_basic_info"))
+        
+        # ดึงข้อมูลสาขาที่ต้องการแก้ไข
+        cursor.execute("SELECT * FROM branch WHERE branch_id = %s", (branch_id,))
+        branch = cursor.fetchone()
+        
+        if branch is None:
+            flash("ไม่พบข้อมูลสาขา", "error")
+            return redirect(url_for("edit_basic_info"))
+        
+    return render_template("edit_branch.html", branch=branch)
 
 # ตรวจสอบข้อมูลใหม่ทุกๆ 5 นาที
 if __name__ == "__main__":
