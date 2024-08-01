@@ -169,43 +169,53 @@ def home():
     return render_template('home.html', constants=constants, page=page, total_pages=total_pages, active_projects=active_projects)
 
 
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
-
+        
         with get_db_cursor() as (db, cursor):
             query_teacher = "SELECT * FROM teacher WHERE teacher_username = %s AND teacher_password = %s"
             cursor.execute(query_teacher, (username, password))
             teacher = cursor.fetchone()
-
+            
             if teacher:
                 session.clear()
                 session["teacher_id"] = teacher[0]
                 session["teacher_name"] = teacher[1]
-                session["teacher_email"] = teacher[5]  # ตำแหน่งของอีเมลในผลลัพธ์ SQL
-                session["teacher_phone"] = teacher[4]  # ตำแหน่งของเบอร์โทรในผลลัพธ์ SQL
+                session["teacher_email"] = teacher[5]
+                session["teacher_phone"] = teacher[4]
                 session["user_type"] = "teacher"
-                return redirect(url_for("teacher_home"))
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return jsonify({"success": True, "redirect": url_for("teacher_home")})
+                else:
+                    return redirect(url_for("teacher_home"))
             else:
                 query_admin = "SELECT * FROM admin WHERE admin_username = %s AND admin_password = %s"
                 cursor.execute(query_admin, (username, password))
                 admin = cursor.fetchone()
-
+                
                 if admin:
                     session.clear()
                     session["admin_id"] = admin[0]
                     session["admin_name"] = admin[1]
-                    session["admin_email"] = admin[4]  # ตำแหน่งของอีเมลในผลลัพธ์ SQL
+                    session["admin_email"] = admin[4]
                     session["user_type"] = "admin"
-                    return redirect(url_for("admin_home"))
+                    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                        return jsonify({"success": True, "redirect": url_for("admin_home")})
+                    else:
+                        return redirect(url_for("admin_home"))
                 else:
-                    flash(
-                        "Login failed. Please check your username and password.",
-                        "error",
-                    )
-
+                    error_message = "Login failed. Please check your username and password."
+                    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                        return jsonify({"success": False, "message": error_message})
+                    else:
+                        flash(error_message, "error")
+                        return redirect(url_for("login"))
+    
     return render_template("login.html")
 
 
