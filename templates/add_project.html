@@ -98,6 +98,19 @@
               .expense-total, .expense-grand-total {
                 font-weight: bold;
               }
+              custom-textarea {
+                width: 100%;
+                min-height: 80px; /* ปรับความสูงขั้นต่ำตามต้องการ */
+                padding: 5px;
+                font-size: 14px; /* ปรับขนาดตัวอักษรตามต้องการ */
+                line-height: 1.5;
+                resize: vertical; /* อนุญาตให้ปรับขนาดในแนวตั้งได้ */
+              }
+            
+              td {
+                vertical-align: top; /* จัดให้ textarea อยู่ด้านบนของเซลล์ */
+                padding: 5px; /* ปรับ padding ของเซลล์ตามต้องการ */
+              }
         </style>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
@@ -133,10 +146,10 @@
               >
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#"
-                ><i class="fas fa-info-circle"></i> เกี่ยวกับ</a
-              >
-            </li>
+                <a class="nav-link" href="completed_projects"
+                  ><i class="fas fa-info-circle"></i> โครงการที่เสร็จสิ้น</a
+                >
+                </li>
             <li class="nav-item">
               <a class="nav-link" href="add_project"
                 ><i class="fas fa-tasks"></i> เพิ่มโครงการ</a
@@ -388,7 +401,9 @@
         </thead>
         <tbody id="activityTableBody">
             <tr>
-                <td><input type="text" class="form-control" rows="3" name="activity[]"  required></td>
+                <td>
+                    <textarea class="form-control custom-textarea" name="activity[]" rows="3" required></textarea>
+                  </td>
                 <td><input type="checkbox" name="month[0][]" value="ต.ค."></td>
                 <td><input type="checkbox" name="month[0][]" value="พ.ย."></td>
                 <td><input type="checkbox" name="month[0][]" value="ธ.ค."></td>
@@ -461,10 +476,10 @@
                        <div class="form-group">
                         <label>เบอร์โทรศัพท์:</label>
                         <input type="tel" class="form-control" name="phone" required>
-                    </div>
-                      <div class="text-center mt-4">
-                        <button type="submit">บันทึกโครงการ</button>
-                      
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary">บันทึกการแก้ไขโครงการ</button>
+                            <a href="{{ url_for('teacher_projects') }}" class="btn btn-secondary">ยกเลิก</a>
+                        </div>
                     </button>
                       </div>
                     </form>
@@ -499,7 +514,7 @@
                 const tbody = document.getElementById('activityTableBody');
                 const newRow = tbody.insertRow();
                 newRow.innerHTML = `
-                    <td><input type="text" class="form-control" name="activity[]"  required></td>
+                    <td><textarea class="form-control custom-textarea" name="activity[]" rows="3" required></textarea></td>
                     <td><input type="checkbox" name="month[${activityCount}][]" value="ต.ค."></td>
                     <td><input type="checkbox" name="month[${activityCount}][]" value="พ.ย."></td>
                     <td><input type="checkbox" name="month[${activityCount}][]" value="ธ.ค."></td>
