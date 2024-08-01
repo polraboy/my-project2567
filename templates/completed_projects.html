@@ -322,156 +322,44 @@
     </div>
     {% endif %}
     <div class="container mt-5">
-      <div class="content-box">
-        <h2 class="text-center mb-4">โครงการที่คุณอาจารย์ดูแล</h2>
-        <a href="javascript:history.back()" class="btn btn-secondary mb-3"
-          >กลับ</a
-        >
-        <div class="table-responsive">
-          <table class="table table-striped">
+        <h2 class="mb-4">โครงการที่เสร็จสิ้นแล้ว</h2>
+        <table class="table table-striped">
             <thead>
-              <tr>
-                <th>ลำดับ</th>
-                <th>ชื่อโครงการ</th>
-                <th>สถานะ</th>
-                <th>การดำเนินการ</th>
-                <th>การจัดการ</th>
-                <th>ไฟล์โครงการ</th>
-              </tr>
+                <tr>
+                    <th>ชื่อโครงการ</th>
+                    <th>วันที่เริ่ม</th>
+                    <th>วันที่สิ้นสุด</th>
+                    <th>อาจารย์ผู้รับผิดชอบ</th>
+                </tr>
             </thead>
             <tbody>
-              {% for project in projects %}
-              <tr>
-                <td>{{ loop.index + (page - 1) * per_page }}</td>
-                <td>
-                  <a
-                    href="{{ url_for('project_detail', project_id=project[0]) }}"
-                    >{{ project[1] }}</a
-                  >
-                </td>
-                <td>
-                  {% if project[2] == 0 %}
-                  <span class="badge bg-secondary">ยังไม่ยื่นอนุมัติ</span>
-                  {% elif project[2] == 1 %}
-                  <span class="badge bg-warning text-dark">รออนุมัติ</span>
-                  {% if project[6] %}
-                  <br /><small
-                    >ส่งเมื่อ: {{ project[6].strftime('%Y-%m-%d %H:%M:%S')
-                    }}</small
-                  >
-                  {% endif %} {% elif project[2] == 2 %}
-                  <span class="badge bg-success">อนุมัติแล้ว</span>
-                  {% elif project[2] == 3 %}
-                  <span class="badge bg-danger">ตีกลับ</span>
-                  {% if project[7] %}
-                  <br /><small
-                    >ตีกลับเมื่อ: {{ project[7].strftime('%Y-%m-%d %H:%M:%S')
-                    }}</small
-                  >
-                  {% endif %} {% if project[5] %}
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-info mt-1"
-                    data-toggle="modal"
-                    data-target="#rejectReasonModal{{ project[0] }}"
-                  >
-                    ดูเหตุผลการตีกลับ
-                  </button>
-                  {% endif %} {% endif %}
-                </td>
-                <td>
-                  {% if project[3] %}
-                  <span class="badge bg-info">เปิดโครงการ</span>
-                  {% else %}
-                  <span class="badge bg-danger">ปิดโครงการ</span>
-                  {% endif %}
-                </td>
-                <td>
-                  {% if project[2] == 0 or project[2] == 3 %}
-<button onclick="confirmApproval({{ project[0] }})" class="btn btn-primary btn-sm">
-    ขออนุมัติ
-</button>
-{% endif %}
-                  <a
-                    href="{{ url_for('edit_project', project_id=project[0]) }}"
-                    class="btn btn-warning btn-sm"
-                    >แก้ไข</a
-                  >
-                </td>
-                <td>
-                  {% if project[2] == 2 and project[3] == 1 %}
-            <button class="btn btn-success btn-sm" onclick="completeProject({{ project[0] }})">สำเร็จโครงการ</button>
-        {% endif %}
-              </td>
-                <td>
-                  {% if project[4] %}
-<button onclick="confirmDownload({{ project[0] }}, '{{ project[1] }}')" class="btn btn-primary btn-sm">
-    ดาวน์โหลด PDF
-</button>
-{% else %}
-<span class="text-muted">ไม่มีไฟล์</span>
-{% endif %}
-                </td>
-              </tr>
-              {% endfor %}
+                {% for project in projects %}
+                <tr>
+                    <td>{{ project[1] }}</td>
+                    <td>{{ project[2].strftime('%d/%m/%Y') }}</td>
+                    <td>{{ project[3].strftime('%d/%m/%Y') }}</td>
+                    <td>{{ project[4] }}</td>
+                </tr>
+                {% endfor %}
             </tbody>
-          </table>
-        </div>
-      </div>
+        </table>
+    
+        {% if total_pages > 1 %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <li class="page-item {% if page == 1 %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('completed_projects', page=page-1) }}">ก่อนหน้า</a>
+                </li>
+                <li class="page-item active">
+                    <span class="page-link">หน้า {{ page }} จาก {{ total_pages }}</span>
+                </li>
+                <li class="page-item {% if page == total_pages %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('completed_projects', page=page+1) }}">ถัดไป</a>
+                </li>
+            </ul>
+        </nav>
+        {% endif %}
     </div>
-
-    <!-- Pagination -->
-    <nav aria-label="Page navigation">
-      <ul class="pagination justify-content-center">
-        {% for p in range(1, total_pages + 1) %}
-        <li class="page-item {% if p == page %}active{% endif %}">
-          <a class="page-link" href="{{ url_for('teacher_projects', page=p) }}"
-            >{{ p }}</a
-          >
-        </li>
-        {% endfor %}
-      </ul>
-    </nav>
-
-    <!-- Modals for reject reasons -->
-    {% for project in projects %} {% if project[2] == 3 and project[5] %}
-    <div
-      class="modal fade"
-      id="rejectReasonModal{{ project[0] }}"
-      tabindex="-1"
-      role="dialog"
-      aria-labelledby="rejectReasonModalLabel{{ project[0] }}"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="rejectReasonModalLabel{{ project[0] }}">
-              เหตุผลการตีกลับโครงการ
-            </h5>
-            <button
-              type="button"
-              class="close"
-              data-dismiss="modal"
-              aria-label="Close"
-            >
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">{{ project[5] }}</div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-dismiss="modal"
-            >
-              ปิด
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-    {% endif %} {% endfor %}
 
    
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
@@ -562,28 +450,6 @@ function confirmDownload(projectId, projectName) {
   });
 }
 </script>
-<script>
-  function completeProject(projectId) {
-      if (confirm('คุณแน่ใจหรือไม่ว่าต้องการทำเครื่องหมายว่าโครงการนี้เสร็จสิ้น?')) {
-          fetch('/complete_project/' + projectId, { method: 'POST' })
-              .then(response => response.json())
-              .then(data => {
-                  if (data.success) {
-                      // ลบแถวของโครงการออกจากตาราง
-                      document.getElementById('project-row-' + projectId).remove();
-                      alert('โครงการถูกทำเครื่องหมายว่าเสร็จสิ้นแล้ว');
-                      
-                      // ตรวจสอบว่ายังมีโครงการเหลืออยู่หรือไม่
-                      if (document.querySelectorAll('table tbody tr').length === 0) {
-                          // ถ้าไม่มีโครงการเหลือ แสดงข้อความ
-                          document.querySelector('table tbody').innerHTML = '<tr><td colspan="5" class="text-center">ไม่มีโครงการที่กำลังดำเนินการ</td></tr>';
-                      }
-                  } else {
-                      alert('เกิดข้อผิดพลาด: ' + data.error);
-                  }
-              });
-      }
-  }
-  </script>
+
   </body>
 </html>

@@ -338,6 +338,38 @@
         document.getElementById('approval').addEventListener('change', filterProjects);
         filterProjects();
     </script>
+    <script>
+        // ฟังก์ชันสำหรับอัพเดทสถานะโครงการ
+        function updateProjectStatus(projectId, newStatus) {
+            fetch('/update_project_status/' + projectId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({status: newStatus})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (newStatus === 4) {  // ถ้าสถานะเป็นเสร็จสิ้น
+                        // ลบแถวของโครงการออกจากตาราง
+                        document.getElementById('project-row-' + projectId).remove();
+                        
+                        // ตรวจสอบว่ายังมีโครงการเหลืออยู่หรือไม่
+                        if (document.querySelectorAll('table tbody tr').length === 0) {
+                            // ถ้าไม่มีโครงการเหลือ แสดงข้อความ
+                            document.querySelector('table tbody').innerHTML = '<tr><td colspan="5" class="text-center">ไม่มีโครงการที่รอการอนุมัติ</td></tr>';
+                        }
+                    } else {
+                        // อัพเดทการแสดงผลสถานะในตาราง
+                        // (คุณอาจต้องเพิ่มโค้ดส่วนนี้ตามการออกแบบ UI ของคุณ)
+                    }
+                } else {
+                    alert('เกิดข้อผิดพลาด: ' + data.error);
+                }
+            });
+        }
+        </script>
 </body>
 
 </html>

@@ -156,9 +156,17 @@ def home():
         (c[0], c[1], base64.b64encode(c[2]).decode("utf-8")) for c in constants
     ]
 
-    return render_template(
-        "home.html", constants=constants, page=page, total_pages=total_pages
-    )
+     # เพิ่มการดึงข้อมูล active_projects
+    with get_db_cursor() as (db, cursor):
+        cursor.execute("""
+            SELECT project_id, project_name, project_dotime, project_endtime
+            FROM project
+            WHERE project_statusStart = 1
+            ORDER BY project_dotime DESC
+        """)
+        active_projects = cursor.fetchall()
+
+    return render_template('home.html', constants=constants, page=page, total_pages=total_pages, active_projects=active_projects)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -303,8 +311,18 @@ def admin_home():
     except mysql.connector.Error as err:
         flash(f"Error: {err}", "danger")
         constants = []
+        
+    # เพิ่มการดึงข้อมูล active_projects
+    with get_db_cursor() as (db, cursor):
+        cursor.execute("""
+            SELECT project_id, project_name, project_dotime, project_endtime
+            FROM project
+            WHERE project_statusStart = 1
+            ORDER BY project_dotime DESC
+        """)
+        active_projects = cursor.fetchall()
 
-    return render_template("admin_home.html", constants=constants, page=page, total_pages=total_pages, search_query=search_query)
+    return render_template("admin_home.html", constants=constants, page=page, total_pages=total_pages, search_query=search_query,active_projects=active_projects)
 
 @app.route("/approve_project", methods=["GET", "POST"])
 @login_required("admin")
@@ -364,8 +382,9 @@ def approve_project():
                    CASE WHEN p.project_pdf IS NOT NULL THEN TRUE ELSE FALSE END as has_pdf,
                    p.project_submit_date, p.project_approve_date, p.project_reject_date
             FROM project p
+            WHERE p.project_status != 4  -- ไม่รวมโครงการที่เสร็จสิ้นแล้ว
             """
-            count_query = "SELECT COUNT(*) FROM project p"
+            count_query = "SELECT COUNT(*) FROM project p WHERE p.project_status != 4"
             where_clauses = []
             query_params = []
 
@@ -381,8 +400,9 @@ def approve_project():
                 query_params.append(f"%{search_query}%")
 
             if where_clauses:
-                base_query += " WHERE " + " AND ".join(where_clauses)
-                count_query += " WHERE " + " AND ".join(where_clauses)
+                additional_where = " AND " + " AND ".join(where_clauses)
+                base_query += additional_where
+                count_query += additional_where
 
             # Count total projects
             cursor.execute(count_query, query_params)
@@ -445,8 +465,16 @@ def teacher_home():
     constants = [
         (c[0], c[1], base64.b64encode(c[2]).decode("utf-8")) for c in constants
     ]
+    with get_db_cursor() as (db, cursor):
+        cursor.execute("""
+            SELECT project_id, project_name, project_dotime, project_endtime
+            FROM project
+            WHERE project_statusStart = 1
+            ORDER BY project_dotime DESC
+        """)
+        active_projects = cursor.fetchall()
 
-    return render_template("teacher_home.html", constants=constants, user=g.user, page=page, total_pages=total_pages, search_query=search_query)
+    return render_template("teacher_home.html", constants=constants, user=g.user, page=page, total_pages=total_pages, search_query=search_query,active_projects=active_projects)
 
 
 def get_projects():
@@ -523,7 +551,65 @@ def join_project(project_id):
         current_count=current_count,
     )
 
+@app.route("/complete_project/<int:project_id>", methods=["POST"])
+@login_required("teacher")
+def complete_project(project_id):
+    teacher_id = session["teacher_id"]
+    try:
+        with get_db_cursor() as (db, cursor):
+            # ตรวจสอบว่าโครงการเป็นของอาจารย์ที่ล็อกอินอยู่และมีสถานะที่ถูกต้อง
+            cursor.execute("SELECT project_status, project_statusStart FROM project WHERE project_id = %s AND teacher_id = %s", (project_id, teacher_id))
+            result = cursor.fetchone()
+            if not result or result[0] != 2 or result[1] != 1:  # 2 คือสถานะอนุมัติแล้ว, 1 คือกำลังดำเนินการ
+                return jsonify({"success": False, "error": "ไม่พบโครงการหรือโครงการไม่อยู่ในสถานะที่เหมาะสม"})
+            
+            # อัปเดตสถานะโครงการเป็นเสร็จสิ้น
+            cursor.execute("UPDATE project SET project_status = 4, project_statusStart = 2 WHERE project_id = %s", (project_id,))
+            db.commit()
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
 
+@app.route("/completed_projects")
+@login_required("teacher", "admin")
+def completed_projects():
+    page = request.args.get("page", 1, type=int)
+    per_page = 10  # จำนวนโครงการต่อหน้า
+
+    with get_db_cursor() as (db, cursor):
+        if g.user["type"] == "teacher":
+            cursor.execute("SELECT COUNT(*) FROM project WHERE teacher_id = %s AND project_status = 4", (g.user["id"],))
+        else:  # admin
+            cursor.execute("SELECT COUNT(*) FROM project WHERE project_status = 4")
+        
+        total_projects = cursor.fetchone()[0]
+        total_pages = ceil(total_projects / per_page)
+        offset = (page - 1) * per_page
+
+        if g.user["type"] == "teacher":
+            query = """
+                SELECT p.project_id, p.project_name, p.project_dotime, p.project_endtime, t.teacher_name
+                FROM project p
+                JOIN teacher t ON p.teacher_id = t.teacher_id
+                WHERE p.teacher_id = %s AND p.project_status = 4
+                ORDER BY p.project_endtime DESC
+                LIMIT %s OFFSET %s
+            """
+            cursor.execute(query, (g.user["id"], per_page, offset))
+        else:  # admin
+            query = """
+                SELECT p.project_id, p.project_name, p.project_dotime, p.project_endtime, t.teacher_name
+                FROM project p
+                JOIN teacher t ON p.teacher_id = t.teacher_id
+                WHERE p.project_status = 4
+                ORDER BY p.project_endtime DESC
+                LIMIT %s OFFSET %s
+            """
+            cursor.execute(query, (per_page, offset))
+        
+        completed_projects = cursor.fetchall()
+
+    return render_template("completed_projects.html", projects=completed_projects, page=page, total_pages=total_pages)
 @app.route("/project/<int:project_id>/participants")
 def project_participants(project_id):
     conn = get_db_connection()
@@ -1497,23 +1583,23 @@ def teacher_projects():
     per_page = 6  # จำนวนโปรเจคต่อหน้า
 
     with get_db_cursor() as (db, cursor):
-        # นับจำนวนโปรเจคทั้งหมด
+        # นับจำนวนโปรเจคทั้งหมดที่ยังไม่เสร็จสิ้น
         cursor.execute(
-            "SELECT COUNT(*) FROM project WHERE teacher_id = %s", (teacher_id,)
+            "SELECT COUNT(*) FROM project WHERE teacher_id = %s AND project_status != 4", (teacher_id,)
         )
         total_projects = cursor.fetchone()[0]
 
         # คำนวณจำนวนหน้าทั้งหมด
         total_pages = ceil(total_projects / per_page)
 
-        # ดึงข้อมูลโปรเจคตามหน้าที่ต้องการ
+        # ดึงข้อมูลโปรเจคตามหน้าที่ต้องการ (เฉพาะโครงการที่ยังไม่เสร็จสิ้น)
         offset = (page - 1) * per_page
         query = """
             SELECT project_id, project_name, project_status, project_statusStart, 
                    CASE WHEN project_pdf IS NOT NULL THEN TRUE ELSE FALSE END as has_pdf,
                    project_reject, project_submit_date, project_reject_date
             FROM project 
-            WHERE teacher_id = %s 
+            WHERE teacher_id = %s AND project_status != 4
             ORDER BY project_submit_date DESC
             LIMIT %s OFFSET %s
         """
@@ -1607,7 +1693,19 @@ def project_detail(project_id):
         current_count=current_count,
         is_logged_in=is_logged_in,
     )
-
+@app.route("/update_project_status/<int:project_id>", methods=["POST"])
+@login_required("admin")
+def update_project_status(project_id):
+    data = request.json
+    new_status = data.get('status')
+    
+    try:
+        with get_db_cursor() as (db, cursor):
+            cursor.execute("UPDATE project SET project_status = %s WHERE project_id = %s", (new_status, project_id))
+            db.commit()
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
 
 @app.route("/update_project_statusStart", methods=["POST"])
 @login_required("teacher")
