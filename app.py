@@ -680,7 +680,14 @@ def get_teachers_from_database():
         cursor.execute(query)
         teachers = cursor.fetchall()
     return teachers
-
+def get_admins_from_database():
+    with get_db_cursor() as (db, cursor):
+        query = """SELECT admin_id, admin_name, admin_username, 
+                   admin_password, admin_phone, admin_email
+                   FROM admin"""
+        cursor.execute(query)
+        admins = cursor.fetchall()
+    return admins
 
 @app.route("/download_project_pdf/<int:project_id>")
 @login_required("teacher", "admin")
@@ -1458,6 +1465,7 @@ def add_project():
 @app.route("/edit_basic_info", methods=["GET", "POST"])
 @login_required("admin")
 def edit_basic_info():
+    admins = get_admins_from_database()
     if request.method == "POST":
         branch_id = request.form["branch_id"]
         teacher_name = request.form["teacher_name"]
@@ -1465,15 +1473,20 @@ def edit_basic_info():
         teacher_password = request.form["teacher_password"]
         teacher_phone = request.form["teacher_phone"]
         teacher_email = request.form["teacher_email"]
-
+        admin_name = request.form["admin_name"]
+        admin_username = request.form["admin_username"]
+        admin_password = request.form["admin_password"]
+        admin_phone = request.form["admin_phone"]
+        admin_email = request.form["admin_email"]
         if "admin_id" in session:
             return redirect(url_for("admin_home"))
 
     if "admin_id" in session:
         branches = get_branches_from_database()
         teachers = get_teachers_from_database()
+        admins = get_admins_from_database()
         return render_template(
-            "edit_basic_info.html", teachers=teachers, branches=branches
+            "edit_basic_info.html", teachers=teachers, branches=branches ,admins=admins
         )
     else:
         return redirect(url_for("login"))
@@ -1998,6 +2011,58 @@ def edit_branch(branch_id):
             return redirect(url_for("edit_basic_info"))
         
     return render_template("edit_branch.html", branch=branch)
+@app.route("/add_admin", methods=["GET", "POST"])
+@login_required("admin")
+def add_admin():
+    if request.method == "POST":
+        admin_name = request.form["admin_name"]
+        admin_username = request.form["admin_username"]
+        admin_password = request.form["admin_password"]
+        admin_email = request.form["admin_email"]
+        
+        with get_db_cursor() as (db, cursor):
+            query = """INSERT INTO admin (admin_name, admin_username, admin_password, admin_email) 
+                       VALUES (%s, %s, %s, %s)"""
+            cursor.execute(query, (admin_name, admin_username, admin_password, admin_email))
+            db.commit()
+        
+        flash("เพิ่มข้อมูล Admin เรียบร้อยแล้ว", "success")
+        return redirect(url_for("edit_basic_info"))
+    
+    return render_template("add_admin.html")
+
+@app.route("/edit_admin/<int:admin_id>", methods=["GET", "POST"])
+@login_required("admin")
+def edit_admin(admin_id):
+    with get_db_cursor() as (db, cursor):
+        cursor.execute("SELECT * FROM admin WHERE admin_id = %s", (admin_id,))
+        admin = cursor.fetchone()
+
+    if not admin:
+        flash("ไม่พบข้อมูล Admin", "error")
+        return redirect(url_for("edit_basic_info"))
+
+    if request.method == "POST":
+        admin_name = request.form["admin_name"]
+        admin_username = request.form["admin_username"]
+        admin_password = request.form["admin_password"]
+        admin_email = request.form["admin_email"]
+
+        with get_db_cursor() as (db, cursor):
+            if admin_password:
+                query = """UPDATE admin SET admin_name = %s, admin_username = %s,
+                            admin_password = %s, admin_email = %s WHERE admin_id = %s"""
+                cursor.execute(query, (admin_name, admin_username, admin_password, admin_email, admin_id))
+            else:
+                query = """UPDATE admin SET admin_name = %s, admin_username = %s,
+                            admin_email = %s WHERE admin_id = %s"""
+                cursor.execute(query, (admin_name, admin_username, admin_email, admin_id))
+            db.commit()
+
+        flash("แก้ไขข้อมูล Admin เรียบร้อยแล้ว", "success")
+        return redirect(url_for("edit_basic_info"))
+
+    return render_template("edit_admin.html", admin=admin)
 
 # ตรวจสอบข้อมูลใหม่ทุกๆ 5 นาที
 if __name__ == "__main__":

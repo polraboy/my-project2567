@@ -166,7 +166,15 @@
             font-weight: bold;
             margin-bottom: 30px !important;
         }
-
+        .btn-custom-blue {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: white;
+        }
+        .btn-custom-blue:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
         .edit-mode-button {
             background-color: var(--primary-color);
             border-color: var(--primary-color);
@@ -328,7 +336,7 @@
             <div class="content-box">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 id="content-title">ข้อมูลข่าวสาร</h2>
-                    <button class="btn btn-primary" onclick="toggleContent()">โครงการที่กำลังจัด</button>
+                    <button class="btn btn-custom-blue" onclick="toggleContent()">โครงการที่กำลังจัด</button>
                 </div>
           
                 <div id="news-content">

@@ -322,27 +322,33 @@
     </div>
     {% endif %}
     <div class="container mt-5">
-        <h2 class="mb-4">โครงการที่เสร็จสิ้นแล้ว</h2>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>ชื่อโครงการ</th>
-                    <th>วันที่เริ่ม</th>
-                    <th>วันที่สิ้นสุด</th>
-                    <th>อาจารย์ผู้รับผิดชอบ</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for project in projects %}
-                <tr>
-                    <td>{{ project[1] }}</td>
-                    <td>{{ project[2].strftime('%d/%m/%Y') }}</td>
-                    <td>{{ project[3].strftime('%d/%m/%Y') }}</td>
-                    <td>{{ project[4] }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+      <h2 class="mb-4">โครงการที่เสร็จสิ้นแล้ว</h2>
+      <table class="table table-striped">
+          <thead>
+              <tr>
+                  <th>ชื่อโครงการ</th>
+                  <th>วันที่เริ่ม</th>
+                  <th>วันที่สิ้นสุด</th>
+                  <th>อาจารย์ผู้รับผิดชอบ</th>
+                  <th>ดาวน์โหลด PDF</th>
+              </tr>
+          </thead>
+          <tbody>
+              {% for project in projects %}
+              <tr>
+                  <td>{{ project[1] }}</td>
+                  <td>{{ project[2].strftime('%d/%m/%Y') }}</td>
+                  <td>{{ project[3].strftime('%d/%m/%Y') }}</td>
+                  <td>{{ project[4] }}</td>
+                  <td>
+                      <a href="{{ url_for('download_project_pdf', project_id=project[0]) }}" class="btn btn-primary btn-sm">ดาวน์โหลด PDF</a>
+                  </td>
+              </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+  
+  </div>
     
         {% if total_pages > 1 %}
         <nav aria-label="Page navigation">

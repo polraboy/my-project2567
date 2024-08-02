@@ -202,6 +202,7 @@
              <select id="data_type" class="form-control">
                  <option value="teacher">ข้อมูลอาจารย์</option>
                  <option value="branch">ข้อมูลสาขา</option>
+                 <option value="admin">ข้อมูลเจ้าหน้าที่</option>
              </select>
          </div>
 
@@ -263,53 +264,83 @@
                      {% endfor %}
                  </tbody>
              </table>
-         </div>
-
+            </div>
+<!-- ตารางข้อมูลอาจารย์ -->
+<div class="table-responsive" id="admin-table">
+  <table class="table table-striped table-hover">
+      <thead>
+          <tr>
+              <th><i class="fas fa-id-badge"></i> รหัสอาจารย์</th>
+              <th><i class="fas fa-user"></i> ชื่อ-สกุล</th>
+              <th><i class="fas fa-user-circle"></i> Username</th>
+              <th><i class="fas fa-key"></i> Password</th>
+              <th><i class="fas fa-phone"></i> เบอร์โทร</th>
+              <th><i class="fas fa-envelope"></i> อีเมล</th>
+              <th><i class="fas fa-graduation-cap"></i> สาขา</th>
+              <th><i class="fas fa-cogs"></i> การดำเนินการ</th>
+          </tr>
+      </thead>
+      <tbody>
+          {% for admin in admins %}
+          <tr>
+              <td>{{ admin[0] }}</td>
+              <td>{{ admin[1] }}</td>
+              <td>{{ admin[2] }}</td>
+              <td>{{ admin[3] }}</td>
+              <td>{{admin[4] }}</td>
+              <td>{{ admin[5] }}</td>
+              <td>{{ admin[6] }}</td>
+              <td>
+                <a href="{{ url_for('edit_admin', admin_id=admin[0]) }}" class="btn btn-primary btn-sm">แก้ไข</a>
+                  <button onclick="confirmDeleteTeacher({{ admin[0] }}, '{{ admin[1] }}')" class="btn btn-danger btn-sm">ลบ</button>
+              </td>
+          </tr>
+          {% endfor %}
+      </tbody>
+  </table>
+</div>
          <!-- ปุ่มเพิ่มข้อมูล -->
          <div class="mt-4">
              <a href="{{ url_for('add_teacher') }}" class="btn btn-success"><i class="fas fa-user-plus"></i> เพิ่มข้อมูลอาจารย์</a>
              <a href="{{ url_for('add_branch') }}" class="btn btn-success"><i class="fas fa-plus-circle"></i> เพิ่มข้อมูลสาขา</a>
+             <a href="{{ url_for('add_admin') }}" class="btn btn-success">เพิ่มข้อมูล Admin</a>
+            
          </div>
      </div>
  </div>
 
- <!-- Footer -->
-    <footer class="footer">
-      <div class="container">
-        <img src="/static/footer_image.jpg" alt="Logo" class="mb-3" />
-        <p>
-          คณะบริหารธุรกิจและเทคโนโลยีสารสนเทศ - มหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน
-          วิทยาเขตขอนแก่น
-        </p>
-        <p>150 ถ.ศรีจันทร์ ต.ในเมือง อ.เมือง จ.ขอนแก่น 40000</p>
-        <p>โทร: 043-283-705 | เวลาทำการ: 8.00-16.00 น.</p>
-      </div>
-    </footer>
+ 
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
       function filterData() {
-        var selectedValue = document.getElementById("data_type").value;
-        var teacherTable = document.getElementById("teacher-table");
-        var branchTable = document.getElementById("branch-table");
-
-        if (selectedValue === "teacher") {
-          teacherTable.style.display = "table";
-          branchTable.style.display = "none";
-        } else if (selectedValue === "branch") {
-          teacherTable.style.display = "none";
-          branchTable.style.display = "table";
-        }
+          var selectedValue = document.getElementById("data_type").value;
+          var teacherTable = document.getElementById("teacher-table");
+          var branchTable = document.getElementById("branch-table");
+          var adminTable = document.getElementById("admin-table");
+  
+          if (selectedValue === "teacher") {
+              teacherTable.style.display = "table";
+              branchTable.style.display = "none";
+              adminTable.style.display = "none";
+          } else if (selectedValue === "branch") {
+              teacherTable.style.display = "none";
+              branchTable.style.display = "table";
+              adminTable.style.display = "none";
+          } else if (selectedValue === "admin") {
+              teacherTable.style.display = "none";
+              branchTable.style.display = "none";
+              adminTable.style.display = "table";
+          }
       }
-
+  
       document
-        .getElementById("data_type")
-        .addEventListener("change", filterData);
+          .getElementById("data_type")
+          .addEventListener("change", filterData);
       filterData();
-
-    </script>
+  </script>
     <script>
       function confirmDeleteTeacher(teacherId, teacherName) {
           if (confirm(`คุณแน่ใจหรือไม่ที่จะลบอาจารย์ ${teacherName}?`)) {
