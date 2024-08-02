@@ -786,7 +786,7 @@ def create_project_pdf(project_data):
         # สร้างสไตล์
         styles = getSampleStyleSheet()
         styles["Normal"].fontName = "THSarabunNew"
-        styles["Normal"].fontSize = 12
+        styles["Normal"].fontSize = 9
         styles["Heading1"].fontName = "THSarabunNew"
         styles["Heading1"].fontSize = 14
         styles["Heading2"].fontName = "THSarabunNew"
@@ -798,6 +798,11 @@ def create_project_pdf(project_data):
                           fontSize=16,  # เพิ่มขนาดจาก 12 เป็น 16
                           alignment=1,  # 1 คือการจัดกึ่งกลาง
                           spaceAfter=6))
+        styles.add(ParagraphStyle(name='MultiLine', 
+                          parent=styles['Normal'],
+                          spaceBefore=1,
+                          spaceAfter=1,
+                          leading=12))  # ปรับระยะห่างระหว่างบรรทัด
         
         def header(canvas, doc):
             canvas.saveState()
@@ -851,11 +856,11 @@ def create_project_pdf(project_data):
         content = []
         content.append(Spacer(1, 1 * inch))  # เพิ่มระยะห่างด้านบน
         content.append(
-            Paragraph(f"1. ชื่อโครงการ: {project_data['project_name']}", styles["Normal"])
+            Paragraph(f"1. ชื่อโครงการ: {project_data['project_name']}", styles["Heading2"])
         )
         content.append(
             Paragraph(
-                f"2. ลักษณะโครงการ: {project_data['project_style']}", styles["Normal"]
+                f"2. ลักษณะโครงการ: {project_data['project_style']}", styles["Heading2"]
             )
         )
         content.append(
@@ -864,11 +869,11 @@ def create_project_pdf(project_data):
         content.append(
             Paragraph(
                 f"นโยบายที่ 4 : การศึกษา และเรียนรู้ การทะนุบำรุงศาสนา ศิลปะ และวัฒนธรรม",
-                styles["Normal"],
+                styles["Heading2"],
             )
         )
         content.append(
-            Paragraph(f"ผลผลิต : {project_data.get('output', '')}", styles["Normal"])
+            Paragraph(f"ผลผลิต : {project_data.get('output', '')}", styles["Heading2"])
         )
         content.append(
             Paragraph("4. ความสอดคล้องประเด็นยุทธศาสตร์ และตัวชี้วัด ของมหาวิทยาลัยเทคโนโลยีราชมงคลอีสาน ", styles["Heading2"])
@@ -876,7 +881,7 @@ def create_project_pdf(project_data):
         content.append(
             Paragraph(
                 f" {project_data.get('strategy', '')}",
-                styles["Normal"],
+                styles["Heading2"],
             )
         )
        
@@ -887,55 +892,55 @@ def create_project_pdf(project_data):
             )
         )
         content.append(
-            Paragraph(f"Cluster : {project_data.get('cluster', '')}", styles["Normal"])
+            Paragraph(f"Cluster : {project_data.get('cluster', '')}", styles["Heading2"])
         )
         content.append(
             Paragraph(
-                f"Commonality : {project_data.get('commonality', '')}", styles["Normal"]
+                f"Commonality : {project_data.get('commonality', '')}", styles["Heading2"]
             )
         )
         content.append(
             Paragraph(
                 f"Physical grouping : {project_data.get('physical_grouping', '')}",
-                styles["Normal"],
+                styles["Heading2"],
             )
         )
 
         content.append(
             Paragraph(
-                f"7. สถานที่ดำเนินงาน: {project_data['project_address']}", styles["Normal"]
+                f"7. สถานที่ดำเนินงาน: {project_data['project_address']}", styles["Heading2"]
             )
         )
         content.append(
             Paragraph(
                 f"8. ระยะเวลาดำเนินการ: {project_data['project_dotime']} ถึง {project_data['project_endtime']}",
-                styles["Normal"],
+                styles["Heading2"],
             )
         )
         content.append(Paragraph("9. หลักการและเหตุผล", styles["Heading2"]))
-        content.append(Paragraph(project_data.get("rationale", ""), styles["Normal"]))
+        content.append(Paragraph(project_data.get("rationale", ""), styles["Heading2"]))
         content.append(Paragraph("10. วัตถุประสงค์", styles["Heading2"]))
-        content.append(Paragraph(project_data.get("objectives", ""), styles["Normal"]))
+        content.append(Paragraph(project_data.get("objectives", ""), styles["Heading2"]))
         content.append(Paragraph("11. เป้าหมาย", styles["Heading2"]))
-        content.append(Paragraph(project_data.get("goals", ""), styles["Normal"]))
+        content.append(Paragraph(project_data.get("goals", ""), styles["Heading2"]))
         content.append(
             Paragraph(
                 f"11.1 เป้าหมายเชิงผลผลิต (Output): {project_data.get('output_target', '')}",
-                styles["Normal"],
+                styles["Heading2"],
             )
         )
         content.append(
             Paragraph(
                 f"11.2 เป้าหมายเชิงผลลัพธ์ (Outcome): {project_data.get('outcome_target', '')}",
-                styles["Normal"],
+                styles["Heading2"],
             )
         )
         content.append(Paragraph("12. กิจกรรมดำเนินงาน", styles["Heading2"]))
         content.append(
-            Paragraph(project_data.get("project_activity", ""), styles["Normal"])
+            Paragraph(project_data.get("project_activity", ""), styles["Heading2"])
         )
         content.append(Paragraph("13. กลุ่มเป้าหมายผู้เข้าร่วมโครงการ", styles["Heading2"]))
-        content.append(Paragraph(project_data["project_target"], styles["Normal"]))
+        content.append(Paragraph(project_data["project_target"], styles["Heading2"]))
 
         content.append(Paragraph("14. งบประมาณ", styles["Heading2"]))
         content.append(
@@ -946,13 +951,13 @@ def create_project_pdf(project_data):
         )
         content.append(Paragraph("14.1 ค่าตอบแทน", styles["Heading3"]))
         for item in project_data["compensation"]:
-            content.append(Paragraph(f"{item['description']}: {item['amount']} บาท", styles["Normal"]))
-        content.append(Paragraph(f"รวมค่าตอบแทน: {project_data['total_compensation']} บาท", styles["Normal"]))
+            content.append(Paragraph(f"{item['description']}: {item['amount']} บาท", styles["Heading2"]))
+        content.append(Paragraph(f"รวมค่าตอบแทน: {project_data['total_compensation']} บาท", styles["Heading2"]))
 
         content.append(Paragraph("14.2 ค่าใช้สอย", styles["Heading3"]))
         for item in project_data["expenses"]:
-            content.append(Paragraph(f"{item['description']}: {item['amount']} บาท", styles["Normal"]))
-        content.append(Paragraph(f"รวมค่าใช้สอย: {project_data['total_expenses']} บาท", styles["Normal"]))
+            content.append(Paragraph(f"{item['description']}: {item['amount']} บาท", styles["Heading2"]))
+        content.append(Paragraph(f"รวมค่าใช้สอย: {project_data['total_expenses']} บาท", styles["Heading2"]))
           
 
         # แผนปฏิบัติงาน (ใช้ตารางตามต้นฉบับ)
@@ -984,13 +989,19 @@ def create_project_pdf(project_data):
             ]
             table_data.append(row)
 
+        quantity_indicator = project_data.get('quantity_indicator', '')
+        quality_indicator = project_data.get('quality_indicator', '')
+        time_indicator = project_data.get('time_indicator', '')
+        cost_indicator = project_data.get('cost_indicator', '')
+        lines = quantity_indicator.split('\n')
+        formatted_text = '<br/>'.join(lines)
         # เพิ่มส่วนของตัวชี้วัดเป้าหมายผลผลิต
         table_data.extend([
             ["ตัวชี้วัดเป้าหมายผลผลิต", ""] + [""] * 11,
-            ["เชิงปริมาณ", project_data.get('quantity_indicator', '')] + [""] * 11,
-            ["เชิงคุณภาพ", project_data.get('quality_indicator', '')] + [""] * 11,
-            ["เชิงเวลา", project_data.get('time_indicator', '')] + [""] * 11,
-            ["เชิงค่าใช้จ่าย", project_data.get('cost_indicator', '')] + [""] * 11,
+            ["เชิงปริมาณ", Paragraph(formatted_text, styles['MultiLine'])] + [""] * 11,
+            ["เชิงคุณภาพ", Paragraph(quality_indicator, styles['MultiLine'])] + [""] * 11,
+            ["เชิงเวลา", Paragraph(time_indicator, styles['MultiLine'])] + [""] * 11,
+            ["เชิงค่าใช้จ่าย", Paragraph(cost_indicator, styles['MultiLine'])] + [""] * 11,
         ])
 
         col_widths = [8 * cm] + [0.7 * cm] * 12
@@ -1009,6 +1020,10 @@ def create_project_pdf(project_data):
             ('SPAN', (1, -2), (-1, -2)),  # เชิงเวลา
             ('SPAN', (1, -1), (-1, -1)),  # เชิงค่าใช้จ่าย
             ('BACKGROUND', (0, -5), (0, -1), colors.lightgrey),
+            ('LEFTPADDING', (1, 0), (1, -1), 6),
+            ('RIGHTPADDING', (1, 0), (1, -1), 6),
+            ('TOPPADDING', (1, 0), (1, -1), 3),
+            ('BOTTOMPADDING', (1, 0), (1, -1), 3),
         ]))
 
         content.append(table)
@@ -1266,10 +1281,19 @@ def check_project_name():
         data = request.json
         app.logger.info(f"Received data: {data}")
         project_name = data.get('project_name')
+        project_id = data.get('project_id')  # รับ project_id เพิ่มเติม
         
         with get_db_cursor() as (db, cursor):
-            query = "SELECT COUNT(*) FROM project WHERE project_name = %s"
-            cursor.execute(query, (project_name,))
+            if project_id:  # กรณีแก้ไขโครงการ
+                query = """
+                SELECT COUNT(*) FROM project 
+                WHERE project_name = %s AND project_id != %s
+                """
+                cursor.execute(query, (project_name, project_id))
+            else:  # กรณีเพิ่มโครงการใหม่
+                query = "SELECT COUNT(*) FROM project WHERE project_name = %s"
+                cursor.execute(query, (project_name,))
+            
             count = cursor.fetchone()[0]
         
         result = {'exists': count > 0}

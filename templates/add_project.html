@@ -310,7 +310,7 @@
                 <textarea class="form-control" id="objectives" name="objectives" rows="3"></textarea>
             </div>
             <div class="form-group">
-                <label for="goals">เป้าหมาย:</label>
+                <label for="goals">เป้าหมาย (ให้ระบุกลุ่มเป้าหมายให้ชัดเจน):</label>
                 <textarea class="form-control" id="goals" name="goals" rows="3"></textarea>
             </div>
             <div class="form-group">
@@ -327,18 +327,18 @@
             </div>
 
                 <div class="col-md-12 left-align">
-                    <label for="project_target">13. กลุ่มเป้าหมายผู้เข้าร่วมโครงการ (ให้ระบุกลุ่มเป้าหมาย และจำนวนให้ชัดเจน)</label>
+                    <label for="project_target">13. กลุ่มเป้าหมายผู้เข้าร่วมโครงการ (ให้ระบุจำนวนให้ชัดเจน)</label>
                     <textarea class="form-control" id="project_target" name="project_target" rows="3" required></textarea>
                 </div>
         
-                <h3 class="mt-4">14. งบประมาณ</h3>
+                <h3 class="mt-4"> งบประมาณ</h3>
                 <div class="expense-form">
                     <div class="form-group">
                         <label for="project_budget">งบประมาณโครงการ:</label>
                         <input type="number" class="form-control" id="project_budget" name="project_budget" required placeholder="งบประมาณโครงการ">
                     </div>
                     
-                    <h4>14.1 ค่าตอบแทน</h4>
+                    <h4> ค่าตอบแทน</h4>
                     <div id="compensation-items">
                         <div class="expense-item">
                             <input type="text" class="form-control expense-description" name="compensation_description[]" placeholder="รายการค่าตอบแทน">
@@ -351,7 +351,7 @@
                         รวมค่าตอบแทน <span id="compensationSubtotal">0</span> <span class="currency">บาท</span>
                     </div>
                 
-                    <h4>14.2 ค่าใช้สอย</h4>
+                    <h4> ค่าใช้สอย</h4>
                     <div id="expense-items">
                         <div class="expense-item">
                             <input type="text" class="form-control expense-description" name="expense_description[]" placeholder="รายการค่าใช้สอย">
@@ -374,7 +374,7 @@
                         <label for="note" class="note">หมายเหตุ: งบประมาณ ให้ระบุรายละเอียดการคำนวณรายการค่าใช้จ่ายที่ต้องการให้ชัดเจน ตามระเบียบ กระทรวงการคลัง และตามนโยบายมาตรการประหยัดของมหาวิทยาลัยฯ ทั้งนี้ให้ผู้รับผิดชอบโครงการ ประสานในส่วนนี้กับกองคลัง หรืองานคลังแต่ละวิทยาเขต ก่อนเสนอขออนุมัติโครงการ</label>
                     
                     
-                        <h3 class="mt-4">15. แผนปฏิบัติงาน (แผนงาน) แผนการใช้จ่ายงบประมาณ (แผนเงิน) และตัวชี้วัดเป้าหมายผลผลิต</h3>
+                        <h3 class="mt-4"> แผนปฏิบัติงาน (แผนงาน) แผนการใช้จ่ายงบประมาณ (แผนเงิน) และตัวชี้วัดเป้าหมายผลผลิต</h3>
 <div class="table-responsive">
     <table class="table table-bordered">
         <thead>
@@ -429,12 +429,11 @@
     <div id="quantityIndicators">
         <div class="input-group mb-2">
             <label for="quantity_indicator"></label>
-    <input type="text" class="form-control" id="quantity_indicator" name="quantity_indicator">
-                <button class="btn btn-outline-secondary remove-indicator" type="button">ลบ</button>
+            <textarea type="text" class="form-control" id="quantity_indicator" rows="2"name="quantity_indicator"></textarea>
             </div>
         </div>
     </div>
-    <button type="button" class="btn btn-secondary btn-sm mt-2" id="add-quantity-indicator">เพิ่มตัวชี้วัดเชิงปริมาณ</button>
+    
 </div>
 
 <div class="form-group">
@@ -453,9 +452,9 @@
 </div>
                         
                         <div class="form-group">
-                            <label>16. ผลที่คาดว่าจะเกิด (Impact):</label>
-                            <textarea class="form-control" id="expected_results" name="expected_results" rows="4" placeholder= "16.1"required></textarea>
-                            <textarea class="form-control" id="expected_results" name="expected_results" rows="4" placeholder= "16.2" required></textarea>
+                            <label> ผลที่คาดว่าจะเกิด (Impact):</label>
+                            <textarea class="form-control" id="expected_results" name="expected_results" rows="4" placeholder= ""required></textarea>
+                            
                         </div>
                     <div class="col-md-12">
                         <label for="note" class="note">หมายเหตุ:   กรุณากรอกข้อมูลให้ครบถ้วนสมบูรณ์ เพื่อประกอบการพิจารณางบประมาณ</label>
@@ -472,10 +471,6 @@
                         <label>ตำแหน่ง:</label>
                      <p class="form-control">อาจารย์ประจำสาขา{{ teacher_info[1] }}
                        <br>  
-                      
-                       <div class="form-group">
-                        <label>เบอร์โทรศัพท์:</label>
-                        <input type="tel" class="form-control" name="phone" required>
                         <div class="text-center mt-4">
                             <button type="submit" class="btn btn-primary">บันทึกการแก้ไขโครงการ</button>
                             <a href="{{ url_for('teacher_projects') }}" class="btn btn-secondary">ยกเลิก</a>
@@ -530,25 +525,6 @@
                     
                 `;
                 activityCount++;
-            });
-        
-            document.getElementById('add-quantity-indicator').addEventListener('click', function() {
-                const container = document.getElementById('quantityIndicators');
-                const newIndicator = document.createElement('div');
-                newIndicator.className = 'input-group mb-2';
-                newIndicator.innerHTML = `
-                    <input type="text" class="form-control" name="quantity_indicator[]"rows="3" required>
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-secondary remove-indicator" type="button">ลบ</button>
-                    </div>
-                `;
-                container.appendChild(newIndicator);
-            });
-        
-            document.addEventListener('click', function(e) {
-                if (e.target && e.target.classList.contains('remove-indicator')) {
-                    e.target.closest('.input-group').remove();
-                }
             });
         });
     </script>
