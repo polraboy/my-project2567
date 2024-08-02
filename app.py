@@ -168,6 +168,19 @@ def home():
 
     return render_template('home.html', constants=constants, page=page, total_pages=total_pages, active_projects=active_projects)
 
+@app.route("/delete_constant", methods=["POST"])
+@login_required("admin")
+def delete_constant():
+    constant_headname = request.form.get("constant_headname")
+    if constant_headname:
+        with get_db_cursor() as (db, cursor):
+            query = "DELETE FROM constants WHERE constants_headname = %s"
+            cursor.execute(query, (constant_headname,))
+            db.commit()
+        flash("ลบข่าวสารเรียบร้อยแล้ว", "success")
+    else:
+        flash("ไม่พบข้อมูลข่าวสารที่ต้องการลบ", "error")
+    return redirect(url_for("admin_home"))
 
 
 

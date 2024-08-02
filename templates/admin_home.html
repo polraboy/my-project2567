@@ -81,6 +81,15 @@
             margin-top: 30px;
             margin-bottom: 50px;
         }
+        .card-body {
+            position: relative;
+            padding-bottom: 40px; /* เพิ่มพื้นที่ด้านล่างสำหรับปุ่มลบ */
+        }
+        .card-body form {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+        }
 
         .btn-primary {
             background-color: var(--primary-color);
@@ -349,6 +358,10 @@
                                     <div class="card-body">
                                         <h5 class="card-title">{{ constant[0] }}</h5>
                                         <p>{{ constant[1] }}</p>
+                                        <form action="{{ url_for('delete_constant') }}" method="POST" onsubmit="return confirm('คุณแน่ใจหรือไม่ที่จะลบข่าวสารนี้?');">
+                                            <input type="hidden" name="constant_headname" value="{{ constant[0] }}">
+                                            <button type="submit" class="btn btn-danger btn-sm">ลบ</button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
